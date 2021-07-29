@@ -55,6 +55,7 @@ function createChatClientObject() {
             addChatMessage("+ Chat client created for the user: " + userIdentity);
             //
             // thisConversationsClient.getSubscribedConversations();
+            addChatMessage("+ Participant is subscribed to conversations: ");
             thisConversationsClient.getSubscribedConversations().then(function (paginator) {
                 for (i = 0; i < paginator.items.length; i++) {
                     const channel = paginator.items[i];
@@ -216,17 +217,23 @@ function listChannels() {
         return;
     }
     chatChannelName = $("#channelName").val();
-    addChatMessage("+ List of public channels (+ uniqueName: friendlyName):");
-    thisConversationsClient.getPublicChannelDescriptors().then(function (paginator) {
-        for (i = 0; i < paginator.items.length; i++) {
-            const channel = paginator.items[i];
-            let listString = '++ ' + channel.uniqueName + ": " + channel.friendlyName + ": " + channel.createdBy;
-            if (channel.uniqueName === chatChannelName) {
-                listString += " *";
-            }
-            addChatMessage(listString);
+    addChatMessage("+ List of conversations.");
+    logger("Refresh the token using client id: " + userIdentity);
+    var jqxhr = $.get("listConversations", function (returnString) {
+        if (returnString === "-1") {
+            logger("-- Error retrieving conversation list.");
+            return;
         }
+        if (returnString === "0") {
+            logger("+ No conversations to list.");
+            return;
+        }
+        logger("++ List retrieved.");
+        // -------------------------------
+        addChatMessage(returnString);
         addChatMessage("+ End list.");
+    }).fail(function () {
+        logger("- Error retrieving conversation list.");
     });
 }
 
@@ -413,7 +420,7 @@ function setButtons(activity) {
             $('#btn-list').prop('disabled', false);
             $('#btn-join').prop('disabled', false);
             //
-            $('#btn-delete').prop('disabled', false);
+            // $('#btn-delete').prop('disabled', false);
             $('#btn-chat').prop('disabled', true);
             $('#btn-members').prop('disabled', true);
             $('#btn-count').prop('disabled', true);
@@ -426,11 +433,11 @@ function setButtons(activity) {
             $('#btn-list').prop('disabled', false);
             $('#btn-join').prop('disabled', false);
             //
-            $('#btn-delete').prop('disabled', false);
+            // $('#btn-delete').prop('disabled', false);
             $('#btn-chat').prop('disabled', false);
-            $('#btn-members').prop('disabled', false);
-            $('#btn-count').prop('disabled', false);
-            $('#btn-countzero').prop('disabled', false);
+            // $('#btn-members').prop('disabled', false);
+            // $('#btn-count').prop('disabled', false);
+            // $('#btn-countzero').prop('disabled', false);
             $('#btn-listallmessages').prop('disabled', false);
             break;
     }
@@ -451,7 +458,7 @@ function addChatMessage(message) {
 }
 window.onload = function () {
     log.value = "+++ Start.";
-    chatMessages.value = "+++ Ready to Create Conversations Client, then join a channel and chat.";
+    chatMessages.value = "+++ Ready to Create Conversations Client, then join a conversation and chat.";
     activateChatBox();
     setButtons("init");
 };

@@ -28,6 +28,8 @@ var API_KEY_SECRET = process.env.API_KEY_SECRET;
 // -----------------------------------------------------------------------------
 console.log("+++ Chat program is starting up.");
 
+var client = require('twilio')(process.env.MASTER_ACCOUNT_SID, process.env.MASTER_AUTH_TOKEN);
+
 // -----------------------------------------------------------------------------
 var returnMessage = '';
 function sayMessage(message) {
@@ -65,6 +67,10 @@ function generateToken(theIdentity) {
 }
 
 // -----------------------------------------------------------------------------
+function listConversations() {
+}
+
+// -----------------------------------------------------------------------------
 // -----------------------------------------------------------------------------
 // Web server interface to call functions.
 // -----------------------------------------------------------------------------
@@ -84,6 +90,56 @@ app.get('/generateToken', function (req, res) {
     } else {
         sayMessage("- Parameter required: identity.");
         res.send(0);
+    }
+});
+
+// -----------------------------------------------------------------------------
+app.get('/listConversations', function (req, res) {
+    sayMessage("+ Get list of conversations.");
+    var theResult = "";
+    client.conversations.services(CONVERSATIONS_SERVICE_SID).conversations.list({limit: 20})
+            .then(conversations => {
+                conversations.forEach(c => {
+                    console.log(
+                            "+ Conversations SID: " + c.sid
+                            + " " + c.friendlyName
+                            );
+                    theResult = theResult
+                            + c.sid + " "
+                            + c.friendlyName + "\n";
+                });
+                res.send(theResult);
+            });
+});
+
+// -----------------------------------------------------------------------------
+app.get('/joinConversation', function (req, res) {
+    // localhost:8000/joinConversation?identity=dave3&conversationSid=
+    sayMessage("+ Join a conversation.");
+    if (req.query.identity) {
+        if (req.query.conversationSid) {
+            participantIdentity = req.query.identity;
+            conversationSid = req.query.conversationSid;
+            sayMessage("+ Parameter identity: " + participantIdentity + ", conversationSid: " + req.query.conversationSid);
+            client.conversations.services(CONVERSATIONS_SERVICE_SID).conversations(conversationSid)
+                    .participants
+                    .create({
+                        identity: participantIdentity,
+                        attributes: JSON.stringify({name: participantIdentity})
+                    })
+                    .then(participant => {
+                        console.log(
+                                "+ Created participant, SID: " + participant.sid
+                                );
+                        res.send(participant.sid);
+                    });
+        } else {
+            sayMessage("- Parameter required: conversationSid.");
+            res.status(400).send('HTTP Error 400. Parameter required: conversationSid.');
+        }
+    } else {
+        sayMessage("- Parameter required: identity.");
+        res.status(400).send('HTTP Error 400. Parameter required: identity.');
     }
 });
 

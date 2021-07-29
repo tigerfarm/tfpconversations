@@ -1,36 +1,32 @@
-# Chat Web Application
+# Twilio Conversations Web Application
 
-This application is ready to run.
-To deploy to Heroku, you will need an [Heroku account](https://heroku.com/) to host your application.
-Once you have an account, stay logged in for the deployment and configuration.
+Add the following as environment variables:
++ MASTER_ACCOUNT_SID : your Twilio account SID (starts with "AC", available from Twilio Console)
++ CONVERSATIONS_SERVICE_SID : your Conversations service SID (starts with IS).
++ API_KEY : one of your Twilio API keys
++ API_KEY_SECRET : the matching API key secret string
++ PORT : optional, web server port. Default port is 8000.
 
-[![Deploy to Heroku](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy?template=https://github.com/tigerfarm/tigchatweb)
+Client Application screen print:
 
-When you deploy to Heroku, you will be prompted for an app name. 
-The name needs to be unique. Example, enter your name+app (example: davidapp). 
-Click Deploy app. Once the application is deployed, click Manage app. 
-Now, set the Heroku project environment variables by clicking Settings. 
-Click Reveal Config Vars.
-
-Add the following key value pairs:
-- ACCOUNT_SID : your Twilio account SID (starts with "AC", available from Twilio Console)
-- CHAT_SERVICE_SID : your Chat service SID
-- CHAT_API_KEY : your Chat API key
-- CHAT_API_KEY_SECRET : your Chat API key secret
-
-Chat Client Application screen print:
-
-<img src="ChatClient.jpg" width="400"/>
+<img src="clientapp.jpg" width="400"/>
 
 ### Requirements:
 
-- Twilio account. A free Trial account will work.
-- To run locally on your computer using the include web server, install Node.JS and the Twilio Node.JS helper library.
++ Twilio account. A free Trial account will work.
++ To run locally on your computer using the include web server, install Node.JS, the Twilio Node.JS helper library, 
+    and Node express.
+
+Install the Twilio SDK helper library. Install Node Express for running Node web servers.
+````
+$ npm install twilio
+$ npm install express
+````
 
 ## Files
 
-- [docroot/index.html](docroot/index.html) : Chat client HTML
-- [docroot/chat.js](docroot/chat.js) : Chat client JavaScript
+- [docroot/index.html](docroot/index.html) : Client HTML
+- [docroot/chat.js](docroot/chat.js) : Client JavaScript
 - [docroot/custom/chat.css](docroot/custom/chat.css) : Chat client styles, CSS
 
 - [webserver.js](webserver.js) : a NodeJS Express HTTP Server that serves the Chat client files.
