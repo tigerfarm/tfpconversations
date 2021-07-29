@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Conversations Client</title>
+        <link href="favicon.ico" rel="shortcut icon" type="image/x-icon">
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+        <script src="https://code.jquery.com/jquery-2.2.4.min.js"></script>
+        <!-- http://media.twiliocdn.com/sdk/js/conversations/releases/1.2.3/docs/ -->
+        <script src="https://media.twiliocdn.com/sdk/js/conversations/v1.2/twilio-conversations.min.js"></script>
+        <link rel="stylesheet" href="custom/chat.css">
+        <script src="chat.js"></script>
+    </head>
+    <body>
+        <script type="text/javascript" src="custom/pageTop.js"></script>
+        <div id="chatBox">
+            <div class="panelTitle">
+                Conversations Application using Twilio Conversations
+            </div>
+            <div class="panelArea">
+                <textarea id="chatMessages"></textarea>
+            </div>
+            <div class="panelArea">
+                <input id="message" class="form-control" type="text" disabled/>
+            </div>
+            <div style="margin-top: 6px;">
+                <table>
+                    <tr>
+                        <td><button class="abutton" id="btn-createChatClient">Create Client</button></td>
+                        <td><button class="abutton" id="btn-list">List Channels</button></td>
+                        <td><button class="abutton" id="btn-join">Join</button></td>
+                        <td><button class="abutton" id="btn-delete">Delete</button></td>
+                        <td><button class="abutton" id="btn-chat">Send</button></td>
+                        <td><button class="abutton" id="btn-members">List Members</button></td>
+                        <td><button class="abutton" id="btn-listallmessages">History</button></td>
+                        <td><button class="abutton" id="btn-countzero">Set count zero</button></td>
+                    </tr>
+                </table>
+            </div>
+            <div class="panelArea">
+                <table>
+                    <tr><td>Username </td><td><input id="username" type="text"/></td><td id="cUsername"></td></tr>
+                    <tr><td>Channel name </td><td><input id="channelName" type="text"/></td></tr>
+                    <tr><td>Channel description &nbsp;</td><td><input id="channelDescription" type="text"/></td></tr>
+                </table>
+            </div>
+        </div>
+        <div id="logBox">
+            <div class="panelTitle">
+                Log messages for developers
+            </div>
+            <div class="panelArea">
+                <textarea id="log"></textarea>
+            </div>
+            <div class="panelArea">
+                <table>
+                    <tr>
+                        <td><button class="abutton" id="clearLog" onclick="clearLog();">Clear</button></td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+        <script type="text/javascript" src="custom/pageBottom.js"></script>
+    </body>
+</html>

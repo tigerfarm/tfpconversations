@@ -1,0 +1,29 @@
+{
+  "name": "chatapp",
+  "version": "1.2.0",
+  "description": "Node.js Express Chat web application",
+  "engines": {
+    "node": "10.x"
+  },
+  "main": "chatserver.js",
+  "scripts": {
+    "start": "node chatserver.js"
+  },
+  "dependencies": {
+    "express": "^4.17.1",
+    "twilio": "^3.31.0",
+    "twilio-chat": "^3.2.3"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/heroku/tigchat"
+  },
+  "keywords": [
+    "twilio",
+    "chat",
+    "node",
+    "express",
+    "heroku"
+  ],
+  "license": "MIT"
+}
