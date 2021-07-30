@@ -116,7 +116,7 @@ select option {
 }
 
 .abutton {
-    width: 76px;
+    width: 82px;
     height: 40px;
     border-radius: 9px;
     color: white;
@@ -125,7 +125,7 @@ select option {
     font-size: 0.8em; 
 }
 .abutton:disabled {
-    width: 76px;
+    width: 82px;
     height: 40px;
     border-radius: 9px;
     color: white;

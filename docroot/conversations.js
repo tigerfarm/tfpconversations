@@ -2,12 +2,12 @@
 // Documentation:       https://media.twiliocdn.com/sdk/js/conversations/releases/1.2.1/docs/
 //                      https://media.twiliocdn.com/sdk/js/conversations/releases/1.2.1/docs/Client.html
 //                      https://media.twiliocdn.com/sdk/js/conversations/releases/1.2.1/docs/Conversation.htm
-// 
-// Documentation:       https://www.twilio.com/docs/chat/rest/channels
-// Server side delete:  https://www.twilio.com/docs/chat/rest/channels
-// Message properties:  https://www.twilio.com/docs/chat/rest/messages
-
-// Members:             https://www.twilio.com/docs/chat/rest/member-resource
+// Resources:
+// Service:             https://www.twilio.com/docs/conversations/api/service-resource
+// Conversation:        https://www.twilio.com/docs/conversations/api/conversation-resource
+// Conversation Partic: https://www.twilio.com/docs/conversations/api/conversation-participant-resource
+// Conversation Msg:    https://www.twilio.com/docs/conversations/api/conversation-message-resource
+// User:                https://www.twilio.com/docs/conversations/api/user-resource
 // Membersproperties:   https://www.twilio.com/docs/chat/rest/member-resource#member-properties
 // 
 // Users:               https://www.twilio.com/docs/chat/rest/user-resource
@@ -124,7 +124,7 @@ function onTokenAboutToExpire() {
 
 // -----------------------------------------------------------------------------
 function joinChatConversation() {
-    logger("Function: joinChatConversation()");
+    logger("+ Function: joinChatConversation()");
     if (thisConversationsClient === "") {
         addChatMessage("First, create a Chat Client.");
         logger("Required: Chat Client.");
@@ -137,64 +137,37 @@ function joinChatConversation() {
         return;
     }
     addChatMessage("+ Join the conversation: " + conversationName + ", as identity: " + userIdentity);
-    
-    // Stacy need the conversation SID.
-    var jqxhr = $.get("joinConversation?conversationsid=" + conversationName + "&identity=" + userIdentity, function (returnString) {
-            logger("+ returnString :" + returnString + ":");
+    var jqxhr = $.get("joinConversation?conversationid=" + conversationName + "&identity=" + userIdentity, function (returnString) {
+        logger("+ returnString :" + returnString + ":");
         if (returnString === "-1") {
-            logger("-- Error retrieving conversation list.");
+            createConversation();
             return;
         }
-        if (returnString === "0") {
-            logger("+ No conversations to list.");
+        if (returnString === "-2") {
+            logger("-- Error -2.");
             return;
         }
-        logger("++ List retrieved.");
-        // -------------------------------
-        addChatMessage(returnString);
-        addChatMessage("+ End list.");
+        addChatMessage("+ Participant joined the conversation: " + conversationName + ". Now, get the conversation object.");
+        thisConversationsClient.getConversationByUniqueName(conversationName)
+                .then(function (channel) {
+                    logger("++ Conversation exists: " + conversationName);
+                    theConversation = channel;
+                    joinChannel();
+                    logger("++ Channel Attributes: "
+                            // + channel.getAttributes()
+                            + " SID: " + channel.sid
+                            + " name: " + channel.friendlyName
+                            );
+                })
+                .catch(function () {
+                    logger("- Error: getConversationByUniqueName( " + conversationName + " )");
+                });
     }).fail(function () {
-        logger("- Error retrieving conversation list.");
+        logger("- Error joining conversation.");
     });
-
-    joinConversation();
-}
-
-function createConversation() {
-    // http://media.twiliocdn.com/sdk/js/conversations/releases/1.2.1/docs/Client.html#createConversation__anchor
-    logger("+ Create the channel if it doesn't exist: " + chatChannelName);
-    thisConversationsClient.createConversation({
-        uniqueName: chatChannelName,
-        friendlyName: chatChannelName
-    })
-            .then(channel => {
-                theConversation = channel;
-                logger("Conversation exists: " + chatChannelName + " : " + theConversation);
-                joinConversation();
-                logger("+ Conversation Attributes: "
-                        // + channel.getAttributes()
-                        + " SID: " + channel.sid
-                        + " name: " + channel.friendlyName
-                        );
-            })
-            .catch(function () {
-                logger("- Error, failed to create the conversation.");
-            });
 }
 
 function joinConversation() {
-    if (thisConversationsClient === "") {
-        addChatMessage("First, create a Chat Client.");
-        logger("Required: Chat Client.");
-        return;
-    }
-    chatChannelName = $("#channelName").val();
-    if (chatChannelName === "") {
-        addChatMessage("Enter a Channel name.");
-        logger("Required: Channel name.");
-        return;
-    }
-
     theConversation.join().then(function (channel) {
         logger('Joined channel as ' + userIdentity);
         addChatMessage("+++ You can start chatting. Channel joined: " + channel + ".");
@@ -220,8 +193,30 @@ function joinConversation() {
     });
 }
 
+function createConversation() {
+    // http://media.twiliocdn.com/sdk/js/conversations/releases/1.2.1/docs/Client.html#createConversation__anchor
+    logger("+ Create the conversation if it doesn't exist: " + chatChannelName);
+    thisConversationsClient.createConversation({
+        uniqueName: chatChannelName,
+        friendlyName: chatChannelName
+    })
+            .then(channel => {
+                theConversation = channel;
+                logger("Conversation exists: " + chatChannelName + " : " + theConversation);
+                joinConversation();
+                logger("+ Conversation Attributes: "
+                        // + channel.getAttributes()
+                        + " SID: " + channel.sid
+                        + " name: " + channel.friendlyName
+                        );
+            })
+            .catch(function () {
+                logger("- Error, failed to create the conversation.");
+            });
+}
+
 // -----------------------------------------------------------------------------
-function listChannels() {
+function listConversations() {
     if (thisConversationsClient === "") {
         addChatMessage("First, create a Chat Client.");
         logger("Required: Chat Client.");
@@ -248,6 +243,7 @@ function listChannels() {
     });
 }
 
+// -----------------------------------------------------------------------------
 function deleteChannel() {
     logger("Function: deleteChannel()");
     if (thisConversationsClient === "") {
@@ -373,7 +369,7 @@ function activateChatBox() {
         joinChatConversation();
     });
     $("#btn-list").click(function () {
-        listChannels();
+        listConversations();
     });
     $("#btn-delete").click(function () {
         deleteChannel();

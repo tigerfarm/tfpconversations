@@ -114,34 +114,41 @@ app.get('/listConversations', function (req, res) {
 
 // -----------------------------------------------------------------------------
 app.get('/joinConversation', function (req, res) {
-    // localhost:8000/joinConversation?identity=dave3&conversationSid=CH52652cb27e81490bbb5cc67c223b857a
-    sayMessage("+ Join a conversation.");
+    // Can join a conversation using either the SID or unique name.
+    // localhost:8000/joinConversation?identity=dave3&conversationid=CH52652cb27e81490bbb5cc67c223b857a
+    // localhost:8000/joinConversation?identity=dave3&conversationid=abc
+    sayMessage("+ Join a participant into a conversation.");
     if (req.query.identity) {
-        if (req.query.conversationsid) {
+        if (req.query.conversationid) {
             participantIdentity = req.query.identity;
-            conversationSid = req.query.conversationsid;
-            sayMessage("+ Parameter identity: " + participantIdentity + ", conversationSid: " + conversationSid);
-            client.conversations.services(CONVERSATIONS_SERVICE_SID).conversations(conversationSid)
+            conversationId = req.query.conversationid;
+            sayMessage("+ Parameter identity: " + participantIdentity + ", conversationId: " + conversationId);
+            client.conversations.services(CONVERSATIONS_SERVICE_SID).conversations(conversationId)
                     .participants
                     .create({
                         identity: participantIdentity,
                         attributes: JSON.stringify({name: participantIdentity})
                     })
                     .then(participant => {
-                        console.log("+ Created participant, SID: " + participant.sid);
-                        res.send(participant.sid);
+                        console.log("+ Participant added into the conversation, participant SID: " + participant.sid);
+                        res.send("1");
                     }).catch(function (err) {
                 if (err.toString().indexOf('Participant already exists') > 0) {
                     console.log("+ Participant already exists.");
-                    res.send("+ Participant already exists.");
+                    res.send("0");
+                } else if (err.toString().indexOf('The requested resource') > 0) {
+                    console.log("+ Conversation does not exist, it needs to be created.");
+                    res.send("-1");
                 } else if (err) {
-                    console.error("- Error: " + err);
-                    res.status(400).send('HTTP Error 400. Error joining the Participant to the conversation.');
+                    // If the conversation does not exist:
+                    // - Error: The requested resource /Services/IS4ebcc2d46cda47958628e59af9e53e55/Conversations/abc6/Participants was not found
+                    console.error("- " + err);
+                    res.send("-2");
                 }
             });
         } else {
-            sayMessage("- Parameter required: conversationSid.");
-            res.status(400).send('HTTP Error 400. Parameter required: conversationSid.');
+            sayMessage("- Parameter required: conversationid.");
+            res.status(400).send('HTTP Error 400. Parameter required: conversationid.');
         }
     } else {
         sayMessage("- Parameter required: identity.");
