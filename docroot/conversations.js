@@ -123,31 +123,41 @@ function onTokenAboutToExpire() {
 }
 
 // -----------------------------------------------------------------------------
-function joinChatChannel() {
-    logger("Function: joinChatChannel()");
+function joinChatConversation() {
+    logger("Function: joinChatConversation()");
     if (thisConversationsClient === "") {
         addChatMessage("First, create a Chat Client.");
         logger("Required: Chat Client.");
         return;
     }
-    chatChannelName = $("#channelName").val();
-    if (chatChannelName === "") {
-        addChatMessage("Enter a Channel name.");
-        logger("Required: Channel name.");
+    conversationName = $("#channelName").val();
+    if (conversationName === "") {
+        addChatMessage("Enter a conversation name.");
+        logger("Required: conversation name.");
         return;
     }
-    addChatMessage("++ Join the channel: " + chatChannelName);
+    addChatMessage("+ Join the conversation: " + conversationName + ", as identity: " + userIdentity);
+    
+    // Stacy need the conversation SID.
+    var jqxhr = $.get("joinConversation?conversationsid=" + conversationName + "&identity=" + userIdentity, function (returnString) {
+            logger("+ returnString :" + returnString + ":");
+        if (returnString === "-1") {
+            logger("-- Error retrieving conversation list.");
+            return;
+        }
+        if (returnString === "0") {
+            logger("+ No conversations to list.");
+            return;
+        }
+        logger("++ List retrieved.");
+        // -------------------------------
+        addChatMessage(returnString);
+        addChatMessage("+ End list.");
+    }).fail(function () {
+        logger("- Error retrieving conversation list.");
+    });
 
-    thisConversationsClient.getConversationByUniqueName(chatChannelName)
-            .then(aConversation => {
-                theConversation = aConversation;
-                logger("+ Channel does exit, SID: '" + theConversation.sid + "'");
-                joinChannel();
-            })
-            .catch(function () {
-                logger("+ Channel does not exit.");
-                createConversation();
-            });
+    joinConversation();
 }
 
 function createConversation() {
@@ -160,7 +170,7 @@ function createConversation() {
             .then(channel => {
                 theConversation = channel;
                 logger("Conversation exists: " + chatChannelName + " : " + theConversation);
-                joinChannel();
+                joinConversation();
                 logger("+ Conversation Attributes: "
                         // + channel.getAttributes()
                         + " SID: " + channel.sid
@@ -172,11 +182,22 @@ function createConversation() {
             });
 }
 
-function joinChannel() {
-    logger('Join the channel: ' + theConversation.uniqueName);
+function joinConversation() {
+    if (thisConversationsClient === "") {
+        addChatMessage("First, create a Chat Client.");
+        logger("Required: Chat Client.");
+        return;
+    }
+    chatChannelName = $("#channelName").val();
+    if (chatChannelName === "") {
+        addChatMessage("Enter a Channel name.");
+        logger("Required: Channel name.");
+        return;
+    }
+
     theConversation.join().then(function (channel) {
         logger('Joined channel as ' + userIdentity);
-        addChatMessage("+++ Channel joined. You can start chatting.");
+        addChatMessage("+++ You can start chatting. Channel joined: " + channel + ".");
         setButtons("join");
     }).catch(function (err) {
         if (err.message === "Member already exists") {
@@ -191,22 +212,12 @@ function joinChannel() {
         }
     });
     // -------------------------------------------------------------------------
-    // Set channel event listeners.
+    // Set conversation event listeners.
     theConversation.on('messageAdded', function (message) {
         // https://media.twiliocdn.com/sdk/js/conversations/releases/1.2.1/docs/Message.html
         addChatMessage("> " + message.author + " : " + message.conversation.uniqueName + " : " + message.body);
         incCount();
     });
-    // Documenation: https://www.twilio.com/docs/chat/channels
-    // 
-    // Set channel event listener: typing started
-    // theConversation.on('typingStarted', function (member) {
-    //    logger("Member started typing: " + member);
-    // });
-    // Set channel event listener: typing ended
-    // theConversation.on('typingEnded', function(member) {
-    //   logger("Member stopped typing: " + member');
-    // });
 }
 
 // -----------------------------------------------------------------------------
@@ -359,7 +370,7 @@ function activateChatBox() {
         createChatClientObject();
     });
     $("#btn-join").click(function () {
-        joinChatChannel();
+        joinChatConversation();
     });
     $("#btn-list").click(function () {
         listChannels();

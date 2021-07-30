@@ -114,13 +114,13 @@ app.get('/listConversations', function (req, res) {
 
 // -----------------------------------------------------------------------------
 app.get('/joinConversation', function (req, res) {
-    // localhost:8000/joinConversation?identity=dave3&conversationSid=
+    // localhost:8000/joinConversation?identity=dave3&conversationSid=CH52652cb27e81490bbb5cc67c223b857a
     sayMessage("+ Join a conversation.");
     if (req.query.identity) {
-        if (req.query.conversationSid) {
+        if (req.query.conversationsid) {
             participantIdentity = req.query.identity;
-            conversationSid = req.query.conversationSid;
-            sayMessage("+ Parameter identity: " + participantIdentity + ", conversationSid: " + req.query.conversationSid);
+            conversationSid = req.query.conversationsid;
+            sayMessage("+ Parameter identity: " + participantIdentity + ", conversationSid: " + conversationSid);
             client.conversations.services(CONVERSATIONS_SERVICE_SID).conversations(conversationSid)
                     .participants
                     .create({
@@ -128,11 +128,17 @@ app.get('/joinConversation', function (req, res) {
                         attributes: JSON.stringify({name: participantIdentity})
                     })
                     .then(participant => {
-                        console.log(
-                                "+ Created participant, SID: " + participant.sid
-                                );
+                        console.log("+ Created participant, SID: " + participant.sid);
                         res.send(participant.sid);
-                    });
+                    }).catch(function (err) {
+                if (err.toString().indexOf('Participant already exists') > 0) {
+                    console.log("+ Participant already exists.");
+                    res.send("+ Participant already exists.");
+                } else if (err) {
+                    console.error("- Error: " + err);
+                    res.status(400).send('HTTP Error 400. Error joining the Participant to the conversation.');
+                }
+            });
         } else {
             sayMessage("- Parameter required: conversationSid.");
             res.status(400).send('HTTP Error 400. Parameter required: conversationSid.');
