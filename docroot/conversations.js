@@ -8,7 +8,7 @@
 // Conversation Partic: https://www.twilio.com/docs/conversations/api/conversation-participant-resource
 // Conversation Msg:    https://www.twilio.com/docs/conversations/api/conversation-message-resource
 // User:                https://www.twilio.com/docs/conversations/api/user-resource
-// Membersproperties:   https://www.twilio.com/docs/chat/rest/member-resource#member-properties
+// Message:             https://www.twilio.com/docs/conversations/api/service-conversation-message-resource
 // 
 // Users:               https://www.twilio.com/docs/chat/rest/user-resource
 // User properties:     https://www.twilio.com/docs/chat/rest/user-resource#user-properties
@@ -136,62 +136,43 @@ function joinChatConversation() {
         logger("Required: conversation name.");
         return;
     }
-    thisConversationsClient.getConversationByUniqueName(conversationName)
-            .then(aConversation => {
-                theConversation = aConversation;
-                logger("+ Channel does exit, SID: '" + theConversation.sid + "'");
-                joinTheConversation();
-            })
-            .catch(function () {
-                logger("+ Channel does exit: " + conversationName + ".");
-                createTheConversation();
-            });
-}
-
-function joinTheConversation() {
     addChatMessage("+ Join the conversation: " + conversationName + ", as identity: " + userIdentity);
     var jqxhr = $.get("joinConversation?conversationid=" + conversationName + "&identity=" + userIdentity, function (returnString) {
         logger("+ returnString :" + returnString + ":");
         if (returnString === "0") {
             addChatMessage("+ Participant is already in the conversation: " + conversationName + ".");
         }
-        if (returnString === "-1") {
-            return;
+        else if (returnString === "1") {
+            addChatMessage("+ Participant was added to the conversation: " + conversationName + ".");
         }
-        if (returnString === "-2") {
+        else if (returnString === "-2") {
             logger("-- Error -2.");
             return;
         }
-        addChatMessage("++ Conversation joined.");
-        setButtons("join");
-        // -------------------------------------------------------------------------
-        // Set conversation event listeners.
-        theConversation.on('messageAdded', function (message) {
-            // https://media.twiliocdn.com/sdk/js/conversations/releases/1.2.1/docs/Message.html
-            addChatMessage("> " + message.author + " : " + message.conversation.uniqueName + " : " + message.body);
-            incCount();
-        });
+        thisConversationsClient.getConversationByUniqueName(conversationName)
+            .then(aConversation => {
+                theConversation = aConversation;
+                logger("+ theConversation object is set.");
+                setupTheConversation();
+            })
+            .catch(function () {
+                logger("- Error conversation is not available: " + conversationName + ".");
+            });
     }).fail(function () {
         logger("- Error joining conversation.");
     });
 }
 
-// -----------------------------------------------------------------------------
-function createTheConversation() {
-    // http://media.twiliocdn.com/sdk/js/conversations/releases/1.2.1/docs/Client.html#createConversation__anchor
-    logger("+ Create the conversation: " + conversationName);
-    thisConversationsClient.createConversation({
-        uniqueName: conversationName,
-        friendlyName: conversationName
-    })
-            .then(channel => {
-                theConversation = channel;
-                addChatMessage("+ Created the new conversation: " + conversationName + ".");
-                joinTheConversation();
-            })
-            .catch(function () {
-                logger("- Error, failed to create the conversation.");
-            });
+function setupTheConversation() {
+    addChatMessage("++ Conversation joined.");
+    setButtons("join");
+    // -------------------------------------------------------------------------
+    // Set conversation event listeners.
+    theConversation.on('messageAdded', function (message) {
+        // https://media.twiliocdn.com/sdk/js/conversations/releases/1.2.1/docs/Message.html
+        addChatMessage("> " + message.author + " : " + message.conversation.uniqueName + " : " + message.body);
+        incCount();
+    });
 }
 
 // -----------------------------------------------------------------------------
