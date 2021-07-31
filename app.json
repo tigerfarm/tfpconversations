@@ -5,21 +5,29 @@
   "logo": "http://tigerfarmpress.com/images/topImgLeft.jpg",
   "keywords": ["node", "express", "heroku", "Twilio"],
     "env": {
-        "ACCOUNT_SID": {
-            "description": "Your Twilio accountSid. You view it here: https://console.twilio.com",
+        "MASTER_ACCOUNT_SID": {
+            "description": "Your Twilio account SID. You view it here: https://console.twilio.com",
             "value": "accountSid"
         },
-        "CHAT_SERVICE_SID": {
-            "description": "Chat service SID. You can create it here: https://www.twilio.com/console/chat/dashboard",
+        "MASTER_AUTH_TOKEN": {
+            "description": "Your Twilio account auth token. You view it here: https://console.twilio.com",
+            "value": "accountAuthToken"
+        },
+        "API_KEY": {
+            "description": "API Keys are revokable credentials for the Twilio API. You can view it here: https://www.twilio.com/console/project/api-keys",
             "value": "apiKeySid"
         },
-        "CHAT_API_KEY": {
-            "description": "API Keys are revokable credentials for the Twilio API. You can create it here: https://www.twilio.com/console/chat/runtime/api-keys",
-            "value": "apiKeySid"
-        },
-        "CHAT_API_KEY_SECRET": {
+        "API_KEY_SECRET": {
             "description": "API Keys are revokable credentials for the Twilio API.",
             "value": "apiKeySecret"
+        },
+        "CONVERSATIONS_SERVICE_SID": {
+            "description": "Conversation service SID. You can view it here: https://www.twilio.com/console/conversations/services",
+            "value": "ConversationSid"
+        },
+        "MESSAGING_SERVICE_SID": {
+            "description": "Conversation service Messaging Service SID. You can view it here: https://www.twilio.com/console/conversations/configuration/defaults",
+            "value": "ConversationMessagingServiceSid"
         }
     }
 }

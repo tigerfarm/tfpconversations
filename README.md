@@ -1,10 +1,24 @@
 # Twilio Conversations Web Application
 
+This application is ready to run.
+To deploy to Heroku, you will need an [Heroku account](https://heroku.com/) to host your application.
+Once you have an account, stay logged in for the deployment and configuration.
+
+[![Deploy to Heroku](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy?template=https://github.com/tigerfarm/tfpconversations)
+
+When you deploy to Heroku, you will be prompted for an app name. 
+The name needs to be unique. Example, enter your name+app (example: davidapp). 
+Click Deploy app. Once the application is deployed, click Manage app. 
+Now, set the Heroku project environment variables by clicking Settings. 
+Click Reveal Config Vars.
+
 Add the following as environment variables:
 + MASTER_ACCOUNT_SID : your Twilio account SID (starts with "AC", available from Twilio Console)
-+ CONVERSATIONS_SERVICE_SID : your Conversations service SID (starts with IS).
++ MASTER_AUTH_TOKEN : Your Twilio account auth token
 + API_KEY : one of your Twilio API keys
 + API_KEY_SECRET : the matching API key secret string
++ CONVERSATIONS_SERVICE_SID : your Conversations service SID (starts with IS).
++ MESSAGING_SERVICE_SID : Conversation service Messaging Service SID.
 + PORT : optional, web server port. Default port is 8000.
 
 Client Application screen print:

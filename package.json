@@ -1,13 +1,13 @@
 {
-  "name": "chatapp",
+  "name": "conversationsapp",
   "version": "1.2.0",
-  "description": "Node.js Express Chat web application",
+  "description": "Node.js Express Conversations web application",
   "engines": {
     "node": "10.x"
   },
-  "main": "chatserver.js",
+  "main": "webserver.js",
   "scripts": {
-    "start": "node chatserver.js"
+    "start": "node webserver.js"
   },
   "dependencies": {
     "express": "^4.17.1",
@@ -16,11 +16,11 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/heroku/tigchat"
+    "url": "https://github.com/heroku/tfpconversations"
   },
   "keywords": [
     "twilio",
-    "chat",
+    "conversations",
     "node",
     "express",
     "heroku"

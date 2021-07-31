@@ -24,12 +24,9 @@ var CONVERSATIONS_SERVICE_SID = process.env.CONVERSATIONS_SERVICE_SID;
 //  https://www.twilio.com/console/chat/runtime/api-keys
 var API_KEY = process.env.API_KEY;
 var API_KEY_SECRET = process.env.API_KEY_SECRET;
-
 // -----------------------------------------------------------------------------
 console.log("+++ Chat program is starting up.");
-
 var client = require('twilio')(process.env.MASTER_ACCOUNT_SID, process.env.MASTER_AUTH_TOKEN);
-
 // -----------------------------------------------------------------------------
 var returnMessage = '';
 function sayMessage(message) {
@@ -39,8 +36,8 @@ function sayMessage(message) {
 
 // -----------------------------------------------------------------------------
 function generateToken(theIdentity) {
-    // Documentation: https://www.twilio.com/docs/iam/access-tokens
-    //
+// Documentation: https://www.twilio.com/docs/iam/access-tokens
+//
     if (theIdentity === "") {
         console.log("- Required: user identity for creating a Conversations token.");
         return "";
@@ -58,55 +55,13 @@ function generateToken(theIdentity) {
     });
     token.addGrant(chatGrant);
     token.identity = theIdentity;
-    token.ttl = 1200;          // Token time to live, in seconds. 1200 = 20 minutes.
+    token.ttl = 1200; // Token time to live, in seconds. 1200 = 20 minutes.
     //
     // Output the token.
     theToken = token.toJwt();
     // console.log("+ theToken " + theToken);
     return(theToken);
 }
-
-// -----------------------------------------------------------------------------
-// -----------------------------------------------------------------------------
-// Web server interface to call functions.
-// -----------------------------------------------------------------------------
-// 
-// $ npm install express --save
-const express = require('express');
-const path = require('path');
-const url = require("url");
-const PORT = process.env.PORT || 8000;
-var app = express();
-
-// -----------------------------------------------------------------------------
-app.get('/generateToken', function (req, res) {
-    sayMessage("+ Generate Conversations Token.");
-    if (req.query.identity) {
-        res.send(generateToken(req.query.identity));
-    } else {
-        sayMessage("- Parameter required: identity.");
-        res.send(0);
-    }
-});
-
-// -----------------------------------------------------------------------------
-app.get('/listConversations', function (req, res) {
-    sayMessage("+ Get list of conversations.");
-    var theResult = "";
-    client.conversations.services(CONVERSATIONS_SERVICE_SID).conversations.list({limit: 20})
-            .then(conversations => {
-                conversations.forEach(c => {
-                    console.log(
-                            "+ Conversations SID: " + c.sid
-                            + " " + c.friendlyName
-                            );
-                    theResult = theResult
-                            + c.sid + " "
-                            + c.friendlyName + "\n";
-                });
-                res.send(theResult);
-            });
-});
 
 // -----------------------------------------------------------------------------
 function addParticipantToConversation(res, conversationId, participantIdentity) {
@@ -125,14 +80,53 @@ function addParticipantToConversation(res, conversationId, participantIdentity) 
             console.log("+ Participant already exists.");
             res.send("0");
         } else if (err) {
-            // If the conversation does not exist:
-            // - Error: The requested resource /Services/IS4ebcc2d46cda47958628e59af9e53e55/Conversations/abc6/Participants was not found
+// If the conversation does not exist:
+// - Error: The requested resource /Services/IS4ebcc2d46cda47958628e59af9e53e55/Conversations/abc6/Participants was not found
             console.error("- " + err);
             res.send("-2");
         }
     });
 }
 
+// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
+// Web server interface to call functions.
+// -----------------------------------------------------------------------------
+// 
+// $ npm install express --save
+const express = require('express');
+const path = require('path');
+const url = require("url");
+const PORT = process.env.PORT || 8000;
+var app = express();
+// -----------------------------------------------------------------------------
+app.get('/generateToken', function (req, res) {
+    sayMessage("+ Generate Conversations Token.");
+    if (req.query.identity) {
+        res.send(generateToken(req.query.identity));
+    } else {
+        sayMessage("- Parameter required: identity.");
+        res.send(0);
+    }
+});
+// -----------------------------------------------------------------------------
+app.get('/listConversations', function (req, res) {
+    sayMessage("+ Get list of conversations.");
+    var theResult = "";
+    client.conversations.services(CONVERSATIONS_SERVICE_SID).conversations.list({limit: 20})
+            .then(conversations => {
+                conversations.forEach(c => {
+                    console.log(
+                            "+ Conversations SID: " + c.sid
+                            + " " + c.friendlyName
+                            );
+                    theResult = theResult
+                            + c.sid + " "
+                            + c.friendlyName + "\n";
+                });
+                res.send(theResult);
+            });
+});
 // -----------------------------------------------------------------------------
 app.get('/joinConversation', function (req, res) {
     // Can join a conversation using either the SID or unique name.
@@ -180,6 +174,26 @@ app.get('/joinConversation', function (req, res) {
     } else {
         sayMessage("- Parameter required: identity.");
         res.status(400).send('HTTP Error 400. Parameter required: identity.');
+    }
+});
+
+// -----------------------------------------------------------------------------
+app.get('/removeConversation', function (req, res) {
+    if (req.query.conversationid) {
+        conversationId = req.query.conversationid;
+        sayMessage("+ Remove the conversation.");
+        client.conversations.services(CONVERSATIONS_SERVICE_SID).conversations(conversationId).remove()
+                .then(conversations => {
+                    console.log("++ Removed." + c.sid);
+                    res.send("0");
+                })
+                .catch(function (err) {
+                    console.log("-- Conversation does NOT exit, not removed.");
+                    res.send("-2");
+                });
+    } else {
+        sayMessage("- Parameter required: conversationid.");
+        res.status(400).send('HTTP Error 400. Parameter required: conversationid.');
     }
 });
 

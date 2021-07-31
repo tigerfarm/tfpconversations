@@ -10,10 +10,6 @@
 // User:                https://www.twilio.com/docs/conversations/api/user-resource
 // Message:             https://www.twilio.com/docs/conversations/api/service-conversation-message-resource
 // 
-// Users:               https://www.twilio.com/docs/chat/rest/user-resource
-// User properties:     https://www.twilio.com/docs/chat/rest/user-resource#user-properties
-// User property, attributes: The JSON string that stores application-specific data.
-// 
 // -----------------------------------------------------------------------------
 let thisConversationsClient = "";
 let theConversation = "";           // Conversation object
@@ -88,7 +84,7 @@ function createChatClientObject() {
                 logger("+ Conversation joined.");
             });
             thisConversationsClient.on("conversationLeft", (thisConversation) => {
-                logger("+ Conversation left.");
+                logger("+ Existed the conversation.");
             });
 
         });
@@ -141,23 +137,21 @@ function joinChatConversation() {
         logger("+ returnString :" + returnString + ":");
         if (returnString === "0") {
             addChatMessage("+ Participant is already in the conversation: " + conversationName + ".");
-        }
-        else if (returnString === "1") {
+        } else if (returnString === "1") {
             addChatMessage("+ Participant was added to the conversation: " + conversationName + ".");
-        }
-        else if (returnString === "-2") {
+        } else if (returnString === "-2") {
             logger("-- Error -2.");
             return;
         }
         thisConversationsClient.getConversationByUniqueName(conversationName)
-            .then(aConversation => {
-                theConversation = aConversation;
-                logger("+ theConversation object is set.");
-                setupTheConversation();
-            })
-            .catch(function () {
-                logger("- Error conversation is not available: " + conversationName + ".");
-            });
+                .then(aConversation => {
+                    theConversation = aConversation;
+                    logger("+ theConversation object is set.");
+                    setupTheConversation();
+                })
+                .catch(function () {
+                    logger("- Error conversation is not available: " + conversationName + ".");
+                });
     }).fail(function () {
         logger("- Error joining conversation.");
     });
@@ -204,36 +198,29 @@ function listConversations() {
 }
 
 // -----------------------------------------------------------------------------
-function deleteChannel() {
-    logger("Function: deleteChannel()");
+function deleteConversation() {
+    logger("Function: deleteConversation()");
     if (thisConversationsClient === "") {
-        addChatMessage("First, create a Chat Client.");
-        logger("Required: Chat Client.");
+        addChatMessage("First, create a Conversations Client.");
+        logger("Required: Conversations Client.");
         return;
     }
-    chatChannelName = $("#channelName").val();
-    if (chatChannelName === "") {
-        addChatMessage("Enter a Channel name.");
-        logger("Required: Channel name.");
+    conversationName = $("#channelName").val();
+    if (conversationName === "") {
+        addChatMessage("Enter a conversation name.");
+        logger("Required: conversation name.");
         return;
     }
-    thisConversationsClient.getChannelByUniqueName(chatChannelName)
-            .then(function (channel) {
-                theConversation = channel;
-                logger("Channel exists: " + chatChannelName + " : " + theConversation);
-                theConversation.delete().then(function (channel) {
-                    addChatMessage('+ Deleted channel: ' + chatChannelName);
-                }).catch(function (err) {
-                    if (theConversation.createdBy !== userIdentity) {
-                        addChatMessage("- Can only be deleted by the creator: " + theConversation.createdBy);
-                    } else {
-                        logger("- Delete failed: " + theConversation.uniqueName + ', ' + err);
-                        addChatMessage("- Delete failed: " + err);
-                    }
-                });
-            }).catch(function () {
-        logger("Channel doesn't exist.");
-        addChatMessage("- Channel doesn't exist, cannot delete it: " + chatChannelName);
+    addChatMessage("+ Remove conversation: " + conversationName);
+    var jqxhr = $.get("removeConversation?conversationid=" + conversationName, function (returnString) {
+        if (returnString !== "0") {
+            addChatMessage("-- Warning, conversation not removed.");
+            logger("-- Conversation not removed.");
+            return;
+        }
+        addChatMessage("+ Conversation removed.");
+    }).fail(function () {
+        logger("- Error removing conversation.");
     });
 }
 
@@ -332,7 +319,7 @@ function activateChatBox() {
         listConversations();
     });
     $("#btn-delete").click(function () {
-        deleteChannel();
+        deleteConversation();
     });
     $("#btn-members").click(function () {
         listMembers();
@@ -387,7 +374,7 @@ function setButtons(activity) {
             $('#btn-list').prop('disabled', false);
             $('#btn-join').prop('disabled', false);
             //
-            // $('#btn-delete').prop('disabled', false);
+            $('#btn-delete').prop('disabled', false);
             $('#btn-chat').prop('disabled', true);
             $('#btn-members').prop('disabled', true);
             $('#btn-count').prop('disabled', true);
@@ -400,7 +387,7 @@ function setButtons(activity) {
             $('#btn-list').prop('disabled', false);
             $('#btn-join').prop('disabled', false);
             //
-            // $('#btn-delete').prop('disabled', false);
+            $('#btn-delete').prop('disabled', false);
             $('#btn-chat').prop('disabled', false);
             // $('#btn-members').prop('disabled', false);
             // $('#btn-count').prop('disabled', false);
