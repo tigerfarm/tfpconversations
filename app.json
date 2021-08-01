@@ -5,11 +5,11 @@
   "logo": "http://tigerfarmpress.com/images/topImgLeft.jpg",
   "keywords": ["node", "express", "heroku", "Twilio"],
     "env": {
-        "CONVERSATION_ACCOUNT_SID": {
+        "CONVERSATIONS_ACCOUNT_SID": {
             "description": "Your Twilio account SID. You view it here: https://console.twilio.com",
             "value": "ConversationsAccountSid"
         },
-        "CONVERSATION_ACCOUNT_AUTH_TOKEN": {
+        "CONVERSATIONS_ACCOUNT_AUTH_TOKEN": {
             "description": "Your Twilio account auth token. You view it here: https://console.twilio.com",
             "value": "ConversationsAccountAuthToken"
         },
