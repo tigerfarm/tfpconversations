@@ -28,10 +28,6 @@
         "CONVERSATIONS_MESSAGING_SERVICE_SID": {
             "description": "Conversation service Messaging Service SID. You can view it here: https://www.twilio.com/console/conversations/configuration/defaults",
             "value": "ConversationsMessagingServiceSid"
-        },
-        "CONVERSATIONS_PORT": {
-            "description": "Conversation web server port number, Default is 8000.",
-            "value": "8000"
         }
     }
 }
