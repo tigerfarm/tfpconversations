@@ -11,7 +11,6 @@ Client Application screen print:
 <img src="clientapp.jpg" width="400"/>
 
 
-
 To deploy to Heroku, you will need an [Heroku account](https://heroku.com/) to host your application.
 Once you have an account, stay logged in for the deployment and configuration.
 
