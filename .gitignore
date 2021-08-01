@@ -1,5 +1,6 @@
 # Ignore adding the following to the repository.
 #
+.DS_Store
 /node_modules/
 setheroku.sh
 #
