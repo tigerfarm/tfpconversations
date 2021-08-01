@@ -16,7 +16,7 @@ You will also be prompted for the application's environment variables. Enter the
 + CONVERSATIONS_API_KEY_SECRET : the matching API key secret string
 + CONVERSATIONS_SERVICE_SID : your Conversations service SID (starts with IS).
 + CONVERSATIONS_MESSAGING_SERVICE_SID : Conversation service Messaging Service SID.
-+ CONVERSATIONS_PORT : optional, web server port. Default port is 8000.
++ PORT : optional, web server port. When running on a local server, default port is 8000.
 
 Click Deploy app. Once the application is deployed, click Manage app. 
 You can view the Heroku project environment variables by clicking Settings. 
@@ -30,7 +30,7 @@ If running from command line, first, add the following as environment variables:
 + CONVERSATIONS_API_KEY_SECRET : the matching API key secret string
 + CONVERSATIONS_SERVICE_SID : your Conversations service SID (starts with IS).
 + CONVERSATIONS_MESSAGING_SERVICE_SID : Conversation service Messaging Service SID.
-+ CONVERSATIONS_PORT : optional, web server port. Default port is 8000.
++ PORT : optional, web server port. When running on a local server, default port is 8000.
 
 Client Application screen print:
 
