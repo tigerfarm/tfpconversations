@@ -1,9 +1,10 @@
 # Twilio Conversations Web Application
 
-This Conversations web application ready to run.
-Set configuration using the Twilio Console.
-Add environment variables and run on your local server.
-Or, use the one click deploy button below, to run this on Heroku.
+This Conversations web application is ready to run.
+Set configurations using the Twilio Console,
+add environment variables, 
+and your ready to run it on your local server that has Node.js installed.
+Or, use the one click deploy button below, to run on Heroku.
 
 Client Application screen print:
 
