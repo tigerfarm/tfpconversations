@@ -6,20 +6,31 @@ Once you have an account, stay logged in for the deployment and configuration.
 
 [![Deploy to Heroku](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy?template=https://github.com/tigerfarm/tfpconversations)
 
+````
 When you deploy to Heroku, you will be prompted for an app name. 
-The name needs to be unique. Example, enter your name+app (example: davidapp). 
-Click Deploy app. Once the application is deployed, click Manage app. 
-Now, set the Heroku project environment variables by clicking Settings. 
-Click Reveal Config Vars.
-
-Add the following as environment variables:
-+ MASTER_ACCOUNT_SID : your Twilio account SID (starts with "AC", available from Twilio Console)
-+ MASTER_AUTH_TOKEN : Your Twilio account auth token
-+ API_KEY : one of your Twilio API keys
-+ API_KEY_SECRET : the matching API key secret string
+The name needs to be unique. Example, enter your name+app (example: daveapp).
+You will also be prompted for the application's environment variables. Enter them.
++ CONVERSATIONS_ACCOUNT_SID : your Twilio account SID (starts with "AC", available from Twilio Console)
++ CONVERSATIONS_ACCOUNT_AUTH_TOKEN : Your Twilio account auth token
++ CONVERSATIONS_API_KEY : one of your Twilio API keys
++ CONVERSATIONS_API_KEY_SECRET : the matching API key secret string
 + CONVERSATIONS_SERVICE_SID : your Conversations service SID (starts with IS).
-+ MESSAGING_SERVICE_SID : Conversation service Messaging Service SID.
-+ PORT : optional, web server port. Default port is 8000.
++ CONVERSATIONS_MESSAGING_SERVICE_SID : Conversation service Messaging Service SID.
++ CONVERSATIONS_PORT : optional, web server port. Default port is 8000.
+
+Click Deploy app. Once the application is deployed, click Manage app. 
+You can view the Heroku project environment variables by clicking Settings. 
+Click Reveal Config Vars.
+````
+
+If running from command line, first, add the following as environment variables:
++ CONVERSATIONS_ACCOUNT_SID : your Twilio account SID (starts with "AC", available from Twilio Console)
++ CONVERSATIONS_ACCOUNT_AUTH_TOKEN : Your Twilio account auth token
++ CONVERSATIONS_API_KEY : one of your Twilio API keys
++ CONVERSATIONS_API_KEY_SECRET : the matching API key secret string
++ CONVERSATIONS_SERVICE_SID : your Conversations service SID (starts with IS).
++ CONVERSATIONS_MESSAGING_SERVICE_SID : Conversation service Messaging Service SID.
++ CONVERSATIONS_PORT : optional, web server port. Default port is 8000.
 
 Client Application screen print:
 

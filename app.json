@@ -15,11 +15,11 @@
         },
         "CONVERSATIONS_API_KEY": {
             "description": "API Keys are revokable credentials for the Twilio API. You can view it here: https://www.twilio.com/console/project/api-keys",
-            "value": "ApiKeySid"
+            "value": "ConversationsApiKeySid"
         },
         "CONVERSATIONS_API_KEY_SECRET": {
             "description": "API Keys are revokable credentials for the Twilio API.",
-            "value": "ApiKeySecret"
+            "value": "ConversationsApiKeySecret"
         },
         "CONVERSATIONS_SERVICE_SID": {
             "description": "Conversation service SID. You can view it here: https://www.twilio.com/console/conversations/services",
