@@ -1,4 +1,5 @@
-# Ignore my specific variables:
+# Ignore adding the following to the repository.
 #
 /node_modules/
+setheroku.sh
 #
