@@ -1,6 +1,16 @@
 # Twilio Conversations Web Application
 
-This application is ready to run.
+This Conversations web application ready to run.
+Set configuration using the Twilio Console.
+Add environment variables and run on your local server.
+Or, use the one click deploy button below, to run this on Heroku.
+
+Client Application screen print:
+
+<img src="clientapp.jpg" width="400"/>
+
+
+
 To deploy to Heroku, you will need an [Heroku account](https://heroku.com/) to host your application.
 Once you have an account, stay logged in for the deployment and configuration.
 
@@ -31,10 +41,6 @@ If running from command line, first, add the following as environment variables:
 + CONVERSATIONS_SERVICE_SID : your Conversations service SID (starts with IS).
 + CONVERSATIONS_MESSAGING_SERVICE_SID : Conversation service Messaging Service SID.
 + PORT : optional, web server port. When running on a local server, default port is 8000.
-
-Client Application screen print:
-
-<img src="clientapp.jpg" width="400"/>
 
 ### Requirements:
 
