@@ -25,7 +25,7 @@ var CONVERSATIONS_SERVICE_SID = process.env.CONVERSATIONS_SERVICE_SID;
 var API_KEY = process.env.CONVERSATIONS_API_KEY;
 var API_KEY_SECRET = process.env.CONVERSATIONS_API_KEY_SECRET;
 // -----------------------------------------------------------------------------
-console.log("+++ Chat program is starting up.");
+console.log("+++ Conversations application web server is starting up.");
 var client = require('twilio')(process.env.CONVERSATIONS_ACCOUNT_SID, process.env.CONVERSATIONS_ACCOUNT_AUTH_TOKEN);
 // -----------------------------------------------------------------------------
 var returnMessage = '';
