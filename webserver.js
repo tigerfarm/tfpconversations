@@ -98,8 +98,8 @@ const express = require('express');
 const path = require('path');
 const url = require("url");
 
-// When deploying to Heroku, must use the keyward, "PORT".
-// This allows overriding port 80 locally, while Heroku will override it to port 80.
+// When deploying to Heroku, must use the keyword, "PORT".
+// This allows Heroku to override the value and use port 80. And when running locally can use other ports.
 const PORT = process.env.PORT || 8000;
 
 var app = express();
