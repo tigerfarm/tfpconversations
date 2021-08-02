@@ -4,36 +4,14 @@ This Conversations web application is ready to run.
 Set configurations using the Twilio Console,
 add environment variables, 
 and your ready to run it on your local server that has Node.js installed.
-Or, use the one click deploy button below, to run on Heroku.
 
 Client Application screen print:
 
 <img src="clientapp.jpg" width="400"/>
 
-
-To deploy to Heroku, you will need an [Heroku account](https://heroku.com/) to host your application.
-Once you have an account, stay logged in for the deployment and configuration.
-
-[![Deploy to Heroku](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy?template=https://github.com/tigerfarm/tfpconversations)
-
-````
-When you deploy to Heroku, you will be prompted for an app name. 
-The name needs to be unique. Example, enter your name+app (example: daveapp).
-You will also be prompted for the application's environment variables. Enter them.
-+ CONVERSATIONS_ACCOUNT_SID : your Twilio account SID (starts with "AC", available from Twilio Console)
-+ CONVERSATIONS_ACCOUNT_AUTH_TOKEN : Your Twilio account auth token
-+ CONVERSATIONS_API_KEY : one of your Twilio API keys
-+ CONVERSATIONS_API_KEY_SECRET : the matching API key secret string
-+ CONVERSATIONS_SERVICE_SID : your Conversations service SID (starts with IS).
-+ CONVERSATIONS_MESSAGING_SERVICE_SID : Conversation service Messaging Service SID.
-+ PORT : optional, web server port. When running on a local server, default port is 8000.
-
-Click Deploy app. Once the application is deployed, click Manage app. 
-You can view the Heroku project environment variables by clicking Settings. 
-Click Reveal Config Vars.
-````
-
-If running from command line, first, add the following as environment variables:
+Before running from command line, 
+add the following as environment variables.
+Create the variables where required.
 + CONVERSATIONS_ACCOUNT_SID : your Twilio account SID (starts with "AC", available from Twilio Console)
 + CONVERSATIONS_ACCOUNT_AUTH_TOKEN : Your Twilio account auth token
 + CONVERSATIONS_API_KEY : one of your Twilio API keys
