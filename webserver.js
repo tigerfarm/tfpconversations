@@ -2,7 +2,6 @@
 // Chat web server
 // 
 // Easy to use.
-// 
 // Install modules.
 //  $ npm install --save express
 //  
