@@ -2,7 +2,6 @@
 // Chat web server
 // 
 // Easy to use.
-// 
 // Install modules.
 //  $ npm install --save express
 //  
@@ -97,7 +96,11 @@ function addParticipantToConversation(res, conversationId, participantIdentity) 
 const express = require('express');
 const path = require('path');
 const url = require("url");
+
+// When deploying to Heroku, must use the keyword, "PORT".
+// This allows Heroku to override the value and use port 80. And when running locally can use other ports.
 const PORT = process.env.PORT || 8000;
+
 var app = express();
 // -----------------------------------------------------------------------------
 app.get('/generateToken', function (req, res) {

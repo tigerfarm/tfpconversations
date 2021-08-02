@@ -1,21 +1,17 @@
 // -----------------------------------------------------------------------------
 // Documentation:       https://media.twiliocdn.com/sdk/js/conversations/releases/1.2.1/docs/
 //                      https://media.twiliocdn.com/sdk/js/conversations/releases/1.2.1/docs/Client.html
-//                      https://media.twiliocdn.com/sdk/js/conversations/releases/1.2.1/docs/Conversation.htm
-// 
-// Documentation:       https://www.twilio.com/docs/chat/rest/channels
-// Server side delete:  https://www.twilio.com/docs/chat/rest/channels
-// Message properties:  https://www.twilio.com/docs/chat/rest/messages
-
-// Members:             https://www.twilio.com/docs/chat/rest/member-resource
-// Membersproperties:   https://www.twilio.com/docs/chat/rest/member-resource#member-properties
-// 
-// Users:               https://www.twilio.com/docs/chat/rest/user-resource
-// User properties:     https://www.twilio.com/docs/chat/rest/user-resource#user-properties
-// User property, attributes: The JSON string that stores application-specific data.
+//                      https://media.twiliocdn.com/sdk/js/conversations/releases/1.2.1/docs/Conversation.html
+// Resources:
+// Service:             https://www.twilio.com/docs/conversations/api/service-resource
+// Conversation:        https://www.twilio.com/docs/conversations/api/conversation-resource
+// Conversation Partic: https://www.twilio.com/docs/conversations/api/conversation-participant-resource
+// Conversation Msg:    https://www.twilio.com/docs/conversations/api/conversation-message-resource
+// User:                https://www.twilio.com/docs/conversations/api/user-resource
+// Message:             https://www.twilio.com/docs/conversations/api/service-conversation-message-resource
 // 
 // -----------------------------------------------------------------------------
-let thisConversationsClient = "";
+let thisConversationClient = "";
 let theConversation = "";           // Conversation object
 let thisToken;
 let totalMessages = 0; // This count of read channel messages needs work to initialize and maintain the count.
@@ -49,20 +45,21 @@ function createChatClientObject() {
         logger("Token refreshed: " + thisToken);
         // -------------------------------
         // https://www.twilio.com/docs/conversations/initializing-conversations-sdk-clients
-        Twilio.Conversations.Client.create(thisToken).then(chatClient => {
-            logger("Conversations client created: thisConversationsClient.");
-            thisConversationsClient = chatClient;
+        Twilio.Conversations.Client.create(thisToken).then(conversationClient => {
+            logger("Conversations client created: thisConversationClient.");
+            thisConversationClient = conversationClient;
             addChatMessage("+ Chat client created for the user: " + userIdentity);
             //
-            // thisConversationsClient.getSubscribedConversations();
-            addChatMessage("+ Participant is subscribed to conversations: ");
-            thisConversationsClient.getSubscribedConversations().then(function (paginator) {
+            // When the conversation object is created,
+            //  the participant is automatically joined to the subscribed conversations.
+            // The sample application maintains a list of subscribed/joined conversations.
+            //  https://www.twilio.com/docs/conversations/javascript/exploring-conversations-javascript-quickstart#
+            //  { conversations: [...this.state.conversations, conversation] }
+            addChatMessage("+ Participant is subscribed and joined to conversations: ");
+            thisConversationClient.getSubscribedConversations().then(function (paginator) {
                 for (i = 0; i < paginator.items.length; i++) {
-                    const channel = paginator.items[i];
-                    let listString = '++ ' + channel.uniqueName + ": " + channel.friendlyName + ": " + channel.createdBy;
-                    if (channel.uniqueName === chatChannelName) {
-                        listString += " *";
-                    }
+                    const aConversation = paginator.items[i];
+                    let listString = '++ ' + aConversation.uniqueName + ": " + aConversation.friendlyName + ": " + aConversation.createdBy;
                     addChatMessage(listString);
                 }
                 addChatMessage("+ End list.");
@@ -77,18 +74,18 @@ function createChatClientObject() {
             // 
             // Documentation:
             //   https://www.twilio.com/docs/chat/tutorials/chat-application-node-express?code-sample=code-initialize-the-chat-client-9&code-language=Node.js&code-sdk-version=default
-            thisConversationsClient.on('channelAdded', onChannelAdded);
-            // thisConversationsClient.on('channelRemoved', $.throttle(tc.loadChannelList));
-            // thisConversationsClient.on('tokenExpired', onTokenExpiring);
+            thisConversationClient.on('channelAdded', onChannelAdded);
+            // thisConversationClient.on('channelRemoved', $.throttle(tc.loadChannelList));
+            // thisConversationClient.on('tokenExpired', onTokenExpiring);
             //
-            thisConversationsClient.on('tokenAboutToExpire', onTokenAboutToExpire);
+            thisConversationClient.on('tokenAboutToExpire', onTokenAboutToExpire);
             //
 
-            thisConversationsClient.on("conversationJoined", (conversation) => {
-                logger("+ Conversation joined.");
+            thisConversationClient.on("conversationJoined", (conversation) => {
+                logger("+ Conversation joined: " + conversation.uniqueName);
             });
-            thisConversationsClient.on("conversationLeft", (thisConversation) => {
-                logger("+ Conversation left.");
+            thisConversationClient.on("conversationLeft", (thisConversation) => {
+                logger("+ Existed the conversation.");
             });
 
         });
@@ -115,7 +112,7 @@ function onTokenAboutToExpire() {
         logger("Token update: " + thisToken);
         // -------------------------------
         // https://www.twilio.com/docs/chat/access-token-lifecycle
-        thisConversationsClient.updateToken(thisToken);
+        thisConversationClient.updateToken(thisToken);
         // -------------------------------
     }).fail(function () {
         logger("- onTokenAboutToExpire: Error refreshing the chat client token.");
@@ -124,8 +121,8 @@ function onTokenAboutToExpire() {
 
 // -----------------------------------------------------------------------------
 function joinChatConversation() {
-    logger("Function: joinChatConversation()");
-    if (thisConversationsClient === "") {
+    logger("+ Function: joinChatConversation()");
+    if (thisConversationClient === "") {
         addChatMessage("First, create a Chat Client.");
         logger("Required: Chat Client.");
         return;
@@ -137,80 +134,33 @@ function joinChatConversation() {
         return;
     }
     addChatMessage("+ Join the conversation: " + conversationName + ", as identity: " + userIdentity);
-    
-    // Stacy need the conversation SID.
-    var jqxhr = $.get("joinConversation?conversationsid=" + conversationName + "&identity=" + userIdentity, function (returnString) {
-            logger("+ returnString :" + returnString + ":");
-        if (returnString === "-1") {
-            logger("-- Error retrieving conversation list.");
-            return;
-        }
+    var jqxhr = $.get("joinConversation?conversationid=" + conversationName + "&identity=" + userIdentity, function (returnString) {
+        logger("+ returnString :" + returnString + ":");
         if (returnString === "0") {
-            logger("+ No conversations to list.");
+            addChatMessage("+ Participant is already in the conversation: " + conversationName + ".");
+        } else if (returnString === "1") {
+            addChatMessage("+ Participant was added to the conversation: " + conversationName + ".");
+        } else if (returnString === "-2") {
+            logger("-- Error -2.");
             return;
         }
-        logger("++ List retrieved.");
-        // -------------------------------
-        addChatMessage(returnString);
-        addChatMessage("+ End list.");
+        thisConversationClient.getConversationByUniqueName(conversationName)
+                .then(aConversation => {
+                    theConversation = aConversation;
+                    logger("+ theConversation object is set.");
+                    setupTheConversation();
+                })
+                .catch(function () {
+                    logger("- Error conversation is not available: " + conversationName + ".");
+                });
     }).fail(function () {
-        logger("- Error retrieving conversation list.");
+        logger("- Error joining conversation.");
     });
-
-    joinConversation();
 }
 
-function createConversation() {
-    // http://media.twiliocdn.com/sdk/js/conversations/releases/1.2.1/docs/Client.html#createConversation__anchor
-    logger("+ Create the channel if it doesn't exist: " + chatChannelName);
-    thisConversationsClient.createConversation({
-        uniqueName: chatChannelName,
-        friendlyName: chatChannelName
-    })
-            .then(channel => {
-                theConversation = channel;
-                logger("Conversation exists: " + chatChannelName + " : " + theConversation);
-                joinConversation();
-                logger("+ Conversation Attributes: "
-                        // + channel.getAttributes()
-                        + " SID: " + channel.sid
-                        + " name: " + channel.friendlyName
-                        );
-            })
-            .catch(function () {
-                logger("- Error, failed to create the conversation.");
-            });
-}
-
-function joinConversation() {
-    if (thisConversationsClient === "") {
-        addChatMessage("First, create a Chat Client.");
-        logger("Required: Chat Client.");
-        return;
-    }
-    chatChannelName = $("#channelName").val();
-    if (chatChannelName === "") {
-        addChatMessage("Enter a Channel name.");
-        logger("Required: Channel name.");
-        return;
-    }
-
-    theConversation.join().then(function (channel) {
-        logger('Joined channel as ' + userIdentity);
-        addChatMessage("+++ You can start chatting. Channel joined: " + channel + ".");
-        setButtons("join");
-    }).catch(function (err) {
-        if (err.message === "Member already exists") {
-            addChatMessage("++ You already exist in the channel.");
-            setButtons("join");
-        } else if (err.message === "Webhook cancelled processing of command") {
-            addChatMessage("++ You have joined the channel.");
-            setButtons("join");
-        } else {
-            logger("- Join failed: " + theConversation.uniqueName + ' :' + err.message + ":");
-            addChatMessage("- Join failed: " + err.message);
-        }
-    });
+function setupTheConversation() {
+    addChatMessage("++ Conversation joined.");
+    setButtons("join");
     // -------------------------------------------------------------------------
     // Set conversation event listeners.
     theConversation.on('messageAdded', function (message) {
@@ -221,8 +171,8 @@ function joinConversation() {
 }
 
 // -----------------------------------------------------------------------------
-function listChannels() {
-    if (thisConversationsClient === "") {
+function listConversations() {
+    if (thisConversationClient === "") {
         addChatMessage("First, create a Chat Client.");
         logger("Required: Chat Client.");
         return;
@@ -248,36 +198,30 @@ function listChannels() {
     });
 }
 
-function deleteChannel() {
-    logger("Function: deleteChannel()");
-    if (thisConversationsClient === "") {
-        addChatMessage("First, create a Chat Client.");
-        logger("Required: Chat Client.");
+// -----------------------------------------------------------------------------
+function deleteConversation() {
+    logger("Function: deleteConversation()");
+    if (thisConversationClient === "") {
+        addChatMessage("First, create a Conversations Client.");
+        logger("Required: Conversations Client.");
         return;
     }
-    chatChannelName = $("#channelName").val();
-    if (chatChannelName === "") {
-        addChatMessage("Enter a Channel name.");
-        logger("Required: Channel name.");
+    conversationName = $("#channelName").val();
+    if (conversationName === "") {
+        addChatMessage("Enter a conversation name.");
+        logger("Required: conversation name.");
         return;
     }
-    thisConversationsClient.getChannelByUniqueName(chatChannelName)
-            .then(function (channel) {
-                theConversation = channel;
-                logger("Channel exists: " + chatChannelName + " : " + theConversation);
-                theConversation.delete().then(function (channel) {
-                    addChatMessage('+ Deleted channel: ' + chatChannelName);
-                }).catch(function (err) {
-                    if (theConversation.createdBy !== userIdentity) {
-                        addChatMessage("- Can only be deleted by the creator: " + theConversation.createdBy);
-                    } else {
-                        logger("- Delete failed: " + theConversation.uniqueName + ', ' + err);
-                        addChatMessage("- Delete failed: " + err);
-                    }
-                });
-            }).catch(function () {
-        logger("Channel doesn't exist.");
-        addChatMessage("- Channel doesn't exist, cannot delete it: " + chatChannelName);
+    addChatMessage("+ Remove conversation: " + conversationName);
+    var jqxhr = $.get("removeConversation?conversationid=" + conversationName, function (returnString) {
+        if (returnString !== "0") {
+            addChatMessage("-- Warning, conversation not removed.");
+            logger("-- Conversation not removed.");
+            return;
+        }
+        addChatMessage("+ Conversation removed.");
+    }).fail(function () {
+        logger("- Error removing conversation.");
     });
 }
 
@@ -373,10 +317,10 @@ function activateChatBox() {
         joinChatConversation();
     });
     $("#btn-list").click(function () {
-        listChannels();
+        listConversations();
     });
     $("#btn-delete").click(function () {
-        deleteChannel();
+        deleteConversation();
     });
     $("#btn-members").click(function () {
         listMembers();
@@ -389,7 +333,7 @@ function activateChatBox() {
     });
     // --------------------------------
     $("#btn-chat").click(function () {
-        if (thisConversationsClient === "") {
+        if (thisConversationClient === "") {
             addChatMessage("First, create a Chat Client.");
             return;
         }
@@ -431,7 +375,7 @@ function setButtons(activity) {
             $('#btn-list').prop('disabled', false);
             $('#btn-join').prop('disabled', false);
             //
-            // $('#btn-delete').prop('disabled', false);
+            $('#btn-delete').prop('disabled', false);
             $('#btn-chat').prop('disabled', true);
             $('#btn-members').prop('disabled', true);
             $('#btn-count').prop('disabled', true);
@@ -444,7 +388,7 @@ function setButtons(activity) {
             $('#btn-list').prop('disabled', false);
             $('#btn-join').prop('disabled', false);
             //
-            // $('#btn-delete').prop('disabled', false);
+            $('#btn-delete').prop('disabled', false);
             $('#btn-chat').prop('disabled', false);
             // $('#btn-members').prop('disabled', false);
             // $('#btn-count').prop('disabled', false);
