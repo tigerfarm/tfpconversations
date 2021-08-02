@@ -97,7 +97,11 @@ function addParticipantToConversation(res, conversationId, participantIdentity) 
 const express = require('express');
 const path = require('path');
 const url = require("url");
+
+// When deploying to Heroku, must use the keyward, "PORT".
+// This allows overriding port 80 locally, while Heroku will override it to port 80.
 const PORT = process.env.PORT || 8000;
+
 var app = express();
 // -----------------------------------------------------------------------------
 app.get('/generateToken', function (req, res) {
@@ -154,7 +158,7 @@ app.get('/joinConversation', function (req, res) {
                         console.log("+ Conversation does NOT exit, create it.");
                         client.conversations.services(CONVERSATIONS_SERVICE_SID).conversations
                                 .create({
-                                    messagingServiceSid: process.env.MESSAGING_SERVICE_SID,
+                                    messagingServiceSid: process.env.CONVERSATIONS_MESSAGING_SERVICE_SID,
                                     uniqueName: conversationId,
                                     friendlyName: conversationId
                                 })
