@@ -97,11 +97,7 @@ function addParticipantToConversation(res, conversationId, participantIdentity) 
 const express = require('express');
 const path = require('path');
 const url = require("url");
-
-// When deploying to Heroku, must use the keyward, "PORT".
-// This allows overriding port 80 locally, while Heroku will override it to port 80.
 const PORT = process.env.PORT || 8000;
-
 var app = express();
 // -----------------------------------------------------------------------------
 app.get('/generateToken', function (req, res) {

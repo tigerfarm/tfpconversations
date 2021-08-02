@@ -1,9 +1,9 @@
 {
   "name": "Sample Conversations Web Server Application",
-  "description": "This application is a sample chat web application.",
-  "repository": "https://github.com/tigerfarm/tigchatweb",
+  "description": "This application is a sample Conversations chat web application.",
+  "repository": "https://github.com/tigerfarm/tfpconversations",
   "logo": "http://tigerfarmpress.com/images/topImgLeft.jpg",
-  "keywords": ["node", "express", "heroku", "Twilio"],
+  "keywords": ["node", "express", "heroku", "Twilio", "Conversations"],
     "env": {
         "CONVERSATIONS_ACCOUNT_SID": {
             "description": "Your Twilio account SID. You view it here: https://console.twilio.com",
