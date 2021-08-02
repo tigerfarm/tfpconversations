@@ -1,5 +1,5 @@
 {
-  "name": "tfpconversations",
+  "name": "conversationsapp",
   "version": "1.2.0",
   "description": "Node.js Express Conversations web application",
   "engines": {
@@ -11,11 +11,12 @@
   },
   "dependencies": {
     "express": "^4.17.1",
-    "twilio": "^3.66.1"
+    "twilio": "^3.31.0",
+    "twilio-chat": "^3.2.3"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/tigerfarm/tfpconversations"
+    "url": "https://github.com/heroku/tfpconversations"
   },
   "keywords": [
     "twilio",

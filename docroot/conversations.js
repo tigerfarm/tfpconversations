@@ -1,7 +1,7 @@
 // -----------------------------------------------------------------------------
 // Documentation:       https://media.twiliocdn.com/sdk/js/conversations/releases/1.2.1/docs/
 //                      https://media.twiliocdn.com/sdk/js/conversations/releases/1.2.1/docs/Client.html
-//                      https://media.twiliocdn.com/sdk/js/conversations/releases/1.2.1/docs/Conversation.html
+//                      https://media.twiliocdn.com/sdk/js/conversations/releases/1.2.1/docs/Conversation.htm
 // Resources:
 // Service:             https://www.twilio.com/docs/conversations/api/service-resource
 // Conversation:        https://www.twilio.com/docs/conversations/api/conversation-resource
@@ -11,7 +11,7 @@
 // Message:             https://www.twilio.com/docs/conversations/api/service-conversation-message-resource
 // 
 // -----------------------------------------------------------------------------
-let thisConversationClient = "";
+let thisConversationsClient = "";
 let theConversation = "";           // Conversation object
 let thisToken;
 let totalMessages = 0; // This count of read channel messages needs work to initialize and maintain the count.
@@ -45,21 +45,20 @@ function createChatClientObject() {
         logger("Token refreshed: " + thisToken);
         // -------------------------------
         // https://www.twilio.com/docs/conversations/initializing-conversations-sdk-clients
-        Twilio.Conversations.Client.create(thisToken).then(conversationClient => {
-            logger("Conversations client created: thisConversationClient.");
-            thisConversationClient = conversationClient;
+        Twilio.Conversations.Client.create(thisToken).then(chatClient => {
+            logger("Conversations client created: thisConversationsClient.");
+            thisConversationsClient = chatClient;
             addChatMessage("+ Chat client created for the user: " + userIdentity);
             //
-            // When the conversation object is created,
-            //  the participant is automatically joined to the subscribed conversations.
-            // The sample application maintains a list of subscribed/joined conversations.
-            //  https://www.twilio.com/docs/conversations/javascript/exploring-conversations-javascript-quickstart#
-            //  { conversations: [...this.state.conversations, conversation] }
-            addChatMessage("+ Participant is subscribed and joined to conversations: ");
-            thisConversationClient.getSubscribedConversations().then(function (paginator) {
+            // thisConversationsClient.getSubscribedConversations();
+            addChatMessage("+ Participant is subscribed to conversations: ");
+            thisConversationsClient.getSubscribedConversations().then(function (paginator) {
                 for (i = 0; i < paginator.items.length; i++) {
-                    const aConversation = paginator.items[i];
-                    let listString = '++ ' + aConversation.uniqueName + ": " + aConversation.friendlyName + ": " + aConversation.createdBy;
+                    const channel = paginator.items[i];
+                    let listString = '++ ' + channel.uniqueName + ": " + channel.friendlyName + ": " + channel.createdBy;
+                    if (channel.uniqueName === chatChannelName) {
+                        listString += " *";
+                    }
                     addChatMessage(listString);
                 }
                 addChatMessage("+ End list.");
@@ -74,17 +73,17 @@ function createChatClientObject() {
             // 
             // Documentation:
             //   https://www.twilio.com/docs/chat/tutorials/chat-application-node-express?code-sample=code-initialize-the-chat-client-9&code-language=Node.js&code-sdk-version=default
-            thisConversationClient.on('channelAdded', onChannelAdded);
-            // thisConversationClient.on('channelRemoved', $.throttle(tc.loadChannelList));
-            // thisConversationClient.on('tokenExpired', onTokenExpiring);
+            thisConversationsClient.on('channelAdded', onChannelAdded);
+            // thisConversationsClient.on('channelRemoved', $.throttle(tc.loadChannelList));
+            // thisConversationsClient.on('tokenExpired', onTokenExpiring);
             //
-            thisConversationClient.on('tokenAboutToExpire', onTokenAboutToExpire);
+            thisConversationsClient.on('tokenAboutToExpire', onTokenAboutToExpire);
             //
 
-            thisConversationClient.on("conversationJoined", (conversation) => {
-                logger("+ Conversation joined: " + conversation.uniqueName);
+            thisConversationsClient.on("conversationJoined", (conversation) => {
+                logger("+ Conversation joined.");
             });
-            thisConversationClient.on("conversationLeft", (thisConversation) => {
+            thisConversationsClient.on("conversationLeft", (thisConversation) => {
                 logger("+ Existed the conversation.");
             });
 
@@ -112,7 +111,7 @@ function onTokenAboutToExpire() {
         logger("Token update: " + thisToken);
         // -------------------------------
         // https://www.twilio.com/docs/chat/access-token-lifecycle
-        thisConversationClient.updateToken(thisToken);
+        thisConversationsClient.updateToken(thisToken);
         // -------------------------------
     }).fail(function () {
         logger("- onTokenAboutToExpire: Error refreshing the chat client token.");
@@ -122,7 +121,7 @@ function onTokenAboutToExpire() {
 // -----------------------------------------------------------------------------
 function joinChatConversation() {
     logger("+ Function: joinChatConversation()");
-    if (thisConversationClient === "") {
+    if (thisConversationsClient === "") {
         addChatMessage("First, create a Chat Client.");
         logger("Required: Chat Client.");
         return;
@@ -144,7 +143,7 @@ function joinChatConversation() {
             logger("-- Error -2.");
             return;
         }
-        thisConversationClient.getConversationByUniqueName(conversationName)
+        thisConversationsClient.getConversationByUniqueName(conversationName)
                 .then(aConversation => {
                     theConversation = aConversation;
                     logger("+ theConversation object is set.");
@@ -172,7 +171,7 @@ function setupTheConversation() {
 
 // -----------------------------------------------------------------------------
 function listConversations() {
-    if (thisConversationClient === "") {
+    if (thisConversationsClient === "") {
         addChatMessage("First, create a Chat Client.");
         logger("Required: Chat Client.");
         return;
@@ -201,7 +200,7 @@ function listConversations() {
 // -----------------------------------------------------------------------------
 function deleteConversation() {
     logger("Function: deleteConversation()");
-    if (thisConversationClient === "") {
+    if (thisConversationsClient === "") {
         addChatMessage("First, create a Conversations Client.");
         logger("Required: Conversations Client.");
         return;
@@ -333,7 +332,7 @@ function activateChatBox() {
     });
     // --------------------------------
     $("#btn-chat").click(function () {
-        if (thisConversationClient === "") {
+        if (thisConversationsClient === "") {
             addChatMessage("First, create a Chat Client.");
             return;
         }
