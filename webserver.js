@@ -14,7 +14,7 @@
 // 
 // Create environment variables which are used in the generateToken() function.
 //
-var ACCOUNT_SID = process.env.MASTER_ACCOUNT_SID;
+var ACCOUNT_SID = process.env.CONVERSATIONS_ACCOUNT_SID;
 //
 // Create a Chat Service:
 //  https://www.twilio.com/console/chat/dashboard
@@ -22,11 +22,11 @@ var CONVERSATIONS_SERVICE_SID = process.env.CONVERSATIONS_SERVICE_SID;
 //
 // Create an API key and secret string:
 //  https://www.twilio.com/console/chat/runtime/api-keys
-var API_KEY = process.env.API_KEY;
-var API_KEY_SECRET = process.env.API_KEY_SECRET;
+var API_KEY = process.env.CONVERSATIONS_API_KEY;
+var API_KEY_SECRET = process.env.CONVERSATIONS_API_KEY_SECRET;
 // -----------------------------------------------------------------------------
-console.log("+++ Chat program is starting up.");
-var client = require('twilio')(process.env.MASTER_ACCOUNT_SID, process.env.MASTER_AUTH_TOKEN);
+console.log("+++ Conversations application web server is starting up.");
+var client = require('twilio')(process.env.CONVERSATIONS_ACCOUNT_SID, process.env.CONVERSATIONS_ACCOUNT_AUTH_TOKEN);
 // -----------------------------------------------------------------------------
 var returnMessage = '';
 function sayMessage(message) {
