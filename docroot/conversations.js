@@ -10,8 +10,11 @@
 // User:                https://www.twilio.com/docs/conversations/api/user-resource
 // Message:             https://www.twilio.com/docs/conversations/api/service-conversation-message-resource
 // 
+// Sample application:  https://www.twilio.com/docs/conversations/javascript/exploring-conversations-javascript-quickstart
+// 
 // -----------------------------------------------------------------------------
 let thisConversationClient = "";
+const conversationList = [];
 let theConversation = "";           // Conversation object
 let thisToken;
 let totalMessages = 0; // This count of read channel messages needs work to initialize and maintain the count.
@@ -57,7 +60,6 @@ function createChatClientObject() {
             //  { conversations: [...this.state.conversations, conversation] }
             addChatMessage("+ Participant is subscribed and joined to the conversations: ");
             // let thatConversation = "";
-            const conversationList = [];
             thisConversationClient.getSubscribedConversations().then(function (paginator) {
                 for (i = 0; i < paginator.items.length; i++) {
                     const aConversation = paginator.items[i];
@@ -87,7 +89,6 @@ function createChatClientObject() {
             //
             thisConversationClient.on('tokenAboutToExpire', onTokenAboutToExpire);
             //
-
             thisConversationClient.on("conversationJoined", (conversation) => {
                 logger("+ Conversation joined: " + conversation.uniqueName);
             });
@@ -141,8 +142,19 @@ function joinChatConversation() {
         return;
     }
     addChatMessage("+ Join the conversation: " + conversationName + ", as identity: " + userIdentity);
+
+    // logger("+ conversationList.length = " + conversationList.length);
+    for (i = 0; i < conversationList.length; i++) {
+        if (conversationList[i].uniqueName === conversationName) {
+            theConversation = conversationList[i];
+            logger("+ theConversation conversationList object is set.");
+            setupTheConversation();
+            return;
+        }
+    }
+
     var jqxhr = $.get("joinConversation?conversationid=" + conversationName + "&identity=" + userIdentity, function (returnString) {
-        logger("+ returnString :" + returnString + ":");
+        // logger("+ returnString :" + returnString + ":");
         if (returnString === "0") {
             addChatMessage("+ Participant is already in the conversation: " + conversationName + ".");
         } else if (returnString === "1") {
@@ -221,6 +233,7 @@ function deleteConversation() {
     }
     addChatMessage("+ Remove conversation: " + conversationName);
     var jqxhr = $.get("removeConversation?conversationid=" + conversationName, function (returnString) {
+        logger("+ returnString :" + returnString + ":");
         if (returnString !== "0") {
             addChatMessage("-- Warning, conversation not removed.");
             logger("-- Conversation not removed.");

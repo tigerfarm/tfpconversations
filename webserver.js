@@ -184,10 +184,10 @@ app.get('/joinConversation', function (req, res) {
 app.get('/removeConversation', function (req, res) {
     if (req.query.conversationid) {
         conversationId = req.query.conversationid;
-        sayMessage("+ Remove the conversation.");
+        sayMessage("+ Remove the conversation: " + conversationId);
         client.conversations.services(CONVERSATIONS_SERVICE_SID).conversations(conversationId).remove()
                 .then(conversations => {
-                    console.log("++ Removed." + c.sid);
+                    console.log("++ Removed.");
                     res.send("0");
                 })
                 .catch(function (err) {
