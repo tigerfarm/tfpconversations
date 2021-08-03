@@ -55,14 +55,21 @@ function createChatClientObject() {
             // The sample application maintains a list of subscribed/joined conversations.
             //  https://www.twilio.com/docs/conversations/javascript/exploring-conversations-javascript-quickstart#
             //  { conversations: [...this.state.conversations, conversation] }
-            addChatMessage("+ Participant is subscribed and joined to conversations: ");
+            addChatMessage("+ Participant is subscribed and joined to the conversations: ");
+            // let thatConversation = "";
+            const conversationList = [];
             thisConversationClient.getSubscribedConversations().then(function (paginator) {
                 for (i = 0; i < paginator.items.length; i++) {
                     const aConversation = paginator.items[i];
                     let listString = '++ ' + aConversation.uniqueName + ": " + aConversation.friendlyName + ": " + aConversation.createdBy;
                     addChatMessage(listString);
+                    conversationList[i] = aConversation;
+                    // logger("++ conversationList " + i + ": " + conversationList[i].uniqueName);
                 }
                 addChatMessage("+ End list.");
+                // conversationList now contains the list of joined/subscribed conversations.
+                // Can send messages using the array. For example:
+                //    conversationList[i].sendMessage("+ conversationList message: " + conversationList[i].uniqueName);
             });
             //
             // -------------------------------
