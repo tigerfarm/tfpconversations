@@ -63,9 +63,8 @@ function createChatClientObject() {
             thisConversationClient.getSubscribedConversations().then(function (paginator) {
                 for (i = 0; i < paginator.items.length; i++) {
                     const aConversation = paginator.items[i];
-                    let listString = '++ ' + aConversation.uniqueName + ": " + aConversation.friendlyName + ": " + aConversation.createdBy;
-                    addChatMessage(listString);
                     conversationList[i] = aConversation;
+                    // addChatMessage('++ ' + aConversation.uniqueName + ": " + aConversation.friendlyName + ": " + aConversation.createdBy);
                     // logger("++ conversationList " + i + ": " + conversationList[i].uniqueName);
                 }
                 addChatMessage("+ End list.");
@@ -89,11 +88,13 @@ function createChatClientObject() {
             //
             thisConversationClient.on('tokenAboutToExpire', onTokenAboutToExpire);
             //
-            thisConversationClient.on("conversationJoined", (conversation) => {
-                logger("+ Conversation joined: " + conversation.uniqueName);
+            thisConversationClient.on("conversationJoined", (aConversation) => {
+                addChatMessage("++ Conversation joined: " + aConversation.uniqueName
+                         + ": " + aConversation.friendlyName + ": " + aConversation.createdBy
+                        );
             });
-            thisConversationClient.on("conversationLeft", (thisConversation) => {
-                logger("+ Existed the conversation.");
+            thisConversationClient.on("conversationLeft", (aConversation) => {
+                addChatMessage("++ Existed the conversation." + aConversation.uniqueName);
             });
 
         });
@@ -142,17 +143,19 @@ function joinChatConversation() {
         return;
     }
     addChatMessage("+ Join the conversation: " + conversationName + ", as identity: " + userIdentity);
-
-    // logger("+ conversationList.length = " + conversationList.length);
+    // This works for conversations already subscribed and joined.
     for (i = 0; i < conversationList.length; i++) {
         if (conversationList[i].uniqueName === conversationName) {
             theConversation = conversationList[i];
-            logger("+ theConversation conversationList object is set.");
+            addChatMessage("+ Ready to chat in conversation.");
             setupTheConversation();
             return;
         }
     }
-
+    // The following works for:
+    // + new rooms and 
+    // + rooms created by others
+    // + Will also work for already subscribed rooms.
     var jqxhr = $.get("joinConversation?conversationid=" + conversationName + "&identity=" + userIdentity, function (returnString) {
         // logger("+ returnString :" + returnString + ":");
         if (returnString === "0") {
@@ -178,7 +181,7 @@ function joinChatConversation() {
 }
 
 function setupTheConversation() {
-    addChatMessage("++ Conversation joined.");
+    // addChatMessage("++ Conversation joined.");
     setButtons("join");
     // -------------------------------------------------------------------------
     // Set conversation event listeners.
