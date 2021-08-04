@@ -52,12 +52,6 @@ function createChatClientObject() {
             logger("Conversations client created: thisConversationClient.");
             thisConversationClient = conversationClient;
             addChatMessage("+ Chat client created for the user: " + userIdentity);
-            //
-            // When the conversation object is created,
-            //  the participant is automatically joined to the subscribed conversations.
-            // The sample application maintains a list of subscribed/joined conversations.
-            //  https://www.twilio.com/docs/conversations/javascript/exploring-conversations-javascript-quickstart#
-            //  { conversations: [...this.state.conversations, conversation] }
             addChatMessage("+ Participant is subscribed and joined to the conversations: ");
             // let thatConversation = "";
             thisConversationClient.getSubscribedConversations().then(function (paginator) {
@@ -82,19 +76,19 @@ function createChatClientObject() {
             // 
             // Documentation:
             //   https://www.twilio.com/docs/chat/tutorials/chat-application-node-express?code-sample=code-initialize-the-chat-client-9&code-language=Node.js&code-sdk-version=default
-            thisConversationClient.on('channelAdded', onChannelAdded);
             // thisConversationClient.on('channelRemoved', $.throttle(tc.loadChannelList));
             // thisConversationClient.on('tokenExpired', onTokenExpiring);
             //
             thisConversationClient.on('tokenAboutToExpire', onTokenAboutToExpire);
             //
+            thisConversationClient.on('conversationAdded', onConversationAdded);
             thisConversationClient.on("conversationJoined", (aConversation) => {
                 addChatMessage("++ Conversation joined: " + aConversation.uniqueName
                         + ": " + aConversation.friendlyName + ": " + aConversation.createdBy
                         );
             });
             thisConversationClient.on("conversationLeft", (aConversation) => {
-                addChatMessage("++ Existed the conversation." + aConversation.uniqueName);
+                addChatMessage("++ Exited the conversation: " + aConversation.uniqueName);
             });
 
         });
@@ -103,11 +97,11 @@ function createChatClientObject() {
     });
 }
 
-function onChannelAdded(aChannel) {
+function onConversationAdded(aChannel) {
     // https://media.twiliocdn.com/sdk/android/chat/releases/2.0.6/docs/com/twilio/chat/ChatClientListener.html
     // Called when the current user is added to a channel.
-    logger("onChannelAdded, user added to the  channel: " + aChannel.friendlyName);
     // Note, joined but not subscribed.
+    logger("onConversationAdded, user added to the  channel: " + aChannel.friendlyName);
 }
 
 function onTokenAboutToExpire() {
@@ -155,7 +149,7 @@ function joinChatConversation() {
         }
     }
     // -----------------------------------------
-    // Check if the conversation exists.
+    // Serverside check if the conversation exists.
     //  If not exists, create it and join it.
     //  If exists, join it.
     var jqxhr = $.get("conversationExists?conversationid=" + conversationName, function (returnString) {
@@ -165,11 +159,7 @@ function joinChatConversation() {
             createConversation();
         } else if (returnString === "1") {
             addChatMessage("+ Conversation exists: " + conversationName + ". Has not joined: " + userIdentity);
-            addChatMessage("+ This option to join an unsubscribed conversation is not yet ready.");
-            // Since this participant has not already joined, join the room.
-            // theConversation.add(userIdentity);
-            // addChatMessage("+ Conversation created and participant is added to the conversation:" + userIdentity);
-            // setupTheConversation();
+            // System/admin authorization required which this participant doesn't have.
             joinChatConversationServerSide();
         } else {
             logger("-- Error: " + returnString);
@@ -178,6 +168,23 @@ function joinChatConversation() {
     }).fail(function () {
         logger("- Error checking conversation id.");
     });
+}
+
+// -----------------------------------------------------------------------------
+function joinChatConversationIfAdmin() {
+    // Untested.
+    // The following fails because it's a private channel.
+    thisConversationClient.getConversationByUniqueName(conversationName)
+            .then(aConversation => {
+                theConversation = aConversation;
+                logger("+ theConversation object is set.");
+                theConversation.add(userIdentity);
+                addChatMessage("+ Conversation created and participant is added to the conversation:" + userIdentity);
+                setupTheConversation();
+            })
+            .catch(function () {
+                logger("- Error conversation is not available: " + conversationName + ".");
+            });
 }
 
 // -----------------------------------------------------------------------------

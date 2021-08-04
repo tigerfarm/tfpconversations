@@ -204,21 +204,7 @@ app.get('/joinConversation', function (req, res) {
                         addParticipantToConversation(res, conversationId, participantIdentity);
                     })
                     .catch(function (err) {
-                        console.log("+ Conversation does NOT exist, create it.");
-                        client.conversations.services(CONVERSATIONS_SERVICE_SID).conversations
-                                .create({
-                                    messagingServiceSid: process.env.CONVERSATIONS_MESSAGING_SERVICE_SID,
-                                    uniqueName: conversationId,
-                                    friendlyName: conversationId
-                                })
-                                .then(conversation => {
-                                    console.log("++ Conversation created: " + conversation.sid);
-                                    addParticipantToConversation(res, conversationId, participantIdentity);
-                                })
-                                .catch(function (err) {
-                                    console.log("-- Conversation NOT created.");
-                                    res.send("-2");
-                                });
+                        console.log("+ Conversation does NOT exist, cannot join it.");
                     });
         } else {
             sayMessage("- Parameter required: conversationid.");
