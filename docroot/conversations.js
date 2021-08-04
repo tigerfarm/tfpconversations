@@ -150,6 +150,7 @@ function joinChatConversation() {
     }
     // -----------------------------------------
     // Serverside check if the conversation exists.
+    // Use serverside check because this uses is not authorized to see other private channels.
     //  If not exists, create it and join it.
     //  If exists, join it.
     var jqxhr = $.get("conversationExists?conversationid=" + conversationName, function (returnString) {
@@ -159,7 +160,8 @@ function joinChatConversation() {
             createConversation();
         } else if (returnString === "1") {
             addChatMessage("+ Conversation exists: " + conversationName + ". Has not joined: " + userIdentity);
-            // System/admin authorization required which this participant doesn't have.
+            // Using a serverside request because
+            //  System/admin authorization is required which this participant doesn't have.
             joinChatConversationServerSide();
         } else {
             logger("-- Error: " + returnString);
@@ -173,7 +175,7 @@ function joinChatConversation() {
 // -----------------------------------------------------------------------------
 function joinChatConversationIfAdmin() {
     // Untested.
-    // The following fails because it's a private channel.
+    // The following fails because it's a private channel and the current participant does not have authorization.
     thisConversationClient.getConversationByUniqueName(conversationName)
             .then(aConversation => {
                 theConversation = aConversation;
@@ -262,7 +264,7 @@ function listConversations() {
         return;
     }
     chatChannelName = $("#channelName").val();
-    addChatMessage("+ List of conversations.");
+    addChatMessage("+ List of conversations from a server side request.");
     logger("Refresh the token using client id: " + userIdentity);
     var jqxhr = $.get("listConversations", function (returnString) {
         if (returnString === "-1") {
@@ -328,6 +330,7 @@ function listMembers() {
     });
 }
 
+// -----------------------------------------------------------------------------
 function listAllMessages() {
     logger("+ Called: listAllMessages().");
     theConversation.getMessages().then(function (messages) {
