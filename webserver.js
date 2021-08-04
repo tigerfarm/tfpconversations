@@ -120,8 +120,9 @@ app.get('/listConversations', function (req, res) {
             .then(conversations => {
                 conversations.forEach(c => {
                     console.log(
-                            "+ Conversations SID: " + c.sid
-                            + " " + c.friendlyName
+                            "+ Conversations SID/friendlyName/createdBy: " + c.sid
+                            + "/" + c.friendlyName
+                            + "/" + c.createdBy
                             );
                     theResult = theResult
                             + c.sid + " "
@@ -130,6 +131,55 @@ app.get('/listConversations', function (req, res) {
                 res.send(theResult);
             });
 });
+// -----------------------------------------------------------------------------
+app.get('/conversationExists', function (req, res) {
+    // localhost:8000/conversationExists?conversationid=abc
+    sayMessage("+ Check if conversation exists.");
+    if (req.query.conversationid) {
+        conversationId = req.query.conversationid;
+        sayMessage("+ Parameter conversationId: " + conversationId);
+        //
+        // Determine if the conversation exists.
+        client.conversations.services(CONVERSATIONS_SERVICE_SID).conversations(conversationId)
+                .fetch()
+                .then(conversation => {
+                    console.log(
+                            "+ Conversation exits, SID: " + conversation.sid
+                            + " " + conversation.uniqueName
+                            + " " + conversation.friendlyName
+                            );
+                    res.send("1");
+                })
+                .catch(function (err) {
+                    console.log("+ Conversation does NOT exist.");
+                    res.send("0");
+                });
+    } else {
+        sayMessage("- Parameter required: conversationid.");
+        res.status(400).send('HTTP Error 400. Parameter required: conversationid.');
+    }
+});
+
+// -----------------------------------------------------------------------------
+app.get('/removeConversation', function (req, res) {
+    if (req.query.conversationid) {
+        conversationId = req.query.conversationid;
+        sayMessage("+ Remove the conversation: " + conversationId);
+        client.conversations.services(CONVERSATIONS_SERVICE_SID).conversations(conversationId).remove()
+                .then(conversations => {
+                    console.log("++ Removed.");
+                    res.send("0");
+                })
+                .catch(function (err) {
+                    console.log("-- Conversation does NOT exit, not removed.");
+                    res.send("-2");
+                });
+    } else {
+        sayMessage("- Parameter required: conversationid.");
+        res.status(400).send('HTTP Error 400. Parameter required: conversationid.');
+    }
+});
+
 // -----------------------------------------------------------------------------
 app.get('/joinConversation', function (req, res) {
     // Can join a conversation using either the SID or unique name.
@@ -154,7 +204,7 @@ app.get('/joinConversation', function (req, res) {
                         addParticipantToConversation(res, conversationId, participantIdentity);
                     })
                     .catch(function (err) {
-                        console.log("+ Conversation does NOT exit, create it.");
+                        console.log("+ Conversation does NOT exist, create it.");
                         client.conversations.services(CONVERSATIONS_SERVICE_SID).conversations
                                 .create({
                                     messagingServiceSid: process.env.CONVERSATIONS_MESSAGING_SERVICE_SID,
@@ -177,26 +227,6 @@ app.get('/joinConversation', function (req, res) {
     } else {
         sayMessage("- Parameter required: identity.");
         res.status(400).send('HTTP Error 400. Parameter required: identity.');
-    }
-});
-
-// -----------------------------------------------------------------------------
-app.get('/removeConversation', function (req, res) {
-    if (req.query.conversationid) {
-        conversationId = req.query.conversationid;
-        sayMessage("+ Remove the conversation: " + conversationId);
-        client.conversations.services(CONVERSATIONS_SERVICE_SID).conversations(conversationId).remove()
-                .then(conversations => {
-                    console.log("++ Removed.");
-                    res.send("0");
-                })
-                .catch(function (err) {
-                    console.log("-- Conversation does NOT exit, not removed.");
-                    res.send("-2");
-                });
-    } else {
-        sayMessage("- Parameter required: conversationid.");
-        res.status(400).send('HTTP Error 400. Parameter required: conversationid.');
     }
 });
 

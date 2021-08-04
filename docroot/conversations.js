@@ -10,7 +10,7 @@
 // User:                https://www.twilio.com/docs/conversations/api/user-resource
 // Message:             https://www.twilio.com/docs/conversations/api/service-conversation-message-resource
 // 
-// Sample application:  https://www.twilio.com/docs/conversations/javascript/exploring-conversations-javascript-quickstart
+// Sample React app:    https://www.twilio.com/docs/conversations/javascript/exploring-conversations-javascript-quickstart
 // 
 // -----------------------------------------------------------------------------
 let thisConversationClient = "";
@@ -90,7 +90,7 @@ function createChatClientObject() {
             //
             thisConversationClient.on("conversationJoined", (aConversation) => {
                 addChatMessage("++ Conversation joined: " + aConversation.uniqueName
-                         + ": " + aConversation.friendlyName + ": " + aConversation.createdBy
+                        + ": " + aConversation.friendlyName + ": " + aConversation.createdBy
                         );
             });
             thisConversationClient.on("conversationLeft", (aConversation) => {
@@ -143,6 +143,8 @@ function joinChatConversation() {
         return;
     }
     addChatMessage("+ Join the conversation: " + conversationName + ", as identity: " + userIdentity);
+
+    // -----------------------------------------
     // This works for conversations already subscribed and joined.
     for (i = 0; i < conversationList.length; i++) {
         if (conversationList[i].uniqueName === conversationName) {
@@ -152,6 +154,34 @@ function joinChatConversation() {
             return;
         }
     }
+    // -----------------------------------------
+    // Check if the conversation exists.
+    //  If not exists, create it and join it.
+    //  If exists, join it.
+    var jqxhr = $.get("conversationExists?conversationid=" + conversationName, function (returnString) {
+        // logger("+ returnString :" + returnString + ":");
+        if (returnString === "0") {
+            addChatMessage("+ Conversation does NOT exist: " + conversationName + ".");
+            createConversation();
+        } else if (returnString === "1") {
+            addChatMessage("+ Conversation exists: " + conversationName + ". Has not joined: " + userIdentity);
+            addChatMessage("+ This option to join an unsubscribed conversation is not yet ready.");
+            // Since this participant has not already joined, join the room.
+            // theConversation.add(userIdentity);
+            // addChatMessage("+ Conversation created and participant is added to the conversation:" + userIdentity);
+            // setupTheConversation();
+            joinChatConversationServerSide();
+        } else {
+            logger("-- Error: " + returnString);
+            return;
+        }
+    }).fail(function () {
+        logger("- Error checking conversation id.");
+    });
+}
+
+// -----------------------------------------------------------------------------
+function joinChatConversationServerSide() {
     // The following works for:
     // + new rooms and 
     // + rooms created by others
@@ -190,6 +220,31 @@ function setupTheConversation() {
         addChatMessage("> " + message.author + " : " + message.conversation.uniqueName + " : " + message.body);
         incCount();
     });
+}
+
+// -----------------------------------------------------------------------------
+function createConversation() {
+    // http://media.twiliocdn.com/sdk/js/conversations/releases/1.2.1/docs/Client.html#createConversation__anchor
+    logger("+ Create the conversation if it doesn't exist: " + chatChannelName);
+    thisConversationClient.createConversation({
+        uniqueName: conversationName,
+        friendlyName: conversationName
+    })
+            .then(aConversation => {
+                theConversation = aConversation;
+                logger("+ Conversation created and theConversation object is set: "
+                        + " SID: " + theConversation.sid
+                        + " friendlyName: " + theConversation.friendlyName
+                        + " uniqueName: " + theConversation.uniqueName
+                        // + channel.getAttributes()
+                        );
+                theConversation.add(userIdentity);
+                addChatMessage("+ Conversation created and participant is added to the conversation:" + userIdentity);
+                setupTheConversation();
+            })
+            .catch(function () {
+                logger("- Error, failed to create the conversation: " + conversationName);
+            });
 }
 
 // -----------------------------------------------------------------------------
@@ -243,6 +298,7 @@ function deleteConversation() {
             return;
         }
         addChatMessage("+ Conversation removed.");
+        setButtons("createChatClient"); // back to ready to join a conversation.
     }).fail(function () {
         logger("- Error removing conversation.");
     });
