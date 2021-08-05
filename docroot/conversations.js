@@ -1,4 +1,16 @@
 // -----------------------------------------------------------------------------
+// To do:
+//  + List participants in a conversation.
+//  + List conversations that the participant is in.
+//  + Modify friendlyName separate from uniqueName.
+//  + Test roles such as participant admin.
+//      https://www.twilio.com/docs/conversations/api/role-resource
+//  + Add SMS participants.
+//  + uniqueName could be an SMS participant's phone number.
+//  + friendlyName could be an SMS participant's name.
+//  + Test with SMS participants.
+//  
+// -----------------------------------------------------------------------------
 // Documentation:       https://media.twiliocdn.com/sdk/js/conversations/releases/1.2.1/docs/
 //                      https://media.twiliocdn.com/sdk/js/conversations/releases/1.2.1/docs/Client.html
 //                      https://media.twiliocdn.com/sdk/js/conversations/releases/1.2.1/docs/Conversation.html
