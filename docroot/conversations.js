@@ -1,14 +1,22 @@
 // -----------------------------------------------------------------------------
 // To do:
+//  + If conversation is deleted, remove it from conversationList[].
 //  + List participants in a conversation.
 //  + List conversations that the participant is in.
 //  + Modify friendlyName separate from uniqueName.
 //  + Test roles such as participant admin.
 //      https://www.twilio.com/docs/conversations/api/role-resource
-//  + Add SMS participants.
-//  + uniqueName could be an SMS participant's phone number.
-//  + friendlyName could be an SMS participant's name.
-//  + Test with SMS participants.
+//      
+// ------------------------------
+// To do, get this to work with SMS participants.
+// This works:
+//  + Add SMS participants. Edit and run, participantsCreateSms.js.
+//  $ node participantsCreateSms.js
+//  $ node conversationParticipantsList.js
+//  + Test with SMS participant.
+//  
+//  Test:
+//      Messaging Service/Integration/Autocreate a Conversation
 //  
 // -----------------------------------------------------------------------------
 // Documentation:       https://media.twiliocdn.com/sdk/js/conversations/releases/1.2.1/docs/
@@ -37,20 +45,24 @@ chatChannelDescription = "";
 // const Twilio = require('twilio');
 // const Chat = require('twilio-chat');
 
+function startUserFunctionMessage() {
+    addChatMessage("+ ----------------------------------------------------------");
+    logger("+ ----------------------------------------------------------");
+}
+
 // -----------------------------------------------------------------------------
 function createChatClientObject() {
+    startUserFunctionMessage();
     userIdentity = $("#username").val();
     if (userIdentity === "") {
         logger("Required: Username.");
         addChatMessage("Enter a Username to use when chatting.");
         return;
     }
-    addChatMessage("++ Creating Conversations Client, please wait.");
+    addChatMessage("++ Creating Conversations Client...");
     // Since, programs cannot make an Ajax call to a remote resource,
     // Need to do an Ajax call to a local program that goes and gets the token.
-    logger("Refresh the token using client id: " + userIdentity);
-    //
-    // I should use: $.getJSON
+    logger("+ Use a server side routine to refresh the token using client id: " + userIdentity);
     var jqxhr = $.get("generateToken?identity=" + userIdentity, function (token) {
         if (token === "0") {
             logger("- Error refreshing the token.");
@@ -117,7 +129,8 @@ function onConversationAdded(aChannel) {
 }
 
 function onTokenAboutToExpire() {
-    logger("onTokenExpiring: Refresh the token using client id: " + userIdentity);
+    startUserFunctionMessage();
+    logger("onTokenExpiring: Use a server side routine to refresh the token using client id: " + userIdentity);
     var jqxhr = $.get("generateToken?identity=" + userIdentity, function (token, status) {
         if (token === "0") {
             logger("- Error refreshing the token.");
@@ -128,6 +141,7 @@ function onTokenAboutToExpire() {
         // -------------------------------
         // https://www.twilio.com/docs/chat/access-token-lifecycle
         thisConversationClient.updateToken(thisToken);
+        thisConversationClient.getSubscribedConversations();
         // -------------------------------
     }).fail(function () {
         logger("- onTokenAboutToExpire: Error refreshing the chat client token.");
@@ -136,6 +150,7 @@ function onTokenAboutToExpire() {
 
 // -----------------------------------------------------------------------------
 function joinChatConversation() {
+    startUserFunctionMessage();
     logger("+ Function: joinChatConversation()");
     if (thisConversationClient === "") {
         addChatMessage("First, create a Chat Client.");
@@ -155,7 +170,7 @@ function joinChatConversation() {
     for (i = 0; i < conversationList.length; i++) {
         if (conversationList[i].uniqueName === conversationName) {
             theConversation = conversationList[i];
-            addChatMessage("+ Ready to chat in conversation.");
+            addChatMessage("+ Joined the conversation and ready to chat.");
             setupTheConversation();
             return;
         }
@@ -165,6 +180,7 @@ function joinChatConversation() {
     // Use serverside check because this uses is not authorized to see other private channels.
     //  If not exists, create it and join it.
     //  If exists, join it.
+    logger("+ Use a server side routine to check if a conversation exits.");
     var jqxhr = $.get("conversationExists?conversationid=" + conversationName, function (returnString) {
         // logger("+ returnString :" + returnString + ":");
         if (returnString === "0") {
@@ -270,14 +286,15 @@ function createConversation() {
 
 // -----------------------------------------------------------------------------
 function listConversations() {
+    startUserFunctionMessage();
+    logger("+ Function: listConversations(), makes a server side call.");
     if (thisConversationClient === "") {
         addChatMessage("First, create a Chat Client.");
         logger("Required: Chat Client.");
         return;
     }
     chatChannelName = $("#channelName").val();
-    addChatMessage("+ List of conversations from a server side request.");
-    logger("Refresh the token using client id: " + userIdentity);
+    addChatMessage("+ List of conversations.");
     var jqxhr = $.get("listConversations", function (returnString) {
         if (returnString === "-1") {
             logger("-- Error retrieving conversation list.");
@@ -298,7 +315,8 @@ function listConversations() {
 
 // -----------------------------------------------------------------------------
 function deleteConversation() {
-    logger("Function: deleteConversation()");
+    startUserFunctionMessage();
+    logger("+ Function: deleteConversation(), makes a server side call.");
     if (thisConversationClient === "") {
         addChatMessage("First, create a Conversations Client.");
         logger("Required: Conversations Client.");
@@ -327,10 +345,10 @@ function deleteConversation() {
 
 // -----------------------------------------------------------------------------
 function listMembers() {
-    logger("+ Called: listMembers().");
-    var members = theConversation.getSubscribedUsers();
-    addChatMessage("+ -----------------------");
+    startUserFunctionMessage();
+    logger("+ Function: listMembers().");
     addChatMessage("+ Members of this conversation: " + theConversation.uniqueName);
+    var members = theConversation.getSubscribedUsers();
     members.then(function (currentMembers) {
         currentMembers.forEach(function (member) {
             if (member.lastConsumedMessageIndex !== null) {
@@ -344,12 +362,12 @@ function listMembers() {
 
 // -----------------------------------------------------------------------------
 function listAllMessages() {
-    logger("+ Called: listAllMessages().");
+    startUserFunctionMessage();
+    logger("+ Function: listAllMessages().");
     theConversation.getMessages().then(function (messages) {
         totalMessages = messages.items.length;
         logger('Total Messages: ' + totalMessages);
-        addChatMessage("+ -----------------------");
-        addChatMessage("+ All current messages:");
+        addChatMessage("+ Current messages for conversation: " + conversationName);
         for (i = 0; i < totalMessages; i++) {
             const message = messages.items[i];
             // properties: https://media.twiliocdn.com/sdk/js/chat/releases/3.2.1/docs/Message.html
