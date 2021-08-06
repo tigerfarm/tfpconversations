@@ -139,7 +139,7 @@ $ node participantsCreateSms.js
 $ node conversationParticipantsList.js
 ````
 Conversation commandline programs:
-+ List of [all programs](https://github.com/tigerfarm/work/tree/master/conversations).
++ List of [all my sample programs](https://github.com/tigerfarm/work/tree/master/conversations).
 + [participantsCreateSms.js](https://github.com/tigerfarm/work/blob/master/conversations/participantsCreateSms.js).
 + [conversationParticipantsList.js](https://github.com/tigerfarm/work/blob/master/conversations/conversationParticipantsList.js).
 
