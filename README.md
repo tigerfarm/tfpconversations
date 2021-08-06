@@ -113,12 +113,13 @@ JavaScript links:
 Server side API resources:
 + [Service](https://www.twilio.com/docs/conversations/api/service-resource)
 + [Conversation](https://www.twilio.com/docs/conversations/api/conversation-resource)
-+ [Conversation Participants](Conversation Partic: https://www.twilio.com/docs/conversations/api/conversation-participant-resource)
++ [Conversation Participants](https://www.twilio.com/docs/conversations/api/conversation-participant-resource)
 + [Conversation Messages](https://www.twilio.com/docs/conversations/api/conversation-message-resource)
 + [User](https://www.twilio.com/docs/conversations/api/user-resource)
 + [Message](https://www.twilio.com/docs/conversations/api/service-conversation-message-resource)
 
-+ [Sample React application](https://www.twilio.com/docs/conversations/javascript/exploring-conversations-javascript-quickstart)
+Sample applications:
++ [React application](https://www.twilio.com/docs/conversations/javascript/exploring-conversations-javascript-quickstart)
  
 --------------------------------------------------------------------------------
 ### To Do Next
