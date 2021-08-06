@@ -10,31 +10,31 @@ Sample usage sequence:
 + After loading the client in your browser, 
 click List conversations to view the conversations in the Twilio Conversations service.
 This makes a server side call to list all conversations.
-All server side calls are handle in: [webserver.js](webserver.js).
-+ Enter an identity to use in the creation of your token.
+All server side calls(HTTP requests) are handle in: [webserver.js](webserver.js).
++ Enter an identity to use in the creation of your token(server side call).
 Click Create Client to create a Conversations client object.
 Current joined conversations are listed.
 + Enter a conversation name a click Join.
 You will be added into the conversation.
 If it's a new conversation it will be created.
-Else, you will be added in, if you are not already in the conversation.
+You will be added into the conversation, if you are not already in the conversation.
 + Click Messages to get a list of messages currently in the conversation.
 + Enter a text message in the field above the buttons.
 Hit the enter key, or click Send, to send the message.
-The message will be displayed: <Identity> : <conversation> : <Message text>
+The message will be displayed.
 + Optionally, click Delete to delete the conversation.
-None bug, the conversation stays in the participant's list of joined conversations.
+Known bug, the conversation stays in the participant's list of joined conversations.
 Refresh the page to reuse the same conversation name.
 + Open another browser tab and load the client.
-Enter a new identity, enter the same room and the other client, and chat.
+Enter a new identity, enter the same room as the other client, and chat.
 
-### Requirements:
+### Implementation Requirements:
 
-+ Twilio account. A free Trial account will work.
-+ To run locally on your computer using the include web server, install Node.JS, the Twilio Node.JS helper library, 
-    and Node express.
+You will need a Twilio account. A free Trial account will work.
+To run locally on your computer install and test Node.JS.
 
-Install the Twilio SDK helper library. Install Node Express for running Node web servers.
+Install the Twilio SDK helper library and Express.
+Express for running the Node web servers.
 ````
 $ npm install twilio
 $ npm install express
@@ -55,7 +55,9 @@ Create the variables where required.
 + CONVERSATIONS_MESSAGING_SERVICE_SID : Conversation service Messaging Service SID.
 + PORT : optional, web server port. When running on a local server, default port is 8000.
 
-Run:
+Download this repository's zip into a working directory and unzip it.
+
+To run:
 ````
 $ node webserver.js 
 +++ Conversations application web server is starting up.
@@ -75,12 +77,9 @@ $ npm start
 ## Files
 
 - [docroot/index.html](docroot/index.html) : Client HTML
-- [docroot/chat.js](docroot/chat.js) : Client JavaScript
+- [docroot/conversations.js](docroot/conversations.js) : Client JavaScript
 - [docroot/custom/chat.css](docroot/custom/chat.css) : Chat client styles, CSS
-
-- [webserver.js](webserver.js) : a NodeJS Express HTTP Server that serves the Chat client files.
-- [chatcli.js](chatcli.js) : a standalone NodeJS command line chat program.
-
+- [webserver.js](webserver.js) : a NodeJS Express HTTP Server that serves the client files.
 - [app.json](app.json) : Heroku deployment file to describe the application.
 - [package.json](package.json) : Heroku deployment file which sets the programming language used.
 
@@ -89,49 +88,13 @@ $ npm start
 These are the steps to configure to use the Chat Web Application.
 No development or credit card information required to try Chat.
 
-1. Create a Chat Service:
+1. Create a Conversations Service:
 
-[https://www.twilio.com/console/chat/dashboard](https://www.twilio.com/console/chat/dashboard)
+[https://www.twilio.com/console/conversations/dashboard](https://www.twilio.com/console/conversations/dashboard)
 
 2. Create an API key and secret string:
 
-[https://www.twilio.com/console/chat/runtime/api-keys](https://www.twilio.com/console/chat/runtime/api-keys)
+[https://www.twilio.com/console/dashboard/runtime/api-keys](https://www.twilio.com/console/dashboard/runtime/api-keys)
 
---------------------------------------------------------------------------------
-## For Developers
-
-Following are the steps to run the Chat Web Application on your localhost computer.
-
-Download this repository's zip into a working directory and unzip it.
-Create an environment variable that is your Twilio Function Runtime Domain.
-Example:
-````
-$ export ACCOUNT_SID ACxxx...xxx
-$ export CHAT_SERVICE_SID ISxxx...xxx
-$ export CHAT_API_KEY SKxxx...xxx
-$ export CHAT_API_KEY_SECRET xxx...xxx
-````
-Run the Node.JS server program, install the required packages, then run the chat server or command line program.
-````
-$ npm install twilio
-$ npm install twilio-chat
-$ npm install express
-
-$ node webserver.js
-````
-### Test the Chat Web Server
-````
-Use your browser to run the chat client:
-http://localhost:8000
-Enter a username, example: stacy.
-Enter a Channel name and description, example: "mychannel" and "My test channel".
-
-In another browser tab, run another chat client using a , same channel name:
-http://localhost:8000
-Enter a username, example: david (different username).
-Enter a Channel name, example: mychannel (same as the other client).
-
-Send messages between your clients.
-````
 --------------------------------------------------------------------------------
 Cheers...
