@@ -2,17 +2,6 @@
 
 This Conversations web application is a developer/training application that is ready to run. 
 
-Features:
-+ On loading the client in your browser, 
-click List conversations to view the conversations in the Twilio Conversations service.
-enter an identity to use.
-click Create Client to create a Conversations client object.
-+ 
-
-Set configurations using the Twilio Console,
-add environment variables, 
-and your ready to run it on your local server that has Node.js installed.
-
 Client Application screen print:
 
 <img src="clientapp.jpg" width="400"/>
@@ -27,6 +16,19 @@ Create the variables where required.
 + CONVERSATIONS_SERVICE_SID : your Conversations service SID (starts with IS).
 + CONVERSATIONS_MESSAGING_SERVICE_SID : Conversation service Messaging Service SID.
 + PORT : optional, web server port. When running on a local server, default port is 8000.
+
+Features:
++ After loading the client in your browser, 
+click List conversations to view the conversations in the Twilio Conversations service.
+This makes a server side call to list all conversations.
++ Enter an identity to use in the creation of your token.
+click Create Client to create a Conversations client object.
++ 
+
+Set configurations using the Twilio Console,
+add environment variables, 
+and your ready to run it on your local server that has Node.js installed.
+
 
 ### Requirements:
 
