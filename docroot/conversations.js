@@ -288,11 +288,11 @@ function createConversation() {
 function listConversations() {
     startUserFunctionMessage();
     logger("+ Function: listConversations(), makes a server side call.");
-    if (thisConversationClient === "") {
-        addChatMessage("First, create a Chat Client.");
-        logger("Required: Chat Client.");
-        return;
-    }
+    // if (thisConversationClient === "") {
+    //    addChatMessage("First, create a Chat Client.");
+    //    logger("Required: Chat Client.");
+    //    return;
+    // }
     chatChannelName = $("#channelName").val();
     addChatMessage("+ List of conversations.");
     var jqxhr = $.get("listConversations", function (returnString) {
@@ -478,7 +478,8 @@ function setButtons(activity) {
         case "init":
             $('#btn-createChatClient').prop('disabled', false);
             //
-            $('#btn-list').prop('disabled', true);
+            // $('#btn-list').prop('disabled', true);
+            $('#btn-list').prop('disabled', false);
             $('#btn-join').prop('disabled', true);
             //
             $('#btn-delete').prop('disabled', true);
@@ -491,7 +492,7 @@ function setButtons(activity) {
         case "createChatClient":
             $('#btn-createChatClient').prop('disabled', true);
             //
-            $('#btn-list').prop('disabled', false);
+            // $('#btn-list').prop('disabled', false);
             $('#btn-join').prop('disabled', false);
             //
             $('#btn-delete').prop('disabled', false);
@@ -504,7 +505,7 @@ function setButtons(activity) {
         case "join":
             $('#btn-createChatClient').prop('disabled', true);
             //
-            $('#btn-list').prop('disabled', false);
+            // $('#btn-list').prop('disabled', false);
             $('#btn-join').prop('disabled', false);
             //
             $('#btn-delete').prop('disabled', false);

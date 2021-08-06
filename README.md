@@ -1,6 +1,14 @@
 # Twilio Conversations Web Application
 
-This Conversations web application is ready to run.
+This Conversations web application is a developer/training application that is ready to run. 
+
+Features:
++ On loading the client in your browser, 
+click List conversations to view the conversations in the Twilio Conversations service.
+enter an identity to use.
+click Create Client to create a Conversations client object.
++ 
+
 Set configurations using the Twilio Console,
 add environment variables, 
 and your ready to run it on your local server that has Node.js installed.
