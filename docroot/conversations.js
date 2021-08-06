@@ -1,7 +1,4 @@
 // -----------------------------------------------------------------------------
-
-//  
-// -----------------------------------------------------------------------------
 // Documentation:       https://media.twiliocdn.com/sdk/js/conversations/releases/1.2.1/docs/
 //                      https://media.twiliocdn.com/sdk/js/conversations/releases/1.2.1/docs/Client.html
 //                      https://media.twiliocdn.com/sdk/js/conversations/releases/1.2.1/docs/Conversation.html

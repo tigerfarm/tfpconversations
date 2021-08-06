@@ -103,14 +103,31 @@ Messaging Services
 [https://www.twilio.com/console/sms/services](https://www.twilio.com/console/sms/services)
 
 --------------------------------------------------------------------------------
+### Documentation Links
+
+JavaScript links:
++ [Docs](https://media.twiliocdn.com/sdk/js/conversations/releases/1.2.1/docs/)
++ [Client class](https://media.twiliocdn.com/sdk/js/conversations/releases/1.2.1/docs/Client.html)
++ [Conversation class](https://media.twiliocdn.com/sdk/js/conversations/releases/1.2.1/docs/Conversation.html)
+
+Server side API resources:
++ [Service](https://www.twilio.com/docs/conversations/api/service-resource)
++ [Conversation](https://www.twilio.com/docs/conversations/api/conversation-resource)
++ [Conversation Participants](Conversation Partic: https://www.twilio.com/docs/conversations/api/conversation-participant-resource)
++ [Conversation Messages](https://www.twilio.com/docs/conversations/api/conversation-message-resource)
++ [User](https://www.twilio.com/docs/conversations/api/user-resource)
++ [Message](https://www.twilio.com/docs/conversations/api/service-conversation-message-resource)
+
++ [Sample React application](https://www.twilio.com/docs/conversations/javascript/exploring-conversations-javascript-quickstart)
+ 
+--------------------------------------------------------------------------------
 ### To Do Next
 
 + If conversation is deleted, remove it from conversationList[].
 + List participants in a conversation.
 + List conversations that the participant is in.
 + Modify friendlyName separate from uniqueName.
-+ Test roles such as participant admin.
-https://www.twilio.com/docs/conversations/api/role-resource
++ Test roles such as [participant admin](https://www.twilio.com/docs/conversations/api/role-resource).
 
 Get this to work with SMS participants.
 The following works:
