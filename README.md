@@ -88,13 +88,19 @@ $ npm start
 These are the steps to configure to use the Chat Web Application.
 No development or credit card information required to try Chat.
 
-1. Create a Conversations Service:
+1. Create an API key and secret string:
 
-[https://www.twilio.com/console/conversations/dashboard](https://www.twilio.com/console/conversations/dashboard)
+[https://www.twilio.com/console/project/api-keys](https://www.twilio.com/console/project/api-keys)
 
-2. Create an API key and secret string:
+2. Create a Conversations Service:
 
-[https://www.twilio.com/console/dashboard/runtime/api-keys](https://www.twilio.com/console/dashboard/runtime/api-keys)
+[https://www.twilio.com/console/conversations/services](https://www.twilio.com/console/conversations/services)
+
+Conversations Default configurations:
+[https://www.twilio.com/console/conversations/configuration/defaults](https://www.twilio.com/console/conversations/configuration/defaults)
+
+Messaging Services
+[https://www.twilio.com/console/sms/services](https://www.twilio.com/console/sms/services)
 
 --------------------------------------------------------------------------------
 Cheers...
