@@ -125,6 +125,7 @@ Sample applications:
 ### To Do Next
 
 + If conversation is deleted, remove it from conversationList[].
++ Get TokenAboutToExpire to work properly. Function: onTokenAboutToExpire
 + List participants in a conversation.
 + List conversations that the participant is in.
 + Modify friendlyName separate from uniqueName.
