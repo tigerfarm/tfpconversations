@@ -1,22 +1,5 @@
 // -----------------------------------------------------------------------------
-// To do:
-//  + If conversation is deleted, remove it from conversationList[].
-//  + List participants in a conversation.
-//  + List conversations that the participant is in.
-//  + Modify friendlyName separate from uniqueName.
-//  + Test roles such as participant admin.
-//      https://www.twilio.com/docs/conversations/api/role-resource
-//      
-// ------------------------------
-// To do, get this to work with SMS participants.
-// This works:
-//  + Add SMS participants. Edit and run, participantsCreateSms.js.
-//  $ node participantsCreateSms.js
-//  $ node conversationParticipantsList.js
-//  + Test with SMS participant.
-//  
-//  Test:
-//      Messaging Service/Integration/Autocreate a Conversation
+
 //  
 // -----------------------------------------------------------------------------
 // Documentation:       https://media.twiliocdn.com/sdk/js/conversations/releases/1.2.1/docs/

@@ -103,4 +103,32 @@ Messaging Services
 [https://www.twilio.com/console/sms/services](https://www.twilio.com/console/sms/services)
 
 --------------------------------------------------------------------------------
+### To Do Next
+
++ If conversation is deleted, remove it from conversationList[].
++ List participants in a conversation.
++ List conversations that the participant is in.
++ Modify friendlyName separate from uniqueName.
++ Test roles such as participant admin.
+https://www.twilio.com/docs/conversations/api/role-resource
+
+Get this to work with SMS participants.
+The following works:
+
+Add SMS participants. Edit and run, [participantsCreateSms.js](https://github.com/tigerfarm/work/blob/master/conversations/participantsCreateSms.js).
+````
+$ node participantsCreateSms.js
+$ node conversationParticipantsList.js
+````
+Conversation commandline programs:
++ List of [all programs](https://github.com/tigerfarm/work/tree/master/conversations).
++ [participantsCreateSms.js](https://github.com/tigerfarm/work/blob/master/conversations/participantsCreateSms.js).
++ [conversationParticipantsList.js](https://github.com/tigerfarm/work/blob/master/conversations/conversationParticipantsList.js).
+
+Test with SMS participant.
+
+Test:
++ Messaging Service/Integration/Autocreate a Conversation
+
+--------------------------------------------------------------------------------
 Cheers...
