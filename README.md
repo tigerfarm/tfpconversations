@@ -109,6 +109,7 @@ JavaScript links:
 + [Docs](https://media.twiliocdn.com/sdk/js/conversations/releases/1.2.1/docs/)
 + [Client class](https://media.twiliocdn.com/sdk/js/conversations/releases/1.2.1/docs/Client.html)
 + [Conversation class](https://media.twiliocdn.com/sdk/js/conversations/releases/1.2.1/docs/Conversation.html)
++ [Message class](https://media.twiliocdn.com/sdk/js/conversations/releases/1.2.1/docs/Message.html)
 
 Server side API resources:
 + [Service](https://www.twilio.com/docs/conversations/api/service-resource)

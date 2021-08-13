@@ -22,24 +22,26 @@
             <div class="panelArea">
                 <input id="message" class="form-control" type="text" disabled/>
             </div>
-            <div style="margin-top: 6px;">
+            <div style="margin-top: 12px;margin-bottom: 12px;">
                 <table>
-                    <tr>
-                        <td><button class="abutton" id="btn-list">List conversations</button></td>
-                        <td><button class="abutton" id="btn-createChatClient">Create Client</button></td>
-                        <td><button class="abutton" id="btn-join">Join</button></td>
-                        <td><button class="abutton" id="btn-listallmessages">Messages</button></td>
-                        <td><button class="abutton" id="btn-chat">Send</button></td>
-                        <td><button class="abutton" id="btn-delete">Delete conversation</button></td>
-                        <td><button class="abutton" id="btn-members">List Members</button></td>
-                        <!-- td><button class="abutton" id="btn-countzero">Set count zero</button></td -->
-                    </tr>
+                    <tr><td>
+                            <button class="abutton" id="btn-createChatClient">Create Client</button>
+                            Conversations:
+                            <button class="abutton" id="btn-join">Join</button>
+                            <button class="abutton" id="btn-list">List</button>
+                            <button class="abutton" id="btn-delete">Delete</button>
+                            <button class="abutton" id="btn-members">List Members</button>
+                            Messages:
+                            <button class="abutton" id="btn-chat">Send</button>
+                            <button class="abutton" id="btn-listallmessages">List</button>
+                            <button class="abutton" id="btn-deleteallmessages">Delete all</button>
+                        </td></tr>
                 </table>
             </div>
             <div class="panelArea">
                 <table>
                     <tr><td>Identity </td><td><input id="username" type="text"/></td><td id="cUsername"></td></tr>
-                    <tr><td>Conversation name &nbsp;&nbsp;</td><td><input id="channelName" type="text"/></td></tr>
+                    <tr><td>Conversation unique name &nbsp;&nbsp;</td><td><input id="channelName" type="text"/></td></tr>
                     <!-- tr><td>Conversation description &nbsp;</td><td><input id="channelDescription" type="text"/></td></tr -->
                 </table>
             </div>
@@ -54,7 +56,7 @@
             <div class="panelArea">
                 <table>
                     <tr>
-                        <td><button class="abutton" id="clearLog" onclick="clearLog();">Clear</button></td>
+                        <td><button class="abutton" id="clearLog" onclick="clearTextAreas();">Clear</button></td>
                     </tr>
                 </table>
             </div>

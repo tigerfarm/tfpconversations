@@ -2,6 +2,7 @@
 // Documentation:       https://media.twiliocdn.com/sdk/js/conversations/releases/1.2.1/docs/
 //                      https://media.twiliocdn.com/sdk/js/conversations/releases/1.2.1/docs/Client.html
 //                      https://media.twiliocdn.com/sdk/js/conversations/releases/1.2.1/docs/Conversation.html
+//                      https://media.twiliocdn.com/sdk/js/conversations/releases/1.2.1/docs/Message.html
 // Resources:
 // Service:             https://www.twilio.com/docs/conversations/api/service-resource
 // Conversation:        https://www.twilio.com/docs/conversations/api/conversation-resource
@@ -341,9 +342,25 @@ function listMembers() {
 }
 
 // -----------------------------------------------------------------------------
+function sendMessage() {
+    if (thisConversationClient === "") {
+        addChatMessage("First, create a Chat Client.");
+        return;
+    }
+    const message = $("#message").val();
+    if (message === "") {
+        return;
+    }
+    $("#message").val("");
+    theConversation.sendMessage(message);
+}
+
 function listAllMessages() {
     startUserFunctionMessage();
     logger("+ Function: listAllMessages().");
+    // theConversation.getMessages(3).then(function (messages) {
+    // Default number of messages is 30. List the 30 most recent messages.
+    // https://media.twiliocdn.com/sdk/js/conversations/releases/1.2.1/docs/Conversation.html#getMessages__anchor
     theConversation.getMessages().then(function (messages) {
         totalMessages = messages.items.length;
         logger('Total Messages: ' + totalMessages);
@@ -355,6 +372,23 @@ function listAllMessages() {
         }
         // theConversation.updateLastConsumedMessageIndex(totalMessages);
         addChatMessage('+ Total Messages: ' + totalMessages);
+    });
+}
+
+function deleteAllMessages() {
+    startUserFunctionMessage();
+    logger("+ Function: deleteAllMessages().");
+    // theConversation.getMessages(3).then(function (messages) {
+    // Default number of messages is 30. List the 30 most recent messages.
+    // https://media.twiliocdn.com/sdk/js/conversations/releases/1.2.1/docs/Message.html
+    theConversation.getMessages().then(function (messages) {
+        totalMessages = messages.items.length;
+        addChatMessage("+ Remove all Messages for conversation: " + conversationName);
+        for (i = 0; i < totalMessages; i++) {
+            const message = messages.items[i].remove();
+        }
+        addChatMessage('+ Total Messages removed: ' + totalMessages);
+        doCountZero();
     });
 }
 
@@ -427,6 +461,9 @@ function activateChatBox() {
     $("#btn-listallmessages").click(function () {
         listAllMessages();
     });
+    $("#btn-deleteallmessages").click(function () {
+        deleteAllMessages();
+    });
     $("#btn-countzero").click(function () {
         doCountZero();
     });
@@ -453,57 +490,60 @@ function activateChatBox() {
 
 function setButtons(activity) {
     logger("setButtons, activity: " + activity);
-    // $("div.callMessages").html("Activity: " + activity);
     switch (activity) {
         case "init":
             $('#btn-createChatClient').prop('disabled', false);
             //
-            // $('#btn-list').prop('disabled', true);
-            $('#btn-list').prop('disabled', false);
             $('#btn-join').prop('disabled', true);
-            //
+            $('#btn-list').prop('disabled', false);
             $('#btn-delete').prop('disabled', true);
-            $('#btn-chat').prop('disabled', true);
             $('#btn-members').prop('disabled', true);
+            //
+            $('#btn-chat').prop('disabled', true);
+            $('#btn-listallmessages').prop('disabled', true);
+            $('#btn-deleteallmessages').prop('disabled', true);
             $('#btn-count').prop('disabled', true);
             $('#btn-countzero').prop('disabled', true);
-            $('#btn-listallmessages').prop('disabled', true);
             break;
         case "createChatClient":
             $('#btn-createChatClient').prop('disabled', true);
             //
-            // $('#btn-list').prop('disabled', false);
             $('#btn-join').prop('disabled', false);
-            //
             $('#btn-delete').prop('disabled', false);
-            $('#btn-chat').prop('disabled', true);
             $('#btn-members').prop('disabled', true);
+            //
+            $('#btn-chat').prop('disabled', true);
+            $('#btn-listallmessages').prop('disabled', true);
+            $('#btn-deleteallmessages').prop('disabled', true);
+            //
             $('#btn-count').prop('disabled', true);
             $('#btn-countzero').prop('disabled', true);
-            $('#btn-listallmessages').prop('disabled', true);
             break;
         case "join":
             $('#btn-createChatClient').prop('disabled', true);
             //
-            // $('#btn-list').prop('disabled', false);
             $('#btn-join').prop('disabled', false);
-            //
             $('#btn-delete').prop('disabled', false);
+            $('#btn-members').prop('disabled', false);
+            //
             $('#btn-chat').prop('disabled', false);
-            // $('#btn-members').prop('disabled', false);
+            $('#btn-listallmessages').prop('disabled', false);
+            $('#btn-deleteallmessages').prop('disabled', false);
+            //
             // $('#btn-count').prop('disabled', false);
             // $('#btn-countzero').prop('disabled', false);
-            $('#btn-listallmessages').prop('disabled', false);
             break;
     }
 }
 
+// -----------------------------------------------------------------------------
 function logger(message) {
     var aTextarea = document.getElementById('log');
     aTextarea.value += "\n> " + message;
     aTextarea.scrollTop = aTextarea.scrollHeight;
 }
-function clearLog() {
+function clearTextAreas() {
+    chatMessages.value = "+ Ready";
     log.value = "+ Ready";
 }
 function addChatMessage(message) {

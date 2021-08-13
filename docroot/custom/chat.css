@@ -116,8 +116,8 @@ select option {
 }
 
 .abutton {
-    width: 82px;
-    height: 40px;
+    // width: 82px;
+    // height: 40px;
     border-radius: 9px;
     color: white;
     background-color: #954C08;
@@ -125,8 +125,8 @@ select option {
     font-size: 0.8em; 
 }
 .abutton:disabled {
-    width: 82px;
-    height: 40px;
+    // width: 82px;
+    // height: 40px;
     border-radius: 9px;
     color: white;
     background-color: #cccccc;
@@ -142,6 +142,35 @@ select option {
     text-shadow: -1px -1px 0 rgba(0,0,0,0.3);
 }
 .abutton.active {
+    background-color: gray;
+    border-color: #2a65a0;
+    border-bottom-color: #3884CF;
+}
+
+.aSpan {
+    padding: 3px 3px 3px 3px;
+    border-radius: 9px;
+    color: white;
+    background-color: #954C08;
+    font: Helvetica,Arial,sans-serif;
+    font-size: 0.8em; 
+}
+.aSpan:disabled {
+    border-radius: 9px;
+    color: white;
+    background-color: #cccccc;
+    font: Helvetica,Arial,sans-serif;
+    font-size: 0.8em; 
+}
+.aSpan:hover,
+.aSpan:focus {
+    background-color: #B76418;  /* hover background color */
+    color: #fff;                /* hover text */
+    border-color: #954C08;      /* top hover border */
+    text-decoration: none;
+    text-shadow: -1px -1px 0 rgba(0,0,0,0.3);
+}
+.aSpan.active {
     background-color: gray;
     border-color: #2a65a0;
     border-bottom-color: #3884CF;
