@@ -54,7 +54,8 @@ function generateToken(theIdentity) {
     });
     token.addGrant(chatGrant);
     token.identity = theIdentity;
-    token.ttl = 1200; // Token time to live, in seconds. 1200 = 20 minutes.
+    // token.ttl = 1200; // Token time to live, in seconds. 1200 = 20 minutes.
+    token.ttl = 600; // Token time to live, in seconds. 600 = 5 minutes. For testing token update.
     //
     // Output the token.
     theToken = token.toJwt();

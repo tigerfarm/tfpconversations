@@ -56,7 +56,7 @@ function createChatClientObject() {
         Twilio.Conversations.Client.create(thisToken).then(conversationClient => {
             logger("Conversations client created: thisConversationClient.");
             thisConversationClient = conversationClient;
-            addChatMessage("+ Chat client created for the user: " + userIdentity);
+            addChatMessage("+ Conversation client created for the user: " + userIdentity);
             addChatMessage("+ Participant is subscribed and joined to the conversations: ");
             // let thatConversation = "";
             thisConversationClient.getSubscribedConversations().then(function (paginator) {

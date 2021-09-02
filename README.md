@@ -2,6 +2,11 @@
 
 This Conversations web application is a developer/training application that is ready to run. 
 
+To do:
++ If no Conversations channel, then don't send a message.
++ One click deploy option in the README.md file.
++ Steps to test, once deployed.
+
 Client Application screen print:
 
 <img src="clientapp.jpg" width="400"/>
