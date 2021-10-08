@@ -232,11 +232,22 @@ function setupTheConversation() {
     // addChatMessage("++ Conversation joined.");
     setButtons("join");
     // -------------------------------------------------------------------------
+    theConversation.getParticipantsCount().then(data => {
+        logger("+ participantCount = " + data);
+    });
+    theConversation.updateLastReadMessageIndex(0);
+    theConversation.getUnreadMessagesCount().then(data => {
+        logger("+ unreadCount = " + data);
+    });
+    // -------------------------------------------------------------------------
     // Set conversation event listeners.
     theConversation.on('messageAdded', function (message) {
         // https://media.twiliocdn.com/sdk/js/conversations/releases/1.2.1/docs/Message.html
         addChatMessage("> " + message.author + " : " + message.conversation.uniqueName + " : " + message.body);
         incCount();
+        theConversation.getUnreadMessagesCount().then(data => {
+            logger("+ unreadCount = " + data);
+        });
     });
 }
 
