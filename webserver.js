@@ -133,6 +133,37 @@ app.get('/listConversations', function (req, res) {
             });
 });
 // -----------------------------------------------------------------------------
+app.get('/listConversationParticipants', function (req, res) {
+    sayMessage("+ Get list of participants in a conversation.");
+    if (req.query.conversationSid) {
+        conversationSid = req.query.conversationSid;
+        sayMessage("- Parameter conversationSid: " + conversationSid);
+    } else {
+        sayMessage("- Parameter required: conversationSid.");
+        res.send(0);
+        return;
+    }
+    var theResult = "";
+    client.conversations.services(CONVERSATIONS_SERVICE_SID).conversations(conversationSid).participants.list({limit: 20})
+            .then(participants => {
+                participants.forEach(p => {
+                    if (p.identity !== null) {
+                        console.log("+ Participant SID: " + p.sid + " identity, Chat: " + p.identity);
+                        theResult = theResult
+                                + p.sid
+                                + " Chat:" + p.identity + "\n";
+                    } else {
+                        console.log("+ Participant SID: " + p.sid + " identity, SMS:  " + JSON.parse(p.attributes).name);
+                        theResult = theResult
+                                + p.sid
+                                + " SMS:  " + JSON.parse(p.attributes).name + "\n";
+                    }
+                });
+                res.send(theResult);
+            });
+});
+
+// -----------------------------------------------------------------------------
 app.get('/conversationExists', function (req, res) {
     // localhost:8000/conversationExists?conversationid=abc
     sayMessage("+ Check if conversation exists.");

@@ -338,17 +338,25 @@ function deleteConversation() {
 // -----------------------------------------------------------------------------
 function listMembers() {
     startUserFunctionMessage();
-    logger("+ Function: listMembers().");
-    addChatMessage("+ Members of this conversation: " + theConversation.uniqueName);
-    var members = theConversation.getSubscribedUsers();
-    members.then(function (currentMembers) {
-        currentMembers.forEach(function (member) {
-            if (member.lastConsumedMessageIndex !== null) {
-                addChatMessage("++ " + member.identity + ", Last Consumed Message Index = " + member.lastConsumedMessageIndex);
-            } else {
-                addChatMessage("++ " + member.identity);
-            }
-        });
+    addChatMessage("+ Participants of this conversation: " + theConversation.uniqueName);
+    logger("+ Function: listMembers(), makes a server side call.");
+    chatChannelName = $("#channelName").val();
+    addChatMessage("+ List of conversations.");
+    var jqxhr = $.get("listConversationParticipants?conversationSid=" + theConversation.sid, function (returnString) {
+        if (returnString === "-1") {
+            logger("-- Error retrieving conversation list.");
+            return;
+        }
+        if (returnString === "0") {
+            logger("+ No conversations to list.");
+            return;
+        }
+        logger("++ List retrieved.");
+        // -------------------------------
+        addChatMessage(returnString);
+        addChatMessage("+ End list.");
+    }).fail(function () {
+        logger("- Error retrieving conversation list.");
     });
 }
 
