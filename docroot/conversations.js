@@ -16,7 +16,7 @@
 // -----------------------------------------------------------------------------
 let thisConversationClient = "";
 const conversationList = [];
-let theConversation = "";           // Conversation object
+let theConversation = ""; // Conversation object
 let thisToken;
 let totalMessages = 0; // This count of read channel messages needs work to initialize and maintain the count.
 
@@ -32,6 +32,103 @@ function startUserFunctionMessage() {
 }
 
 // -----------------------------------------------------------------------------
+function paginatorLoop(aPaginator) {
+    logger("+ paginatorLoop(paginator)");
+    logger("+ Loop through paginator.items which number: " + aPaginator.items.length);
+    aCounter = 1;
+    aPageCounter = 1;
+    for (i = 0; i < aPaginator.items.length; i++) {
+        const aConversation = aPaginator.items[i];
+        conversationList[i] = aConversation;
+        logger("++ aCounter" + aCounter++ + " : " + aConversation.uniqueName);
+        // addChatMessage('++ ' + aConversation.uniqueName + ": " + aConversation.friendlyName + ": " + aConversation.createdBy);
+    }
+    //
+    // http://media.twiliocdn.com/sdk/js/conversations/releases/2.0.0/docs/interfaces/Paginator.html
+    // paginator.hasNextPage()
+    //
+    if (aPaginator.hasNextPage) {
+        //
+        // Unfortunately, paginator.NextPage does not set the paginator object to the next page.
+        // Request next page. Does not modify the existing object.
+        // Returns Promise<Paginator<T>>
+        //
+        aPageCounter++;
+        logger("+ paginator.hasNextPage: true, aPageCounter: " + aPageCounter);
+        const theNextPage = aPaginator.nextPage;
+        paginatorLoop(theNextPage);
+    } else {
+        logger("+ paginator.hasNextPage: false");
+    }
+    logger("+ End list.");
+}
+
+// -----------------------------------------------------------------------------
+function createChatClientObject2() {
+    startUserFunctionMessage();
+    userIdentity = $("#username").val();
+    if (userIdentity === "") {
+        logger("Required: Username.");
+        addChatMessage("Enter a Username to use when chatting.");
+        return;
+    }
+    addChatMessage("++ Creating Conversations Client...");
+    // Since, programs cannot make an Ajax call to a remote resource,
+    // Need to do an Ajax call to a local program that goes and gets the token.
+    logger("+ Use a server side routine to refresh the token using client id: " + userIdentity);
+    var jqxhr = $.get("generateToken?identity=" + userIdentity, function (token) {
+        if (token === "0") {
+            logger("- Error refreshing the token.");
+            return;
+        }
+        thisToken = token;
+        logger("Token refreshed: " + thisToken);
+        // -------------------------------
+        // https://www.twilio.com/docs/conversations/initializing-conversations-sdk-clients
+        Twilio.Conversations.Client.create(thisToken).then(conversationClient => {
+            logger("Conversations client created: thisConversationClient.");
+            thisConversationClient = conversationClient;
+            addChatMessage("+ Conversation client created for the user: " + userIdentity);
+            addChatMessage("+ Participant is subscribed and joined to the conversations: ");
+
+            // Nick's code.
+            let paginator = await thisConversationClient.getSubscribedConversations();
+            let hasNextPage = paginator.hasNextPage;
+            while (hasNextPage) {
+                console.log(paginator.items); // logs current page items to console.
+                paginator = await paginator.nextPage();
+                hasNextPage = paginator.hasNextPage;
+            }
+            console.log(paginator.items); // logs the final page items to console.
+
+            //
+            // -------------------------------
+            //
+            setButtons("createChatClient");
+            //
+            // -------------------------------
+            // Set event listeners.
+            // 
+            // thisConversationClient.on('channelRemoved', $.throttle(tc.loadChannelList));
+            // thisConversationClient.on('tokenExpired', onTokenExpiring);
+            //
+            thisConversationClient.on('tokenAboutToExpire', onTokenAboutToExpire);
+            //
+            thisConversationClient.on('conversationAdded', onConversationAdded);
+            thisConversationClient.on("conversationJoined", (aConversation) => {
+                addChatMessage("++ Conversation joined: " + aConversation.uniqueName
+                        + ": " + aConversation.friendlyName + ": " + aConversation.createdBy
+                        );
+            });
+            thisConversationClient.on("conversationLeft", (aConversation) => {
+                addChatMessage("++ Exited the conversation: " + aConversation.uniqueName);
+            });
+        });
+    }).fail(function () {
+        logger("- Error refreshing the token and creating the chat client object.");
+    });
+}
+
 function createChatClientObject() {
     startUserFunctionMessage();
     userIdentity = $("#username").val();
@@ -58,15 +155,18 @@ function createChatClientObject() {
             thisConversationClient = conversationClient;
             addChatMessage("+ Conversation client created for the user: " + userIdentity);
             addChatMessage("+ Participant is subscribed and joined to the conversations: ");
-            // let thatConversation = "";
             thisConversationClient.getSubscribedConversations().then(function (paginator) {
-                for (i = 0; i < paginator.items.length; i++) {
-                    const aConversation = paginator.items[i];
-                    conversationList[i] = aConversation;
-                    // addChatMessage('++ ' + aConversation.uniqueName + ": " + aConversation.friendlyName + ": " + aConversation.createdBy);
-                    // logger("++ conversationList " + i + ": " + conversationList[i].uniqueName);
-                }
-                addChatMessage("+ End list.");
+                //
+                // getSubscribedConversations() re-joins the participant to their subscribed conversations.
+                // For example:
+                // ++ Conversation joined: tfpecho: tfpecho: dave
+                // ++ Conversation joined: abc: abc: dave2
+                //
+                addChatMessage("+ Conversations re-joined.");
+                // Now that the conversations are re-joined.
+                logger("+ Loop through paginator.items");
+                paginatorLoop(paginator);
+                addChatMessage("+ Conversations re-joined.");
                 // conversationList now contains the list of joined/subscribed conversations.
                 // Can send messages using the array. For example:
                 //    conversationList[i].sendMessage("+ conversationList message: " + conversationList[i].uniqueName);
@@ -79,8 +179,6 @@ function createChatClientObject() {
             // -------------------------------
             // Set event listeners.
             // 
-            // Documentation:
-            //   https://www.twilio.com/docs/chat/tutorials/chat-application-node-express?code-sample=code-initialize-the-chat-client-9&code-language=Node.js&code-sdk-version=default
             // thisConversationClient.on('channelRemoved', $.throttle(tc.loadChannelList));
             // thisConversationClient.on('tokenExpired', onTokenExpiring);
             //
@@ -95,7 +193,6 @@ function createChatClientObject() {
             thisConversationClient.on("conversationLeft", (aConversation) => {
                 addChatMessage("++ Exited the conversation: " + aConversation.uniqueName);
             });
-
         });
     }).fail(function () {
         logger("- Error refreshing the token and creating the chat client object.");
@@ -103,10 +200,10 @@ function createChatClientObject() {
 }
 
 function onConversationAdded(aChannel) {
-    // https://media.twiliocdn.com/sdk/android/chat/releases/2.0.6/docs/com/twilio/chat/ChatClientListener.html
-    // Called when the current user is added to a channel.
-    // Note, joined but not subscribed.
-    logger("onConversationAdded, user added to the  channel: " + aChannel.friendlyName);
+// https://media.twiliocdn.com/sdk/android/chat/releases/2.0.6/docs/com/twilio/chat/ChatClientListener.html
+// Called when the current user is added to a channel.
+// Note, joined but not subscribed.
+    // logger("onConversationAdded, user added to the  channel: " + aChannel.friendlyName);
 }
 
 function onTokenAboutToExpire() {
@@ -145,7 +242,6 @@ function joinChatConversation() {
         return;
     }
     addChatMessage("+ Join the conversation: " + conversationName + ", as identity: " + userIdentity);
-
     // -----------------------------------------
     // This works for conversations already subscribed and joined.
     for (i = 0; i < conversationList.length; i++) {
@@ -156,11 +252,11 @@ function joinChatConversation() {
             return;
         }
     }
-    // -----------------------------------------
-    // Serverside check if the conversation exists.
-    // Use serverside check because this uses is not authorized to see other private channels.
-    //  If not exists, create it and join it.
-    //  If exists, join it.
+// -----------------------------------------
+// Serverside check if the conversation exists.
+// Use serverside check because this user is not authorized to see other private channels.
+//  If not exists, create it and join it.
+//  If exists, join it.
     logger("+ Use a server side routine to check if a conversation exits.");
     var jqxhr = $.get("conversationExists?conversationid=" + conversationName, function (returnString) {
         // logger("+ returnString :" + returnString + ":");
@@ -183,8 +279,9 @@ function joinChatConversation() {
 
 // -----------------------------------------------------------------------------
 function joinChatConversationIfAdmin() {
-    // Untested.
-    // The following fails because it's a private channel and the current participant does not have authorization.
+// This will work for new conversations where the participant has authorization to create rooms.
+// Untested.
+// The following fails because it's a private channel and the current participant does not have authorization.
     thisConversationClient.getConversationByUniqueName(conversationName)
             .then(aConversation => {
                 theConversation = aConversation;
@@ -200,12 +297,12 @@ function joinChatConversationIfAdmin() {
 
 // -----------------------------------------------------------------------------
 function joinChatConversationServerSide() {
-    // The following works for:
-    // + new rooms and 
-    // + rooms created by others
-    // + Will also work for already subscribed rooms.
+// The following works for:
+// + new rooms and 
+// + rooms created by others
+// + Will also work for already subscribed rooms.
     var jqxhr = $.get("joinConversation?conversationid=" + conversationName + "&identity=" + userIdentity, function (returnString) {
-        // logger("+ returnString :" + returnString + ":");
+// logger("+ returnString :" + returnString + ":");
         if (returnString === "0") {
             addChatMessage("+ Participant is already in the conversation: " + conversationName + ".");
         } else if (returnString === "1") {
@@ -229,7 +326,6 @@ function joinChatConversationServerSide() {
 }
 
 function setupTheConversation() {
-    // addChatMessage("++ Conversation joined.");
     setButtons("join");
     // -------------------------------------------------------------------------
     theConversation.getParticipantsCount().then(data => {
@@ -253,7 +349,7 @@ function setupTheConversation() {
 
 // -----------------------------------------------------------------------------
 function createConversation() {
-    // http://media.twiliocdn.com/sdk/js/conversations/releases/1.2.1/docs/Client.html#createConversation__anchor
+// http://media.twiliocdn.com/sdk/js/conversations/releases/1.2.1/docs/Client.html#createConversation__anchor
     logger("+ Create the conversation if it doesn't exist: " + chatChannelName);
     thisConversationClient.createConversation({
         uniqueName: conversationName,
@@ -389,7 +485,7 @@ function listAllMessages() {
             // properties: https://media.twiliocdn.com/sdk/js/chat/releases/3.2.1/docs/Message.html
             addChatMessage("> " + message.author + " : " + message.body);
         }
-        // theConversation.updateLastConsumedMessageIndex(totalMessages);
+// theConversation.updateLastConsumedMessageIndex(totalMessages);
         addChatMessage('+ Total Messages: ' + totalMessages);
     });
 }
@@ -420,7 +516,7 @@ function incCount() {
     totalMessages++;
     logger('+ Increment Total Messages:' + totalMessages);
     theConversation.getMessages().then(function (messages) {
-        // theConversation.updateLastConsumedMessageIndex(totalMessages);
+// theConversation.updateLastConsumedMessageIndex(totalMessages);
     });
 }
 
@@ -446,7 +542,7 @@ function menubar() {
 window.onclick = function (e) {
     if (!e.target.matches('.menuicon') && !e.target.matches('.menubar')) {
         if (theBar === 0) {
-            // logger("+ Clicked window");
+// logger("+ Clicked window");
             var dropdowns = document.getElementsByClassName("menuDropdownList");
             for (var d = 0; d < dropdowns.length; d++) {
                 var openDropdown = dropdowns[d];
@@ -458,7 +554,6 @@ window.onclick = function (e) {
     }
     theBar = 0;
 };
-
 function activateChatBox() {
     $("#message").removeAttr("disabled");
     //
