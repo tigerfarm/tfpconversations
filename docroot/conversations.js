@@ -32,103 +32,6 @@ function startUserFunctionMessage() {
 }
 
 // -----------------------------------------------------------------------------
-function paginatorLoop(aPaginator) {
-    logger("+ paginatorLoop(paginator)");
-    logger("+ Loop through paginator.items which number: " + aPaginator.items.length);
-    aCounter = 1;
-    aPageCounter = 1;
-    for (i = 0; i < aPaginator.items.length; i++) {
-        const aConversation = aPaginator.items[i];
-        conversationList[i] = aConversation;
-        logger("++ aCounter" + aCounter++ + " : " + aConversation.uniqueName);
-        // addChatMessage('++ ' + aConversation.uniqueName + ": " + aConversation.friendlyName + ": " + aConversation.createdBy);
-    }
-    //
-    // http://media.twiliocdn.com/sdk/js/conversations/releases/2.0.0/docs/interfaces/Paginator.html
-    // paginator.hasNextPage()
-    //
-    if (aPaginator.hasNextPage) {
-        //
-        // Unfortunately, paginator.NextPage does not set the paginator object to the next page.
-        // Request next page. Does not modify the existing object.
-        // Returns Promise<Paginator<T>>
-        //
-        aPageCounter++;
-        logger("+ paginator.hasNextPage: true, aPageCounter: " + aPageCounter);
-        const theNextPage = aPaginator.nextPage;
-        paginatorLoop(theNextPage);
-    } else {
-        logger("+ paginator.hasNextPage: false");
-    }
-    logger("+ End list.");
-}
-
-// -----------------------------------------------------------------------------
-function createChatClientObject2() {
-    startUserFunctionMessage();
-    userIdentity = $("#username").val();
-    if (userIdentity === "") {
-        logger("Required: Username.");
-        addChatMessage("Enter a Username to use when chatting.");
-        return;
-    }
-    addChatMessage("++ Creating Conversations Client...");
-    // Since, programs cannot make an Ajax call to a remote resource,
-    // Need to do an Ajax call to a local program that goes and gets the token.
-    logger("+ Use a server side routine to refresh the token using client id: " + userIdentity);
-    var jqxhr = $.get("generateToken?identity=" + userIdentity, function (token) {
-        if (token === "0") {
-            logger("- Error refreshing the token.");
-            return;
-        }
-        thisToken = token;
-        logger("Token refreshed: " + thisToken);
-        // -------------------------------
-        // https://www.twilio.com/docs/conversations/initializing-conversations-sdk-clients
-        Twilio.Conversations.Client.create(thisToken).then(conversationClient => {
-            logger("Conversations client created: thisConversationClient.");
-            thisConversationClient = conversationClient;
-            addChatMessage("+ Conversation client created for the user: " + userIdentity);
-            addChatMessage("+ Participant is subscribed and joined to the conversations: ");
-
-            // Nick's code.
-            let paginator = await thisConversationClient.getSubscribedConversations();
-            let hasNextPage = paginator.hasNextPage;
-            while (hasNextPage) {
-                console.log(paginator.items); // logs current page items to console.
-                paginator = await paginator.nextPage();
-                hasNextPage = paginator.hasNextPage;
-            }
-            console.log(paginator.items); // logs the final page items to console.
-
-            //
-            // -------------------------------
-            //
-            setButtons("createChatClient");
-            //
-            // -------------------------------
-            // Set event listeners.
-            // 
-            // thisConversationClient.on('channelRemoved', $.throttle(tc.loadChannelList));
-            // thisConversationClient.on('tokenExpired', onTokenExpiring);
-            //
-            thisConversationClient.on('tokenAboutToExpire', onTokenAboutToExpire);
-            //
-            thisConversationClient.on('conversationAdded', onConversationAdded);
-            thisConversationClient.on("conversationJoined", (aConversation) => {
-                addChatMessage("++ Conversation joined: " + aConversation.uniqueName
-                        + ": " + aConversation.friendlyName + ": " + aConversation.createdBy
-                        );
-            });
-            thisConversationClient.on("conversationLeft", (aConversation) => {
-                addChatMessage("++ Exited the conversation: " + aConversation.uniqueName);
-            });
-        });
-    }).fail(function () {
-        logger("- Error refreshing the token and creating the chat client object.");
-    });
-}
-
 function createChatClientObject() {
     startUserFunctionMessage();
     userIdentity = $("#username").val();
@@ -155,22 +58,34 @@ function createChatClientObject() {
             thisConversationClient = conversationClient;
             addChatMessage("+ Conversation client created for the user: " + userIdentity);
             addChatMessage("+ Participant is subscribed and joined to the conversations: ");
-            thisConversationClient.getSubscribedConversations().then(function (paginator) {
-                //
-                // getSubscribedConversations() re-joins the participant to their subscribed conversations.
-                // For example:
-                // ++ Conversation joined: tfpecho: tfpecho: dave
-                // ++ Conversation joined: abc: abc: dave2
-                //
-                addChatMessage("+ Conversations re-joined.");
-                // Now that the conversations are re-joined.
-                logger("+ Loop through paginator.items");
-                paginatorLoop(paginator);
-                addChatMessage("+ Conversations re-joined.");
-                // conversationList now contains the list of joined/subscribed conversations.
-                // Can send messages using the array. For example:
-                //    conversationList[i].sendMessage("+ conversationList message: " + conversationList[i].uniqueName);
-            });
+            // http://media.twiliocdn.com/sdk/js/conversations/releases/2.0.0/docs/interfaces/Paginator.html
+            (async function () {
+                hasConversations = true;
+                counterPages = 0;
+                counterConversations = 0;
+                logger("+ Loop through conversation pages.");
+                let paginator = await thisConversationClient.getSubscribedConversations();
+                if (paginator.items.length === 0) {
+                    hasConversations = false;
+                }
+                while (hasConversations) {
+                    counterPages++;
+                    logger("+ Conversation loop: " + counterPages + " paginator.items which number: " + paginator.items.length);
+                    for (i = 0; i < paginator.items.length; i++) {
+                        const aConversation = paginator.items[i];
+                        conversationList[counterConversations++] = aConversation;   // Store the conversation names into an array.
+                        logger("++ counterConversations " + counterConversations + " : " + aConversation.uniqueName);
+                    }
+                    hasNextPage = paginator.hasNextPage;
+                    if (hasNextPage) {
+                        paginator = await paginator.nextPage();
+                    } else {
+                        hasConversations = false;
+                    }
+                }
+                logger("+ Completed conversation page loops, pages: " + counterPages + ", conversations: " + counterConversations);
+            })();
+
             //
             // -------------------------------
             //
