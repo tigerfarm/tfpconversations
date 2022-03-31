@@ -1,0 +1,33 @@
+{
+  "name": "Sample Conversations Web Server Application",
+  "description": "This application is a sample Conversations chat web application.",
+  "repository": "https://github.com/tigerfarm/tfpconversations",
+  "logo": "http://tigerfarmpress.com/images/topImgLeft.jpg",
+  "keywords": ["node", "express", "heroku", "Twilio", "Conversations"],
+    "env": {
+        "CONVERSATIONS_ACCOUNT_SID": {
+            "description": "Your Twilio account SID. You view it here: https://console.twilio.com",
+            "value": "ConversationsAccountSid"
+        },
+        "CONVERSATIONS_ACCOUNT_AUTH_TOKEN": {
+            "description": "Your Twilio account auth token. You view it here: https://console.twilio.com",
+            "value": "ConversationsAccountAuthToken"
+        },
+        "CONVERSATIONS_API_KEY": {
+            "description": "API Keys are revokable credentials for the Twilio API. You can view it here: https://www.twilio.com/console/project/api-keys",
+            "value": "ConversationsApiKey"
+        },
+        "CONVERSATIONS_API_KEY_SECRET": {
+            "description": "API Keys are revokable credentials for the Twilio API. Only when the API key is created, is the API key secret visible.",
+            "value": "ConversationsApiKeySecret"
+        },
+        "CONVERSATIONS_SERVICE_SID": {
+            "description": "Conversation service SID. You can view it here: https://www.twilio.com/console/conversations/services",
+            "value": "ConversationsServiceSid"
+        },
+        "CONVERSATIONS_MESSAGING_SERVICE_SID": {
+            "description": "Conversation service Messaging Service SID. You can view it here: https://www.twilio.com/console/conversations/configuration/defaults",
+            "value": "ConversationsMessagingServiceSid"
+        }
+    }
+}
