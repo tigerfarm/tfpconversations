@@ -11,14 +11,14 @@
         "TWILIO_AUTH_TOKEN": {
             "description": "Your Twilio account auth token. You view it here: https://console.twilio.com"
         },
+        "TWILIO_SSO_REALM_SID": {
+            "description": "Conversation service SID. You can view it here: https://console.twilio.com/us1/develop/frontline/manage/single-sign-on?frameUrl=%2Fconsole%2Ffrontline%2Fsso%3Fx-target-region%3Dus1"
+        },
         "TWILIO_SMS_NUMBER": {
             "description": "Your Twilio phone number used to send and receive messages."
         },
         "TWILIO_WHATSAPP_NUMBER": {
             "description": "Your Twilio WhatsApp sender id (Twilio phone number) used to send and receive messages."
-        },
-        "TWILIO_SSO_REALM_SID": {
-            "description": "Conversation service SID. You can view it here: https://console.twilio.com/us1/develop/frontline/manage/single-sign-on?frameUrl=%2Fconsole%2Ffrontline%2Fsso%3Fx-target-region%3Dus1"
         }
     }
 }
