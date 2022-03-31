@@ -59,7 +59,7 @@ const customers = [
         display_name: 'John Keats',
         channels: [
             // {type: 'sms', value: '+16508661007'},
-            {type: 'whatsapp', value: '+16508661007'}
+            {type: 'whatsapp', value: 'whatsapp:+16508661007'}
         ],
         worker: 'tigerfarm@gmail.com',
         avatar: 'https://someassets-1403.twil.io/Keats.jpg'
