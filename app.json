@@ -1,33 +1,24 @@
 {
-  "name": "Sample Conversations Web Server Application",
-  "description": "This application is a sample Conversations chat web application.",
-  "repository": "https://github.com/tigerfarm/tfpconversations",
+  "name": "Sample Frontline Web Server Application",
+  "description": "This application is a sample Frontline web application servering JSON data.",
+  "repository": "https://github.com/tigerfarm/tfpfrontlinejson",
   "logo": "http://tigerfarmpress.com/images/topImgLeft.jpg",
-  "keywords": ["node", "express", "heroku", "Twilio", "Conversations"],
+  "keywords": ["node", "express", "heroku", "Twilio", "Frontline", "Conversations"],
     "env": {
-        "CONVERSATIONS_ACCOUNT_SID": {
-            "description": "Your Twilio account SID. You view it here: https://console.twilio.com",
-            "value": "ConversationsAccountSid"
+        "TWILIO_ACCOUNT_SID": {
+            "description": "Your Twilio account SID. You view it here: https://console.twilio.com"
         },
-        "CONVERSATIONS_ACCOUNT_AUTH_TOKEN": {
-            "description": "Your Twilio account auth token. You view it here: https://console.twilio.com",
-            "value": "ConversationsAccountAuthToken"
+        "TWILIO_AUTH_TOKEN": {
+            "description": "Your Twilio account auth token. You view it here: https://console.twilio.com"
         },
-        "CONVERSATIONS_API_KEY": {
-            "description": "API Keys are revokable credentials for the Twilio API. You can view it here: https://www.twilio.com/console/project/api-keys",
-            "value": "ConversationsApiKey"
+        "TWILIO_SMS_NUMBER": {
+            "description": "Your Twilio phone number used to send and receive messages."
         },
-        "CONVERSATIONS_API_KEY_SECRET": {
-            "description": "API Keys are revokable credentials for the Twilio API. Only when the API key is created, is the API key secret visible.",
-            "value": "ConversationsApiKeySecret"
+        "TWILIO_WHATSAPP_NUMBER": {
+            "description": "Your Twilio WhatsApp sender id (Twilio phone number) used to send and receive messages."
         },
-        "CONVERSATIONS_SERVICE_SID": {
-            "description": "Conversation service SID. You can view it here: https://www.twilio.com/console/conversations/services",
-            "value": "ConversationsServiceSid"
-        },
-        "CONVERSATIONS_MESSAGING_SERVICE_SID": {
-            "description": "Conversation service Messaging Service SID. You can view it here: https://www.twilio.com/console/conversations/configuration/defaults",
-            "value": "ConversationsMessagingServiceSid"
+        "TWILIO_SSO_REALM_SID": {
+            "description": "Conversation service SID. You can view it here: https://console.twilio.com/us1/develop/frontline/manage/single-sign-on?frameUrl=%2Fconsole%2Ffrontline%2Fsso%3Fx-target-region%3Dus1"
         }
     }
 }
