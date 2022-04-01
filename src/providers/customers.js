@@ -58,7 +58,7 @@ const customers = [
         customer_id: 3,
         display_name: 'John Keats',
         channels: [
-            // {type: 'sms', value: '+16508661007'},
+            {type: 'sms', value: '+16508661007'},
             {type: 'whatsapp', value: 'whatsapp:+16508661007'}
         ],
         worker: 'tigerfarm@gmail.com',
