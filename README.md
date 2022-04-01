@@ -4,6 +4,9 @@
 
 [Documentation](https://github.com/tigerfarm/work/tree/master/book/Frontline).
 
+[Frontline application](https://github.com/twilio/frontline-demo-service)
+I've cloned and updated in this repository.
+
 ## Using Heroku with my sample application
 
 Daily Heroku authentication.
@@ -47,6 +50,15 @@ Sending WhatsApp messages to a WhatsApp user, from the Twilio WhatsApp Sandbox s
 curl -X POST https://api.twilio.com/2010-04-01/Accounts/$MASTER_ACCOUNT_SID/Messages.json \
 --data-urlencode 'To=whatsapp:+16505552222' \
 --data-urlencode 'From=whatsapp:+14155238886' \
+--data-urlencode 'Body=Your Twilio code is 1234561' \
+-u $MASTER_ACCOUNT_SID:$MASTER_AUTH_TOKEN
+````
+
+Sending SMS messages to a mobile phone number, from the Twilio WhatsApp Sandbox sender id.
+````
+curl -X POST https://api.twilio.com/2010-04-01/Accounts/$MASTER_ACCOUNT_SID/Messages.json \
+--data-urlencode 'To=+12093308682' \
+--data-urlencode 'From=+16508668893' \
 --data-urlencode 'Body=Your Twilio code is 1234561' \
 -u $MASTER_ACCOUNT_SID:$MASTER_AUTH_TOKEN
 ````

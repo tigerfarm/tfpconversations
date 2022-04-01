@@ -80,4 +80,12 @@ const REPLY_ASK_DOCUMENTS = 'We have a secure drop box for documents. Can you at
 
 const CLOSING_ASK_REVIEW = 'Happy to help, {{Name}}. If you have a moment could you leave a review about our interaction at this link: https://example.com. {{Author}}.';
 
+// Twilio WhatsApp Sandbox templates:
+//      Your {{1}} code is {{2}}
+//          Example: Your Twilio code is 1238432
+//      Your appointment is coming up on {{1}} at {{2}}
+//          Example: Your appointment is coming up on July 21 at 3PM
+//      Your {{1}} order of {{2}} has shipped and should be delivered on {{3}}. Details: {{4}}
+//          Example: Your Yummy Cupcakes Company order of 1 dozen frosted cupcakes has shipped and should be delivered on July 10, 2019. Details: http://www.yummycupcakes.com/
+//      
 module.exports = templatesCallbackHandler;
