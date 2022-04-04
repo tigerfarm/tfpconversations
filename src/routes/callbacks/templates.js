@@ -52,7 +52,10 @@ const handleGetTemplatesByCustomerIdCallback = async (req, res) => {
         return res.status(404).send("Customer not found");
     }
 
+    // -----------------------------
     // Prepare templates categories
+    // Pre-approved templates for out of session messages: ", whatsAppApproved: true"
+    //
     const openersCategory = {
         display_name: 'Openers', // Category name
         templates: [
@@ -89,10 +92,12 @@ const handleGetTemplatesByCustomerIdCallback = async (req, res) => {
 //
 const compileTemplate = (template, customer) => {
     let compiledTemplate = template;
+    //
     compiledTemplate = compiledTemplate.replace(/{{Name}}/, customer.display_name);
     compiledTemplate = compiledTemplate.replace(/{{Author}}/, customer.worker);
     compiledTemplate = compiledTemplate.replace(/{{CompanyName}}/, customer.company_name);   // "Tiger Farm Press"
     compiledTemplate = compiledTemplate.replace(/{{Code}}/, "123456");
+    //
     return compiledTemplate;
 };
 
