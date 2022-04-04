@@ -88,11 +88,11 @@ const handleGetTemplatesByCustomerIdCallback = async (req, res) => {
 // Add parameters into message templates.
 //
 const compileTemplate = (template, customer) => {
-    let compiledTemplate;
-    compiledTemplate = template.replace(/{{Name}}/, customer.display_name);
+    let compiledTemplate = template;
+    compiledTemplate = compiledTemplate.replace(/{{Name}}/, customer.display_name);
     compiledTemplate = compiledTemplate.replace(/{{Author}}/, customer.worker);
     compiledTemplate = compiledTemplate.replace(/{{CompanyName}}/, customer.company_name);   // "Tiger Farm Press"
-    compiledTemplate = template.replace(/{{Code}}/, "123456");
+    compiledTemplate = compiledTemplate.replace(/{{Code}}/, "123456");
     return compiledTemplate;
 };
 
