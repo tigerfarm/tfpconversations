@@ -91,7 +91,7 @@ const compileTemplate = (template, customer) => {
     let compiledTemplate;
     compiledTemplate = template.replace(/{{Name}}/, customer.display_name);
     compiledTemplate = compiledTemplate.replace(/{{Author}}/, customer.worker);
-    compiledTemplate = template.replace(/{{CompanyName}}/, customer.company_name);   // "Tiger Farm Press"
+    compiledTemplate = compiledTemplate.replace(/{{CompanyName}}/, customer.company_name);   // "Tiger Farm Press"
     compiledTemplate = template.replace(/{{Code}}/, "123456");
     return compiledTemplate;
 };
