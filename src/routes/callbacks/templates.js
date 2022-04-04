@@ -1,3 +1,22 @@
+//  WhatsApp templates.
+//  If a template is approved, add ", whatsAppApproved: true" to the definition. For example:
+//      ...
+//      { content: compileTemplate(OPENER_ON_MY_WAY, customerDetails), whatsAppApproved: true },
+//      ...
+//
+//  Customer JSON data is used to merge into the templates.
+//      Customer JSON data: '../../providers/customers', 
+//      const customers = [
+//      {
+//              customer_id: 1,
+//              display_name: 'Coleridge',
+//              channels: [
+//                  {type: 'sms', value: '+16503790077'}
+//              ],
+//              worker: 'lordbyron@example.com',
+//              avatar: 'https://someassets-1403.twil.io/Coleridge.jpg'
+//          },
+//
 const { getCustomerById } = require('../../providers/customers');
 
 const templatesCallbackHandler = async (req, res) => {
@@ -18,6 +37,7 @@ const templatesCallbackHandler = async (req, res) => {
     }
 };
 
+// -----------------------------------------------------------------------------
 const handleGetTemplatesByCustomerIdCallback = async (req, res) => {
     const body = req.body
     console.log('Getting templates: ', body.CustomerId);
@@ -39,6 +59,8 @@ const handleGetTemplatesByCustomerIdCallback = async (req, res) => {
             { content: compileTemplate(OPENER_NEXT_STEPS, customerDetails) }, // Compiled template
             { content: compileTemplate(OPENER_NEW_PRODUCT, customerDetails) },
             { content: compileTemplate(OPENER_ON_MY_WAY, customerDetails), whatsAppApproved: true },
+            { content: compileTemplate(SANDBOX_TEMPLATE_1, customerDetails), whatsAppApproved: true },
+            
         ]
     };
     const repliesCategory = {
@@ -62,12 +84,21 @@ const handleGetTemplatesByCustomerIdCallback = async (req, res) => {
     res.send([openersCategory, repliesCategory, closingCategory]);
 };
 
+// -----------------------------------------------------------------------------
+// Add parameters into message templates.
+//
 const compileTemplate = (template, customer) => {
-    let compiledTemplate = template.replace(/{{Name}}/, customer.display_name);
+    let compiledTemplate;
+    compiledTemplate = template.replace(/{{Name}}/, customer.display_name);
     compiledTemplate = compiledTemplate.replace(/{{Author}}/, customer.worker);
+    compiledTemplate = template.replace(/{{CompanyName}}/, customer.company_name);   // "Tiger Farm Press"
+    compiledTemplate = template.replace(/{{Code}}/, "123456");
     return compiledTemplate;
 };
 
+// -----------------------------------------------------------------------------
+// Message templates
+//
 const OPENER_NEXT_STEPS = 'Hello {{Name}} we have now processed your documents and would like to move you on to the next step. Drop me a message. {{Author}}.';
 const OPENER_NEW_PRODUCT = 'Hello {{Name}} we have a new product out which may be of interest to your business. Drop me a message. {{Author}}.';
 const OPENER_ON_MY_WAY ='Just to confirm I am on my way to your office. {{Name}}.';
@@ -80,8 +111,10 @@ const REPLY_ASK_DOCUMENTS = 'We have a secure drop box for documents. Can you at
 
 const CLOSING_ASK_REVIEW = 'Happy to help, {{Name}}. If you have a moment could you leave a review about our interaction at this link: https://example.com. {{Author}}.';
 
-// Twilio WhatsApp Sandbox templates:
-//      Your {{1}} code is {{2}}
+// -----------------------------------
+// Twilio WhatsApp Sandbox templates
+//
+const SANDBOX_TEMPLATE_1 ='Your {{CompanyName}} code is {{Code}}.';
 //          Example: Your Twilio code is 1238432
 //      Your appointment is coming up on {{1}} at {{2}}
 //          Example: Your appointment is coming up on July 21 at 3PM
