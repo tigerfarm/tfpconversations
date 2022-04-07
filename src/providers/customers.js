@@ -39,15 +39,17 @@ const customers = [
     {
         customer_id: 1,
         display_name: 'Coleridge',
+        company_name: 'Poets Inc',
         channels: [
             {type: 'sms', value: '+16503790077'}
         ],
-        worker: 'lordbyron@example.com',
+        worker: 'tigerfarm@gmail.com',
         avatar: 'https://someassets-1403.twil.io/Coleridge.jpg'
     },
     {
         customer_id: 2,
         display_name: 'Percy Byshee Shelley',
+        company_name: 'Poets Inc',
         channels: [
             {type: 'sms', value: '+16503790007'},
             // {type: 'sms', value: '+16508661366'}
@@ -69,8 +71,9 @@ const customers = [
     {
         customer_id: 33,
         display_name: 'Dave here',
+        company_name: 'Poets Inc',
         channels: [
-            {type: 'sms', value: '+16505551111'}
+            {type: 'sms', value: '+16504837603'}
         ],
         worker: 'tigerfarm@gmail.com',
         avatar: 'https://someassets-1403.twil.io/avatarMine1.jpg'
@@ -78,6 +81,7 @@ const customers = [
     {
         customer_id: 34,
         display_name: 'Lord Byron',
+        company_name: 'Poets Inc',
         channels: [
             {type: 'sms', value: '+16505552222'}
         ],
