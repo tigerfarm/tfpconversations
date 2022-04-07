@@ -50,7 +50,7 @@ const customers = [
         display_name: 'Percy Byshee Shelley',
         channels: [
             {type: 'sms', value: '+16503790007'},
-            {type: 'sms', value: '+16508661366'}
+            // {type: 'sms', value: '+16508661366'}
         ],
         worker: 'tigerfarm@gmail.com',
         avatar: 'https://someassets-1403.twil.io/Shelley.jpg'
