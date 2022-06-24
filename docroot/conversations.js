@@ -118,7 +118,7 @@ function onConversationAdded(aChannel) {
 // https://media.twiliocdn.com/sdk/android/chat/releases/2.0.6/docs/com/twilio/chat/ChatClientListener.html
 // Called when the current user is added to a channel.
 // Note, joined but not subscribed.
-    // logger("onConversationAdded, user added to the  channel: " + aChannel.friendlyName);
+//  logger("onConversationAdded, user added to the  channel: " + aChannel.friendlyName);
 }
 
 function onTokenAboutToExpire() {
@@ -156,6 +156,24 @@ function joinChatConversation() {
         logger("Required: conversation name.");
         return;
     }
+    // -----------------------------------------
+    thisConversationClient.getConversationByUniqueName(conversationName)
+            .then(aConversation => {
+                logger("+ Use getConversationByUniqueName() " + conversationName);
+                theConversation = aConversation;
+                logger("++ Using getConversationByUniqueName(), theConversation object, "
+                        + " SID: " + theConversation.sid
+                        + " friendlyName: " + theConversation.friendlyName
+                        + " uniqueName: " + theConversation.uniqueName
+                        );
+            })
+            .catch(function () {
+                logger("- Error conversation is not available: " + conversationName + ".");
+            });
+
+
+    // -----------------------------------------
+
     addChatMessage("+ Join the conversation: " + conversationName + ", as identity: " + userIdentity);
     // -----------------------------------------
     // This works for conversations already subscribed and joined.

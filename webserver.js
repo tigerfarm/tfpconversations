@@ -4,6 +4,7 @@
 // Easy to use.
 // Install modules.
 //  $ npm install --save express
+//  $ npm install --save twilio
 //  
 // Run the web server. Default port is hardcoded to 8000.
 //  $ node websever.js
@@ -117,9 +118,11 @@ app.get('/generateToken', function (req, res) {
 app.get('/listConversations', function (req, res) {
     sayMessage("+ Get list of conversations.");
     var theResult = "";
-    client.conversations.services(CONVERSATIONS_SERVICE_SID).conversations.list({limit: 20})
+    var acounter = 0;
+    client.conversations.services(CONVERSATIONS_SERVICE_SID).conversations.list({limit: 200})
             .then(conversations => {
                 conversations.forEach(c => {
+                    acounter++;
                     console.log(
                             "+ Conversations SID/friendlyName/createdBy: " + c.sid
                             + "/" + c.friendlyName
@@ -130,6 +133,7 @@ app.get('/listConversations', function (req, res) {
                             + c.friendlyName + "\n";
                 });
                 res.send(theResult);
+                console.log("+ total count = " + acounter);
             });
 });
 // -----------------------------------------------------------------------------
