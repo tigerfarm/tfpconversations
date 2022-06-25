@@ -132,8 +132,8 @@ app.get('/listConversations', function (req, res) {
                             + c.sid + " "
                             + c.friendlyName + "\n";
                 });
-                res.send(theResult);
-                console.log("+ total count = " + acounter);
+                res.send(theResult + "\n+ Total count = " + acounter);
+                console.log("+ Total count = " + acounter);
             });
 });
 // -----------------------------------------------------------------------------

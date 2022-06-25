@@ -264,9 +264,13 @@ function setupTheConversation() {
     theConversation.getParticipantsCount().then(data => {
         logger("+ participantCount = " + data);
     });
-    theConversation.updateLastReadMessageIndex(0);
-    theConversation.getUnreadMessagesCount().then(data => {
-        logger("+ unreadCount = " + data);
+    // If the consumption horizon is not set,
+    //      "updateLastReadMessageIndex" will set it.
+    // Set to updateLastReadMessageIndex to 0 when joining a room, but not listing the messages.
+    theConversation.updateLastReadMessageIndex(0).then(data1 => {
+        theConversation.getUnreadMessagesCount().then(data => {
+            logger("+ unreadCount = " + data);
+        });
     });
     // -------------------------------------------------------------------------
     // Set conversation event listeners.
@@ -401,6 +405,7 @@ function sendMessage() {
     }
     $("#message").val("");
     theConversation.sendMessage(message);
+    // Stacy, mark message as read.
 }
 
 function listAllMessages() {
@@ -418,8 +423,13 @@ function listAllMessages() {
             // properties: https://media.twiliocdn.com/sdk/js/chat/releases/3.2.1/docs/Message.html
             addChatMessage("> " + message.author + " : " + message.body);
         }
-// theConversation.updateLastConsumedMessageIndex(totalMessages);
+        // theConversation.updateLastConsumedMessageIndex(totalMessages);
         addChatMessage('+ Total Messages: ' + totalMessages);
+        theConversation.setAllMessagesRead().then(data1 => {
+            theConversation.getUnreadMessagesCount().then(data => {
+                logger("+ listAllMessages, unreadCount = " + data);
+            });
+        });
     });
 }
 
@@ -441,23 +451,24 @@ function deleteAllMessages() {
 }
 
 function doCountZero() {
-    logger("+ Called: doCountZero(): theConversation.setNoMessagesConsumed();");
-    theConversation.setNoMessagesConsumed();
+    logger("+ Called: doCountZero();");
+    totalMessages = 0;
 }
 
 function incCount() {
     totalMessages++;
-    logger('+ Increment Total Messages:' + totalMessages);
+    logger('+ Increment Total Messages: ' + totalMessages);
     theConversation.getMessages().then(function (messages) {
-// theConversation.updateLastConsumedMessageIndex(totalMessages);
+        // theConversation.updateLastConsumedMessageIndex(totalMessages);
     });
 }
 
 function setTotalMessages() {
-    theConversation.getMessages().then(function (messages) {
-        totalMessages = messages.items.length;
-        logger('setTotalMessages, Total Messages:' + totalMessages);
-    });
+    // theConversation.getMessages().then(function (messages) {
+    //    totalMessages = messages.items.length;
+    // });
+    totalMessages = theConversation.getMessagesCount();
+    logger('setTotalMessages, Total Messages:' + totalMessages);
 }
 
 // -----------------------------------------------------------------------------
