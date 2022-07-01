@@ -269,7 +269,7 @@ function setupTheConversation() {
     // Set to updateLastReadMessageIndex to 0 when joining a room, but not listing the messages.
     theConversation.updateLastReadMessageIndex(0).then(data1 => {
         theConversation.getUnreadMessagesCount().then(data => {
-            logger("+ unreadCount = " + data);
+            logger("+ setupTheConversation, unreadCount = " + data);
         });
     });
     // -------------------------------------------------------------------------
@@ -279,7 +279,7 @@ function setupTheConversation() {
         addChatMessage("> " + message.author + " : " + message.conversation.uniqueName + " : " + message.body);
         incCount();
         theConversation.getUnreadMessagesCount().then(data => {
-            logger("+ unreadCount = " + data);
+            logger("+ messageAdded, unreadCount = " + data);
         });
     });
 }
