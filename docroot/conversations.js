@@ -273,7 +273,7 @@ function setupTheConversation() {
         });
     });
     // -------------------------------------------------------------------------
-    // Set conversation event listeners.
+    // Set conversation messageAdded event listener.
     theConversation.on('messageAdded', function (message) {
         // https://media.twiliocdn.com/sdk/js/conversations/releases/1.2.1/docs/Message.html
         addChatMessage("> " + message.author + " : " + message.conversation.uniqueName + " : " + message.body);
@@ -281,6 +281,16 @@ function setupTheConversation() {
         theConversation.getUnreadMessagesCount().then(data => {
             logger("+ messageAdded, unreadCount = " + data);
         });
+    });
+    // -------------------------------------------------------------------------
+    // https://www.twilio.com/docs/conversations/typing-indicator#typing-indicator-consume
+    // Set conversation typing event listeners.
+    theConversation.on('typingStarted', function (participant) {
+        logger("+ typingStarted: " + participant.identity);
+    });
+    //set  the listener for the typing ended Conversation event
+    theConversation.on('typingEnded', function (participant) {
+        logger("+ typingEnded: " + participant.identity);
     });
 }
 
@@ -543,6 +553,22 @@ function activateChatBox() {
             $("#btn-chat").click();
         }
     });
+    // stacy, intercept the keypress event
+    $("#message").on("keypress", function (e) {
+        // if the RETURN/ENTER key is pressed, send the message
+        // logger("+ keypress: " + e.keyCode);
+        if (e.keyCode === 13) {
+            // logger("+ Enter key pressed." + e.keyCode);
+            // sendButton.click();
+        } else {
+            // else send the Typing Indicator signal
+            if (theConversation !== "" ) {
+                theConversation.typing();
+            }
+        }
+    });
+// message.on('keydown', function (e) { });
+
     // --------------------------------
 }
 
