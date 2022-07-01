@@ -548,26 +548,18 @@ function activateChatBox() {
         $("#message").val("");
         theConversation.sendMessage(message);
     });
-    $("#message").on("keydown", function (e) {
-        if (e.keyCode === 13) {
-            $("#btn-chat").click();
-        }
-    });
-    // stacy, intercept the keypress event
     $("#message").on("keypress", function (e) {
-        // if the RETURN/ENTER key is pressed, send the message
         // logger("+ keypress: " + e.keyCode);
         if (e.keyCode === 13) {
-            // logger("+ Enter key pressed." + e.keyCode);
-            // sendButton.click();
+            // if the RETURN/ENTER key is pressed, send the message
+            $("#btn-chat").click();
         } else {
-            // else send the Typing Indicator signal
             if (theConversation !== "" ) {
+                // Send the Typing Indicator signal
                 theConversation.typing();
             }
         }
     });
-// message.on('keydown', function (e) { });
 
     // --------------------------------
 }
