@@ -1,4 +1,4 @@
-console.log("+++ Start Frontline Application web server.");
+console.log("+++ Start Frontline CRM Application web server.");
 const createApp = require('./create-app');
 const config = require('./config');
 const routes = require('./routes');
