@@ -1,6 +1,8 @@
 # Frontline Integration Service Sample
 
-This README is for creating and managing the repository and Heroku application.
+[Setup and configuration](https://github.com/tigerfarm/work/tree/master/book/Frontline)
+
+### Creating and managing the repository and Heroku application.
 
 [![Deploy to Heroku](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy?template=https://github.com/tigerfarm/tfpfrontlinejson)
 
