@@ -5,15 +5,13 @@
         <link href="favicon.ico" rel="shortcut icon" type="image/x-icon">
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
         <script src="https://code.jquery.com/jquery-2.2.4.min.js"></script>
-        <!-- http://media.twiliocdn.com/sdk/js/conversations/releases/1.2.3/docs/ -->
-        <!-- script src="https://media.twiliocdn.com/sdk/js/conversations/v1.2/twilio-conversations.min.js"></script -->
-        <!-- script src="https://media.twiliocdn.com/sdk/js/conversations/releases/1.2.3/twilio-conversations.min.js"></script -->
+        <!-- https://media.twiliocdn.com/sdk/js/conversations/releases/2.1.0/docs/classes/Conversation.html -->
         <script src="https://media.twiliocdn.com/sdk/js/conversations/releases/2.1.0/twilio-conversations.min.js"></script>
         <link rel="stylesheet" href="custom/chat.css">
         <script src="conversations.js"></script>
     </head>
     <body>
-        <script type="text/javascript" src="custom/pageTop.js"></script>
+        <script src="custom/pageTop.js"></script>
         <div id="chatBox">
             <div class="panelTitle">
                 Conversations Application using Twilio Conversations
@@ -34,7 +32,7 @@
                             <button class="abutton" id="btn-delete">Delete</button>
                             <button class="abutton" id="btn-members">List Members</button>
                             Messages:
-                            <button class="abutton" id="btn-chat">Send</button>
+                            <button class="abutton" id="btn-chat" onclick="sendTheMessage();">Send</button>
                             <button class="abutton" id="btn-listallmessages">List</button>
                             <button class="abutton" id="btn-deleteallmessages">Delete all</button>
                         </td></tr>
@@ -46,6 +44,7 @@
                     <tr><td>Conversation unique name &nbsp;&nbsp;</td><td><input id="channelName" type="text"/></td></tr>
                     <!-- tr><td>Conversation description &nbsp;</td><td><input id="channelDescription" type="text"/></td></tr -->
                 </table>
+                <button class="abutton" id="btn-sm" onclick="sendMedia();">Send Media</button>
             </div>
         </div>
         <div id="logBox">
@@ -63,6 +62,6 @@
                 </table>
             </div>
         </div>
-        <script type="text/javascript" src="custom/pageBottom.js"></script>
+        <script src="custom/pageBottom.js"></script>
     </body>
 </html>

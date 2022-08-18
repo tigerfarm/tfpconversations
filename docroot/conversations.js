@@ -74,7 +74,7 @@ function createChatClientObject() {
                     for (i = 0; i < paginator.items.length; i++) {
                         const aConversation = paginator.items[i];
                         conversationList[counterConversations++] = aConversation;   // Store the conversation names into an array.
-                        logger("++ counterConversations " + counterConversations + " : " + aConversation.uniqueName);
+                        addChatMessage("++ " + counterConversations + " : " + aConversation.uniqueName);
                     }
                     hasNextPage = paginator.hasNextPage;
                     if (hasNextPage) {
@@ -84,6 +84,7 @@ function createChatClientObject() {
                     }
                 }
                 logger("+ Completed conversation page loops, pages: " + counterPages + ", conversations: " + counterConversations);
+                addChatMessage("+ ----------------------------------------------------------");
             })();
 
             //
@@ -157,6 +158,9 @@ function joinChatConversation() {
         return;
     }
     // -----------------------------------------
+    // Using defaults, if the conversation was created by a different user,
+    // they will not have access to use "getConversationByUniqueName" and "getConversationBySid" 
+    // for conversations they did not create.
     thisConversationClient.getConversationByUniqueName(conversationName)
             .then(aConversation => {
                 logger("+ Use getConversationByUniqueName() " + conversationName);
@@ -290,6 +294,7 @@ function setupTheConversation() {
     });
     //set  the listener for the typing ended Conversation event
     theConversation.on('typingEnded', function (participant) {
+        // Once typingStarted, after 5 seconds, this is triggered.
         logger("+ typingEnded: " + participant.identity);
     });
 }
@@ -404,17 +409,23 @@ function listMembers() {
 }
 
 // -----------------------------------------------------------------------------
-function sendMessage() {
+function sendTheMessage() {
     if (thisConversationClient === "") {
         addChatMessage("First, create a Chat Client.");
         return;
     }
-    const message = $("#message").val();
-    if (message === "") {
+    const theMessage = $("#message").val();
+    if (theMessage === "") {
         return;
     }
     $("#message").val("");
-    theConversation.sendMessage(message);
+    // stacy
+    theIndex = theConversation.sendMessage(theMessage);
+    if (theIndex.index !== undefined) {
+        logger("sendTheMessage() " + theMessage + " index=" + theIndex.index);
+    } else {
+        logger("sendTheMessage() " + theMessage);
+    }
     // Stacy, mark message as read.
 }
 
@@ -481,6 +492,40 @@ function setTotalMessages() {
     logger('setTotalMessages, Total Messages:' + totalMessages);
 }
 
+// Using curl:
+//  https://www.twilio.com/docs/conversations/media-support-conversations#using-media-messaging-via-the-conversations-rest-api
+function sendMedia() {
+    // logger('+ Called sendMedia().');
+    (async function () {
+        // await theConversation.sendMessage('+ sendMedia() step 1');
+        logger('+ Called sendMedia() async.');
+        const file1 = await fetch("http://localhost:8000/0graphic1w.jpg");
+        const fileM1 = await file1.blob();
+        const sendMediaOptions1 = {
+            contentType: file1.headers.get("Content-Type"),
+            filename: "0graphic1w.jpg",
+            media: fileM1
+        };
+        const file2 = await fetch("http://localhost:8000/0graphic1w.jpg");
+        const fileM2 = await file2.blob();
+        const sendMediaOptions2 = {
+            contentType: file1.headers.get("Content-Type"),
+            filename: "0graphic2s.jpg",
+            media: fileM2
+        };
+        await theConversation.prepareMessage()
+                .setBody("+ sendMedia() files: M1 and M2")
+                .addMedia(sendMediaOptions1)
+                // .setBody("+ sendMedia() file: M2")
+                .addMedia(sendMediaOptions2)
+                .build()
+                .send()
+        ;
+        logger('+ Exit sendMedia() async.');
+    })();
+    // logger('+ Exit sendMedia().');
+}
+
 // -----------------------------------------------------------------------------
 // UI Functions
 
@@ -536,25 +581,13 @@ function activateChatBox() {
         doCountZero();
     });
     // --------------------------------
-    $("#btn-chat").click(function () {
-        if (thisConversationClient === "") {
-            addChatMessage("First, create a Chat Client.");
-            return;
-        }
-        const message = $("#message").val();
-        if (message === "") {
-            return;
-        }
-        $("#message").val("");
-        theConversation.sendMessage(message);
-    });
     $("#message").on("keypress", function (e) {
         // logger("+ keypress: " + e.keyCode);
         if (e.keyCode === 13) {
             // if the RETURN/ENTER key is pressed, send the message
-            $("#btn-chat").click();
+            sendTheMessage();
         } else {
-            if (theConversation !== "" ) {
+            if (theConversation !== "") {
                 // Send the Typing Indicator signal
                 theConversation.typing();
             }
