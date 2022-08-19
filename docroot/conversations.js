@@ -495,28 +495,30 @@ function setTotalMessages() {
 // Using curl:
 //  https://www.twilio.com/docs/conversations/media-support-conversations#using-media-messaging-via-the-conversations-rest-api
 function sendMedia() {
+    // Media files are in the same directory as the index.html file, that loads this file
     // logger('+ Called sendMedia().');
     (async function () {
         // await theConversation.sendMessage('+ sendMedia() step 1');
         logger('+ Called sendMedia() async.');
-        const file1 = await fetch("http://localhost:8000/0graphic1w.jpg");
+        const file1 = await fetch("/0graphic1w.jpg");
         const fileM1 = await file1.blob();
         const sendMediaOptions1 = {
             contentType: file1.headers.get("Content-Type"),
-            filename: "0graphic1w.jpg",
+            filename: "graphic1.jpg",
             media: fileM1
         };
-        const file2 = await fetch("http://localhost:8000/0graphic1w.jpg");
+        const file2 = await fetch("/custom/companyLogo.jpg");
         const fileM2 = await file2.blob();
         const sendMediaOptions2 = {
             contentType: file1.headers.get("Content-Type"),
-            filename: "0graphic2s.jpg",
+            filename: "graphic2.jpg",
             media: fileM2
         };
         await theConversation.prepareMessage()
+                // .setBody("+ sendMedia() file: M1")
+                // .setBody("+ sendMedia() file: M2")
                 .setBody("+ sendMedia() files: M1 and M2")
                 .addMedia(sendMediaOptions1)
-                // .setBody("+ sendMedia() file: M2")
                 .addMedia(sendMediaOptions2)
                 .build()
                 .send()
