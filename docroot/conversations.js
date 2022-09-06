@@ -435,6 +435,7 @@ function listAllMessages() {
     // theConversation.getMessages(3).then(function (messages) {
     // Default number of messages is 30. List the 30 most recent messages.
     // https://media.twiliocdn.com/sdk/js/conversations/releases/1.2.1/docs/Conversation.html#getMessages__anchor
+    // https://media.twiliocdn.com/sdk/js/conversations/releases/2.1.0/docs/classes/Conversation.html#getMessages
     theConversation.getMessages().then(function (messages) {
         totalMessages = messages.items.length;
         logger('Total Messages: ' + totalMessages);
@@ -460,6 +461,7 @@ function deleteAllMessages() {
     // theConversation.getMessages(3).then(function (messages) {
     // Default number of messages is 30. List the 30 most recent messages.
     // https://media.twiliocdn.com/sdk/js/conversations/releases/1.2.1/docs/Message.html
+    // https://media.twiliocdn.com/sdk/js/conversations/releases/2.1.0/docs/classes/Conversation.html#getMessages
     theConversation.getMessages().then(function (messages) {
         totalMessages = messages.items.length;
         addChatMessage("+ Remove all Messages for conversation: " + conversationName);
