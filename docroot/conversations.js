@@ -432,6 +432,43 @@ function sendTheMessage() {
 function listAllMessages() {
     startUserFunctionMessage();
     logger("+ Function: listAllMessages().");
+    // -------------------------------------
+    (async function () {
+        hasMore = true;
+        counterPages = 0;
+        counterItems = 0;
+        logger("+ Loop through message pages.");
+        let paginator = await theConversation.getMessages(5, 0, "forward");
+        hasMore = true;
+        while (hasMore) {
+            counterPages++;
+            for (i = 0; i < paginator.items.length; i++) {
+                const message = paginator.items[i];
+                addChatMessage("> " + counterItems++ + " " + message.author + " : " + message.index + " : " + message.body);
+            }
+            if (paginator.hasNextPage) {
+                paginator = await paginator.nextPage();
+            } else {
+                hasMore = false;
+            }
+        }
+        logger("+ Completed page loops, pages: " + counterPages + ", conversations: " + counterItems);
+        addChatMessage("+ ----------------------------------------------------------");
+        return;
+        // -----------------
+        // Following is for testing the other parameters of getMessages(...).
+        const thePaginator = (paginator) => {
+            logger("++ paginator.hasPrevPage = " + paginator.hasPrevPage);
+            logger("++ paginator.hasNextPage = " + paginator.hasNextPage);
+        };
+        // theConversation.getMessages(10, 0, 'forward').then(thePaginator);
+        // theConversation.getMessages(15, undefined, 'forward').then(thePaginator);
+        // theConversation.getMessages(15, undefined, 'forward').then(thePaginator);
+        // theConversation.getMessages(5).then(thePaginator);
+    })();
+    return;
+    // -------------------------------------
+    // The following only lists the number of messages retrieved using getMessages(x).
     // theConversation.getMessages(3).then(function (messages) {
     // Default number of messages is 30. List the 30 most recent messages.
     // https://media.twiliocdn.com/sdk/js/conversations/releases/1.2.1/docs/Conversation.html#getMessages__anchor
@@ -443,7 +480,7 @@ function listAllMessages() {
         for (i = 0; i < totalMessages; i++) {
             const message = messages.items[i];
             // properties: https://media.twiliocdn.com/sdk/js/chat/releases/3.2.1/docs/Message.html
-            addChatMessage("> " + message.author + " : " + message.body);
+            addChatMessage("> " + message.author + " : " + message.index + " : " + message.body);
         }
         // theConversation.updateLastConsumedMessageIndex(totalMessages);
         addChatMessage('+ Total Messages: ' + totalMessages);
@@ -524,7 +561,7 @@ function sendMedia() {
                 .addMedia(sendMediaOptions2)
                 .build()
                 .send()
-        ;
+                ;
         logger('+ Exit sendMedia() async.');
     })();
     // logger('+ Exit sendMedia().');

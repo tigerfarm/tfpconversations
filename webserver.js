@@ -124,9 +124,8 @@ app.get('/listConversations', function (req, res) {
                 conversations.forEach(c => {
                     acounter++;
                     console.log(
-                            "+ Conversations SID/friendlyName/createdBy: " + c.sid
+                            "+ Conversations SID/friendlyName: " + c.sid
                             + "/" + c.friendlyName
-                            + "/" + c.createdBy
                             );
                     theResult = theResult
                             + c.sid + " "
