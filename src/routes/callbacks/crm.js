@@ -31,20 +31,13 @@ POST Content ---------------------------------
  */
 
 const crmCallbackHandler = async (req, res) => {
-    // const location = req.query.location;
+    // Note, I removed token from this program. Token was removed in the newer sample application.
+    // 
+    // const location = req.query.location; // This would be if using HTTP GET instead of POST.
     const location = req.body.Location;
     console.log("+ location: " + location);
-
-    // Location helps to determine which information was requested.
-    // CRM callback is a general purpose tool and might be used to fetch different kind of information
-    // const workerIdentity = req.tokenInfo.identity;
-    const workerIdentity = req.body.Worker; // Not using a token.
+    const workerIdentity = req.body.Worker; 
     console.log("+ workerIdentity: " + workerIdentity);
-    if (workerIdentity !== req.body.Worker) {
-        console.log("+ Alow not using a token.");
-        // return res.status(401).send('Worker and token does not match');
-    }
-
     switch (location) {
         case 'GetCustomerDetailsByCustomerId': {
             await handleGetCustomerDetailsByCustomerIdCallback(req, res);
@@ -54,7 +47,6 @@ const crmCallbackHandler = async (req, res) => {
             await handleGetCustomersListCallback(req, res);
             return;
         }
-
         default: {
             console.log('Unknown location: ', location);
             res.sendStatus(422);
@@ -65,17 +57,13 @@ const crmCallbackHandler = async (req, res) => {
 const handleGetCustomerDetailsByCustomerIdCallback = async (req, res) => {
     console.log('+ Getting Customers details: handleGetCustomerDetailsByCustomerIdCallback');
     const body = req.body;
-    
-    // const workerIdentity = req.tokenInfo.identity;
-    const workerIdentity = req.body.Worker; // Not using a token.
+    const workerIdentity = req.body.Worker;
     const customerId = body.CustomerId;
     console.log('+ Getting Customer details, customerId: ', customerId);
-
-    // Fetch Customer Details based on his ID
-    // and information about a worker, that requested that information
     const customerDetails = await getCustomerById(customerId);
     console.log('+ customerDetails: ', customerDetails);
 /*
+ *  Sample:
 + Getting Customers details: handleGetCustomerDetailsByCustomerIdCallback
 + Getting Customer details, customerId:  2
 + customerDetails:  {
@@ -107,17 +95,14 @@ const handleGetCustomerDetailsByCustomerIdCallback = async (req, res) => {
 
 const handleGetCustomersListCallback = async (req, res) => {
     console.log('+ Getting Customers list: handleGetCustomersListCallback');
-
     const body = req.body;
-    // const workerIdentity = req.tokenInfo.identity;
-    const workerIdentity = req.body.Worker; // Not using a token.
-    const pageSize = body.PageSize;
+    const workerIdentity = req.body.Worker;
+    const pageSize = body.PageSize;     // parseInt(body.PageSize);
     const anchor = body.Anchor;
-
-    // Fetch Customers list based on information about a worker, that requested it
     const customersList = await getCustomersList(workerIdentity, pageSize, anchor);
     console.log('+ customersList: ', customersList);
-    /* + customersList:  [
+    /* + sample customersList:
+[
   {
     display_name: 'Coleridge',
     customer_id: 1,
