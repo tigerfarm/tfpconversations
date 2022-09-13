@@ -7,7 +7,8 @@ const crmCallbackHandler = async (req, res) => {
     // CRM callback is a general purpose tool and might be used to fetch different kind of information
     const workerIdentity = req.tokenInfo.identity;
     if (workerIdentity !== req.body.Worker) {
-        return res.status(401).send('Worker and token does not match');
+        console.log("+ Alow not using a token.");
+        // return res.status(401).send('Worker and token does not match');
     }
 
     switch (location) {
