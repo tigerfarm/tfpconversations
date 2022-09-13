@@ -19,7 +19,7 @@ const authMiddleware = async (req, res, next) => {
             console.log("Provided token is not valid", err);
         }
     } else {
-        console.log("Token not provided");
+        console.log("- Token not provided.");
     }
     // if token is not present or not valid
     res.sendStatus(401);
