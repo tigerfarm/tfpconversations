@@ -1,4 +1,34 @@
 const { getCustomerById, getCustomersList } = require('../../providers/customers');
+/*
++ POST URL : https://example.herokuapp.com/callbacks/crm
+--------------
++ Headers:
+++ 0: "host":"example.herokuapp.com"
+++ 1: "connection":"close"
+++ 2: "content-type":"application/x-www-form-urlencoded; charset=UTF-8"
+++ 3: "i-twilio-idempotency-token":"7369b88c-197c-415d-b310-086342ecd11d"
+++ 4: "x-twilio-signature":"0r0eXrqoy8Sd5GOlTNoonHccZiY="
+++ 5: "accept":"* / *"
+++ 6: "x-home-region":"us1"
+++ 7: "user-agent":"TwilioProxy/1.1"
+++ 8: "x-request-id":"9b8003ae-2dda-45cf-968e-150b7060b7ca"
+++ 9: "x-forwarded-for":"3.81.123.155"
+++ 10: "x-forwarded-proto":"https"
+++ 11: "x-forwarded-port":"443"
+++ 12: "via":"1.1 vegur"
+++ 13: "connect-time":"0"
+++ 14: "x-request-start":"1663030127165"
+++ 15: "total-route-time":"0"
+++ 16: "content-length":"66"
+POST Content ---------------------------------
++ Raw : 
+PageSize=30&Worker=tigerfarm%40gmail.com&Location=GetCustomersList
+POST Content ---------------------------------
++ Name value pairs: 
+   "PageSize": "30",
+   "Worker": "tigerfarm@gmail.com",
+   "Location": "GetCustomersList",
+ */
 
 const crmCallbackHandler = async (req, res) => {
     // const location = req.query.location;
@@ -33,17 +63,33 @@ const crmCallbackHandler = async (req, res) => {
 };
 
 const handleGetCustomerDetailsByCustomerIdCallback = async (req, res) => {
+    console.log('+ Getting Customers details: handleGetCustomerDetailsByCustomerIdCallback');
     const body = req.body;
-    console.log('Getting Customer details: ', body.CustomerId);
-
+    
     // const workerIdentity = req.tokenInfo.identity;
     const workerIdentity = req.body.Worker; // Not using a token.
     const customerId = body.CustomerId;
+    console.log('+ Getting Customer details, customerId: ', customerId);
 
     // Fetch Customer Details based on his ID
     // and information about a worker, that requested that information
     const customerDetails = await getCustomerById(customerId);
-
+    console.log('+ customerDetails: ', customerDetails);
+/*
++ Getting Customers details: handleGetCustomerDetailsByCustomerIdCallback
++ Getting Customer details, customerId:  2
++ customerDetails:  {
+  customer_id: 2,
+  display_name: 'Percy Byshee Shelley',
+  company_name: 'Poets Inc',
+  channels: [
+    { type: 'sms', value: '+16503790007' },
+    { type: 'sms', value: '+16508661366' }
+  ],
+  worker: 'tigerfarm@gmail.com',
+  avatar: 'https://someassets-1403.twil.io/Shelley.jpg'
+}
+ */
     // Respond with Contact object
     res.send({
         objects: {
@@ -60,7 +106,7 @@ const handleGetCustomerDetailsByCustomerIdCallback = async (req, res) => {
 };
 
 const handleGetCustomersListCallback = async (req, res) => {
-    console.log('Getting Customers list');
+    console.log('+ Getting Customers list: handleGetCustomersListCallback');
 
     const body = req.body;
     // const workerIdentity = req.tokenInfo.identity;

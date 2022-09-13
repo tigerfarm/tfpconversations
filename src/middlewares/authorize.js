@@ -6,6 +6,7 @@ const TWILIO_AUTH_HEADER = 'X-Twilio-Token';
 const authMiddleware = async (req, res, next) => {
     console.log('+ authMiddleware.');
     const token = req.header(TWILIO_AUTH_HEADER) || req.body.Token;
+    console.log('+ token: ' + token);
     // handle Twilio JWT token if present
     if (token) {
         console.log('Process token info');
@@ -21,7 +22,8 @@ const authMiddleware = async (req, res, next) => {
         }
     } else {
         console.log("- Token not provided.");
-        next();
+        console.log("+ This program version allows use without a Token.");
+        next(); // Allow use without token.
         return; // Allow use without token.
     }
     // if token is not present or not valid
