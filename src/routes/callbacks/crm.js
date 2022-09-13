@@ -1,6 +1,6 @@
 const { getCustomerById, getCustomersList } = require('../../providers/customers');
 /*
-+ POST URL : https://example.herokuapp.com/callbacks/crm
++ POST URL : https://example.com/callbacks/crm
 --------------
 + Headers:
 ++ 0: "host":"example.herokuapp.com"
