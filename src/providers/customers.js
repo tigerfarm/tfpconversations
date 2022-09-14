@@ -19,6 +19,7 @@ const customersToWorkersMap = {
 //   {
 //      customer_id: 98,
 //      display_name: 'Bobby Shaftoe',
+//      company_name: 'Poets Inc',
 //      channels: [
 //          { type: 'email', value: 'bobby@example.com' },
 //          { type: 'sms', value: '+123456789' },
@@ -31,7 +32,8 @@ const customersToWorkersMap = {
 //          title: "Information",
 //          content: "Status: Active" + "\n\n" + "Score: 100"
 //      },
-//      worker: 'john@example.com'
+//      worker: 'john@example.com',
+//      avatar: 'https://abouttime-2357.twil.io/john.jpg'
 //   }
 // ]
 

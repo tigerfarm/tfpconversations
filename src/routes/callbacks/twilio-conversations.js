@@ -2,11 +2,9 @@ const { getCustomerByNumber } = require('../../providers/customers');
 const twilioClient = require('../../providers/twilio');
 
 const conversationsCallbackHandler = async (req, res) => {
-    res.locals.log("Conversations Callback");
+    res.locals.log("+ Conversations Callback");
     res.locals.log(JSON.stringify(req.body));
-
     const eventType = req.body.EventType;
-
     switch (eventType) {
         case "onConversationAdd": {
             /* PRE-WEBHOOK
@@ -21,7 +19,7 @@ const conversationsCallbackHandler = async (req, res) => {
              * More info about handling incoming conversations: https://www.twilio.com/docs/frontline/handle-incoming-conversations
              */
             const customerNumber = req.body['MessagingBinding.Address'];
-            const isIncomingConversation = !!customerNumber
+            const isIncomingConversation = !!customerNumber;
 
             if (isIncomingConversation) {
                 let customerDetails = await getCustomerByNumber(customerNumber) || {};
@@ -32,7 +30,7 @@ const conversationsCallbackHandler = async (req, res) => {
                         avatar: customerDetails.avatar
                     })
                 };
-                return res.status(200).send(conversationProperties)
+                return res.status(200).send(conversationProperties);
             }
             break;
         }
@@ -53,16 +51,13 @@ const conversationsCallbackHandler = async (req, res) => {
             const participantSid = req.body.ParticipantSid;
             const customerNumber = req.body['MessagingBinding.Address'];
             const isCustomer = customerNumber && !req.body.Identity;
-
             if (isCustomer) {
                 const customerParticipant = await twilioClient.conversations
                     .conversations(conversationSid)
                     .participants
                     .get(participantSid)
                     .fetch();
-
                 const customerDetails = await getCustomerByNumber(customerNumber) || {};
-
                 await setCustomerParticipantProperties(customerParticipant, customerDetails);
             }
             break;
@@ -81,7 +76,6 @@ const setCustomerParticipantProperties = async (customerParticipant, customerDet
             display_name: participantAttributes.display_name || customerDetails.display_name
         })
     };
-
     // If there is difference, update participant
     if (customerParticipant.attributes !== customerProperties.attributes) {
         // Update attributes of customer to include customer_id
@@ -89,6 +83,6 @@ const setCustomerParticipantProperties = async (customerParticipant, customerDet
             .update(customerProperties)
             .catch(e => console.log("Update customer participant failed: ", e));
     }
-}
+};
 
 module.exports = conversationsCallbackHandler;
