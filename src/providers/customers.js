@@ -77,7 +77,7 @@ const customers = [
         channels: [
             {type: 'sms', value: '+16504837603'}
         ],
-        worker: 'tigerfarm@gmail.com',
+        worker: 'tigerfarm@gmail.com', // Okta Person username
         avatar: 'https://someassets-1403.twil.io/avatarMine1.jpg'
     },
     {
