@@ -30,6 +30,7 @@ Dave Here's data in customer.js
     }
 ````
 
+Dan test with a mobile Twilio Frontline app or the Twilio Frontline web application you can use for testing:
 [Frontline web application](https://frontline.twilio.com/login)
 
 My Frontline [Setup and configurations](https://github.com/tigerfarm/work/tree/master/book/Frontline).
@@ -109,6 +110,26 @@ $ git commit -am "update"
 $ git push -u origin main
 
 $ git push heroku main
+````
+
+--------------------------------------------------------------------------------
+### New Setup
+
+````
+In Twilio Console: Develop/Frontline/Overview, click Create Frontline Service.
+In Conversation: 2 services were created.
++ Frontline Service IS257e1353ffa94debad45cd07bb2ecc9b
++ In Develop/Conversations/Manage/Defaults, the Frontline Service is set to the service default.
+In Develop/Frontline/Manage/SSO/Log in, the JB id is create: JBc18f49b07100738b364bf6bcbe811e87.
+
+In Twilio Console: Develop/Frontline/Overview, the following now appears.
+Steps 1 and 2 are marked completed.
+Configure the Frontline application
+To get Frontline working end-to-end, set up underlying services and connect your systems. Read the docs
+1. Set Conversations Frontline Instance as your default conversation service
+2. Unlock `Handle Inbound Messages within Conversations` feature
+3. Enable `Autocreate a Conversation`
+4. Connect your CRM
 ````
 
 --------------------------------------------------------------------------------
