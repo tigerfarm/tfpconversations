@@ -199,6 +199,8 @@ firebase.messaging().onMessage(payload => {
 ````
 
 #### Step 1 - Enable push notifications for your Service instance
+
+Can use the Twilio console to enable notifications (see the screen print: Push configuration/Notification Text) or use the API.
 [Push Notification Configuration](https://www.twilio.com/docs/conversations/push-notification-configuration):
 Conversations integrates APN (iOS) and FCM (Android and browsers) using the Push credentials configured on your Twilio account.
 
