@@ -287,7 +287,7 @@ Click Save.
     However, the binding FCM token is not viewable from the Twilio Console. The Conversations binding is not viewable using the Notify Binding API.
 + From the Conversations web application, I sent a new message, "Hello there."
 + I received a notification! The notification, "abc:dave:Hello there", is the conversation-sid:participant-sender:message-text.
-    The message format is customizable (see the screen print: Notification Text).
+    The message format is customizable (see the screen print: Push configuration/Notification Text).
 
 <img src="ConversationsEnNoMsg.jpg" width="600"/>
 
