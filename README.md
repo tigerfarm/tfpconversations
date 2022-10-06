@@ -285,10 +285,11 @@ Click Save.
     Then copy and pasted into the Conversations web application. All Firebase notification code, is in the notifyweb-address web application.
 + Once registered, the user has a Conversations binding (See screen print).
     However, the binding FCM token is not viewable from the Twilio Console. The Conversations binding is not viewable using the Notify Binding API.
-+ From the Conversations web application, I sent a new message.
-+ I received a notification!
++ From the Conversations web application, I sent a new message, "Hello there."
++ I received a notification! The notification, "abc:dave:Hello there", is the conversation-sid:participant-sender:message-text.
+    The message format is customizable (see the screen print: Notification Text).
 
-<img src="ConversationsEnNo.jpg" width="400"/>
+<img src="ConversationsEnNoMsg.jpg" width="400"/>
 
 <img src="ConversationsBinding.jpg" width="400"/>
 
