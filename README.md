@@ -269,5 +269,30 @@ Check Log Notifications, Enable to trace individual Push notifications per Servi
 Click Save.
 ````
 
+#### Testing sequence:
+
++ Got web application notifications working with Notify.
+    This confirmed my FCM token and the Notify credentials which are used in Conversations notfications.
++ Modified the Conversations token generation program to include the Notify credentials.
++ For my test Conversations service, I enabled Log Notifications, and
+    I enabled New message received Push notifications. (See screen print)
++ From the Conversations web application, I sent a new message.
++ No "New message received Push notification received" because the web application Conversations client 
+    was not registered to receive notifications. Note, notification logs were showing, however, nothing sent when looking at the notification details.
++ In the Conversations web application, I registered the Conversations client for notifications 
+    by passing the FCM token--same token as used with Notify--to the Conversations client instance, code: thisConversationClient.setPushRegistrationId(‘fcm’, fcmToken);
++ Note, the FCM token was generated in the [notifyweb-address web application](https://github.com/tigerfarm/notifyweb/tree/main/address).
+    Then copy and pasted into the Conversations web application. All Firebase notification code, is in the notifyweb-address web application.
++ Once registered, the user has a Conversations binding (See screen print).
+    However, the binding FCM token is not viewable from the Twilio Console. The Conversations binding is not viewable using the Notify Binding API.
++ From the Conversations web application, I sent a new message.
++ I received a notification!
+
+<img src="ConversationsEnNo.jpg" width="400"/>
+
+<img src="ConversationsBinding.jpg" width="400"/>
+
+<img src="ConversationsNotification.jpg" width="600"/>
+
 --------------------------------------------------------------------------------
 Cheers...
