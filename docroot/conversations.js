@@ -567,6 +567,17 @@ function sendMedia() {
     // logger('+ Exit sendMedia().');
 }
 
+function setFCM() {
+    logger('+ Called setFCM().');
+    // passing FCM token to the `conversationClientInstance` to register for push notifications
+    // Firefox
+    fcmToken = "ewS_m63oS5A:APA91bGhWj6gAerckij2bGuSmsSYuy81ktkKPJ0KNci92u69ak6uwmpLCUPGRTyrjAPIcSa3VYLSNTpG9ztU5cF8t50dJMC_0zAcICe8kbVF-2WzFWIRVLR8c5oENtTSDPZ_cOkPZ6E7";
+    // Chrome
+    // fcmToken = "fM0kI09YbYM:APA91bFwdXVVrvN6XOAFA2gByU9ndWE1R36DkDa57lOEKx3GLa-o3BhJbl8wyxDMuQ1rju-ZReprIKyNTjeAlbYLdbOr0v-E1RgrPk36okHnV0dPk-F5ewXDoN90vtitkREFjZ76So40";
+    thisConversationClient.setPushRegistrationId('fcm', fcmToken);
+    logger('+ Exit setFCM().');
+}
+
 // -----------------------------------------------------------------------------
 // UI Functions
 

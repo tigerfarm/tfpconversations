@@ -130,7 +130,8 @@ Sample applications:
 --------------------------------------------------------------------------------
 ### To Do Next
 
-+ If conversation is deleted, remove it from conversationList[].
++ Add notifications such as new message added to the conversation.
+ + If conversation is deleted, remove it from conversationList[].
 + Get TokenAboutToExpire to work properly. Function: onTokenAboutToExpire
 + List participants in a conversation.
 + List conversations that the participant is in.
@@ -140,7 +141,8 @@ Sample applications:
 Get this to work with SMS participants.
 The following works:
 
-Add SMS participants. Edit and run, [participantsCreateSms.js](https://github.com/tigerfarm/work/blob/master/conversations/participantsCreateSms.js).
+Add/create an SMS participants. Edit and run, 
+[participantsCreateSms.js](https://github.com/tigerfarm/work/blob/master/conversations/participantsCreateSms.js).
 ````
 $ node participantsCreateSms.js
 $ node conversationParticipantsList.js
@@ -154,6 +156,118 @@ Test with SMS participant.
 
 Test:
 + Messaging Service/Integration/Autocreate a Conversation
+
+--------------------------------------------------------------------------------
+## Add notifications such as new message added to the conversation.
+
+[Push Notifications on Web Application](https://www.twilio.com/docs/conversations/javascript/push-notifications-web)
+````
+Step 1 - Enable push notifications for your Service instance
+Step 2 - Configure Firebase
+Firebase Server key Token: AAAA...x6r
+
+Step 3 - Upload your API Key to Twilio
+Create a Notify Mobile Push Credential entry:
+https://www.twilio.com/console/notify/credentials/
+Name: twilionotify
+SID: CR5db9959c64d7b104c9cf50c1f65efff6
+FCM Secret: AAAA...x6r (Firebase Server key Token)
+
+Step 4 - Pass the API Credential Sid in your Access Token
+const chatGrant = new ChatGrant({ 
+ serviceSid: ConversationServiceSid, 
+ pushCredentialSid: FCM_Credential_Sid
+});
+
+--- In the Conversations web application ---
+Step 5 - Initialize Firebase in your web app
+Add code from notifyweb/address/docroot/firebase-messaging-sw.js
+Step 6 - Request push permissions from the user and get your FCM token
+Add code from notifyweb/address/docroot/index.html
+
+Step 7 - Pass the FCM token to the Conversations JS SDK and register an event listener for new push notification arrival
+
+Add Conversations SDK method call code:
+// Register for push notifications: FCM token to the Conversations client instance (not the conversation object)
+thisConversationClient.setPushRegistrationId('fcm', fcmToken);
+
+Add Firebase listner code:
+// registering event listener on new message from firebase to pass it to the Conversations SDK for parsing
+firebase.messaging().onMessage(payload => {
+    conversationClientInstance.handlePushNotification(payload);
+});
+````
+
+#### Step 1 - Enable push notifications for your Service instance
+[Push Notification Configuration](https://www.twilio.com/docs/conversations/push-notification-configuration):
+Conversations integrates APN (iOS) and FCM (Android and browsers) using the Push credentials configured on your Twilio account.
+
+Notification types: New Message, New Media Message, Added to Conversation, and Removed from Conversation.
+````
+    NewMessage
+    AddedToConversation
+    RemovedFromConversation
+````
+
+View settings:
+````
+curl -X GET "https://conversations.twilio.com/v1/Services/IS5c86b7d0d6e44133acb09734274f94f6/Configuration/Notifications" \
+-u $MASTER_ACCOUNT_SID:$MASTER_AUTH_TOKEN
+Response:
+{
+"account_sid": "ACa...3", 
+"chat_service_sid": "IS5c86b7d0d6e44133acb09734274f94f6"
+"new_message": {"enabled": false}, 
+"added_to_conversation": {"enabled": false}, 
+"removed_from_conversation": {"enabled": false}, 
+"log_enabled": false, 
+"url": "https://conversations.twilio.com/v1/Services/IS5c86b7d0d6e44133acb09734274f94f6/Configuration/Notifications", 
+}
+````
+Modify settings using: NewMessage, AddedToConversation, or  RemovedFromConversation
+````
+curl -X POST "https://conversations.twilio.com/v1/Services/IS5c86b7d0d6e44133acb09734274f94f6/Configuration/Notifications" \
+--data-urlencode "NewMessage.Enabled=True" \
+-u $MASTER_ACCOUNT_SID:$MASTER_AUTH_TOKEN
+Response:
+{
+"account_sid": "ACa...3", 
+"chat_service_sid": "IS5c86b7d0d6e44133acb09734274f94f6"
+"new_message": {"enabled": true}, 
+"added_to_conversation": {"enabled": false}, 
+"removed_from_conversation": {"enabled": false}, 
+"log_enabled": false, 
+"url": "https://conversations.twilio.com/v1/Services/IS5c86b7d0d6e44133acb09734274f94f6/Configuration/Notifications", 
+}
+````
+
+#### Run the web application.
+The environment variables are used to
+create a Twilio client object and
+generate Twilio Conversations tokens.
+````
+$ export CONVERSATIONS_ACCOUNT_SID=AC...
+$ export CONVERSATIONS_ACCOUNT_AUTH_TOKEN=...
+$ export CONVERSATIONS_API_KEY=SK...
+$ export CONVERSATIONS_API_KEY_SECRET=...
+$ export CONVERSATIONS_SERVICE_SID=IS5c86b7d0d6e44133acb09734274f94f6
+$ export FCM_CREDENTIAL_SID=CR5db9959c64d7b104c9cf50c1f65efff6
+
+$ node webserver.js 
++++ Conversations application web server is starting up.
++ CONVERSATIONS_SERVICE_SID: IS5c86b7d0d6e44133acb09734274f94f6
++ FCM_CREDENTIAL_SID :CR5db9959c64d7b104c9cf50c1f65efff6:
++ Listening on port: 8000
+````
+
+#### When Testing, enable notification logs
+````
+From the Twilio Console: Develop/Conversations/Manage/Services.
+Click the service where testing.
+Click left menu Push Configurations.
+Check Log Notifications, Enable to trace individual Push notifications per Service.
+Click Save.
+````
 
 --------------------------------------------------------------------------------
 Cheers...

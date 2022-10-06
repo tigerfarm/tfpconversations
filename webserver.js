@@ -10,6 +10,8 @@
 //  $ node websever.js
 // 
 // -----------------------------------------------------------------------------
+console.log("+++ Conversations application web server is starting up.");
+// -----------------------------------------------------------------------------
 // Setup to generate chat tokens.
 // 
 // Create environment variables which are used in the generateToken() function.
@@ -19,13 +21,15 @@ var ACCOUNT_SID = process.env.CONVERSATIONS_ACCOUNT_SID;
 // Create a Chat Service:
 //  https://www.twilio.com/console/chat/dashboard
 var CONVERSATIONS_SERVICE_SID = process.env.CONVERSATIONS_SERVICE_SID;
+var FCM_CREDENTIAL_SID = process.env.FCM_CREDENTIAL_SID;
+console.log("+ CONVERSATIONS_SERVICE_SID: " + CONVERSATIONS_SERVICE_SID);
+console.log("+ FCM_CREDENTIAL_SID :" + FCM_CREDENTIAL_SID + ":");
 //
 // Create an API key and secret string:
 //  https://www.twilio.com/console/chat/runtime/api-keys
 var API_KEY = process.env.CONVERSATIONS_API_KEY;
 var API_KEY_SECRET = process.env.CONVERSATIONS_API_KEY_SECRET;
 // -----------------------------------------------------------------------------
-console.log("+++ Conversations application web server is starting up.");
 var client = require('twilio')(process.env.CONVERSATIONS_ACCOUNT_SID, process.env.CONVERSATIONS_ACCOUNT_AUTH_TOKEN);
 // -----------------------------------------------------------------------------
 var returnMessage = '';
@@ -50,9 +54,17 @@ function generateToken(theIdentity) {
             API_KEY_SECRET
             );
     // Create a service: https://www.twilio.com/console/conversations/services
-    const chatGrant = new AccessToken.ChatGrant({
-        serviceSid: CONVERSATIONS_SERVICE_SID
-    });
+    let chatGrant;
+    if (FCM_CREDENTIAL_SID) {
+        chatGrant = new AccessToken.ChatGrant({
+            serviceSid: CONVERSATIONS_SERVICE_SID,
+            pushCredentialSid: FCM_CREDENTIAL_SID   // For web application notifications
+        });
+    } else {
+        chatGrant = new AccessToken.ChatGrant({
+            serviceSid: CONVERSATIONS_SERVICE_SID
+        });
+    }
     token.addGrant(chatGrant);
     token.identity = theIdentity;
     // token.ttl = 1200; // Token time to live, in seconds. 1200 = 20 minutes.
@@ -111,7 +123,7 @@ app.get('/generateToken', function (req, res) {
         res.send(generateToken(req.query.identity));
     } else {
         sayMessage("- Parameter required: identity.");
-        res.send(0);
+        res.sendStatus(502);
     }
 });
 // -----------------------------------------------------------------------------
@@ -143,7 +155,7 @@ app.get('/listConversationParticipants', function (req, res) {
         sayMessage("- Parameter conversationSid: " + conversationSid);
     } else {
         sayMessage("- Parameter required: conversationSid.");
-        res.send(0);
+        res.sendStatus(502);
         return;
     }
     var theResult = "";
