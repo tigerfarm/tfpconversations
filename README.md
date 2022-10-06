@@ -289,11 +289,11 @@ Click Save.
 + I received a notification! The notification, "abc:dave:Hello there", is the conversation-sid:participant-sender:message-text.
     The message format is customizable (see the screen print: Notification Text).
 
-<img src="ConversationsEnNoMsg.jpg" width="400"/>
+<img src="ConversationsEnNoMsg.jpg" width="600"/>
 
-<img src="ConversationsBinding.jpg" width="400"/>
+<img src="ConversationsBinding.jpg" width="600"/>
 
-<img src="ConversationsNotification.jpg" width="600"/>
+<img src="ConversationsNotification.jpg" width="800"/>
 
 --------------------------------------------------------------------------------
 Cheers...
