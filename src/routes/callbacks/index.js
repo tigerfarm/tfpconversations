@@ -9,6 +9,6 @@ module.exports = router => {
     router.post("/callbacks/conversations", twilioWebhookMiddleware, conversationsCallbackHandler);
     router.post("/callbacks/routing", twilioWebhookMiddleware, routingCallbackHandler);
     router.post("/callbacks/outgoing-conversation", twilioWebhookMiddleware, outgoingConversationCallbackHandler);
-    router.post("/callbacks/crm", twilioWebhookMiddleware, crmCallbackHandler);
+    // router.post("/callbacks/crm", crmCallbackHandler);
     router.post("/callbacks/templates", twilioWebhookMiddleware, templatesCallbackHandler);
 };

@@ -11,10 +11,10 @@
 //              customer_id: 1,
 //              display_name: 'Coleridge',
 //              channels: [
-//                  {type: 'sms', value: '+16503790077'}
+//                  {type: 'sms', value: '+16505551111'}
 //              ],
 //              worker: 'lordbyron@example.com',
-//              avatar: 'https://someassets-1403.twil.io/Coleridge.jpg'
+//              avatar: 'https://abouttime-2357.twil.io/Coleridge.jpg'
 //          },
 //
 const { getCustomerById } = require('../../providers/customers');

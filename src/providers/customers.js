@@ -118,11 +118,11 @@ const getCustomersList = async (worker, pageSize, anchor) => {
     }
 
     if (anchor) {
-        const lastIndex = list.findIndex((c) => String(c.customer_id) === String(anchor))
-        const nextIndex = lastIndex + 1
-        return list.slice(nextIndex, nextIndex + pageSize)
+        const lastIndex = list.findIndex((c) => String(c.customer_id) === String(anchor));
+        const nextIndex = lastIndex + 1;
+        return list.slice(nextIndex, nextIndex + pageSize);
     } else {
-        return list.slice(0, pageSize)
+        return list.slice(0, pageSize);
     }
 };
 

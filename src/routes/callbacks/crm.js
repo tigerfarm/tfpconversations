@@ -12,8 +12,6 @@ POST Content ---------------------------------
  */
 
 const crmCallbackHandler = async (req, res) => {
-    // Note, I removed token from this program. Token was removed in the newer sample application.
-    // 
     // const location = req.query.location; // This would be if using HTTP GET instead of POST.
     const location = req.body.Location;
     console.log("+ location: " + location);

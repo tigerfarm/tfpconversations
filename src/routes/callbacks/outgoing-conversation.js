@@ -20,8 +20,8 @@ const outgoingConversationCallbackHandler = (req, res) => {
 const handleGetProxyAddress = (req, res) => {
     /*
 + Name value pairs: 
-   "ChannelValue": "+16504837603",
-   "Worker": "tigerfarm@gmail.com",
+   "ChannelValue": "+16505552222",
+   "Worker": "dave@example.com",
    "CustomerId": "33",
    "ChannelType": "sms",
    "Location": "GetProxyAddress",

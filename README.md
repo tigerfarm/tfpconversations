@@ -54,6 +54,8 @@ In the table, beside: SHA-1, click Actions and select View IdP MetaData.
         http://www.okta.com/exk1n1udeluGBPNFs5d7exk1n1udeluGBPNFs5d7
         + Frontline SSO URL(SingleSignOnService attribute):
         https://dev-29758280.okta.com/app/dev-29758280_owlpress_1/exk1n1udeluGBPNFs5d7/sso/saml
+        + Frontline X.509 Certificate (X509Certificate attribute)
+        MIID...pDw==
 
 Under the "General" option, is the Frontline SAML Settings,
     That include your Frontline JBxxx id.
