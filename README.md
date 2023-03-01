@@ -130,8 +130,7 @@ Sample applications:
 --------------------------------------------------------------------------------
 ### To Do Next
 
-+ Add notifications such as new message added to the conversation.
- + If conversation is deleted, remove it from conversationList[].
++ If conversation is deleted, remove it from conversationList[].
 + Get TokenAboutToExpire to work properly. Function: onTokenAboutToExpire
 + List participants in a conversation.
 + List conversations that the participant is in.
@@ -154,8 +153,41 @@ Conversation commandline programs:
 
 Test with SMS participant.
 
-Test:
-+ Messaging Service/Integration/Autocreate a Conversation
+--------------------------------------------------------------------------------
+## Autocreate a Conversation
+
+Configuration:
++ Messaging Service SID that is configured for autocreate: MG59cd7596af3f40b86bce2052ded6b034
++ Messaging Service pool contains: +12...90
++ Twilio Console/Develop/Conversations/Manage/Defaults, set Messaging Features: Unlocked, Handle Inbound Messages with Conversations
+    Twilio Conversations is "Unlocked" to Handle Inbound Messages with Conversations.
++ Twilio Conversations Default is set to the Conversations service: Frontline Service, IS186702e405b74452a449d67b9265669f
+
+````
+Send a message from: +16...93, to: +12...90
+Message SID, send: SM395d2a5784a3aced9e1aa18aad0c2082 Body: create new?
+Message SID, received: SM27bbea35d833627f6dfcaeb0ff9ced7a Body: create new?
+Message Lifecycle Events: SM_DEQUEUED/chat_service_sid	IS186702e405b74452a449d67b9265669f
+Message Lifecycle Events: SM_CONVERSATION_CREATED/No metadata available
+Checking in Twilio Console:
+Created Channel SID: CHd683f9afefff4affaf89ed28b371a325
+---
+Message SID, received: SMc8294f7a3f75c7087c015c9a3cdf9662 Body: create new 2
+Message Lifecycle Events: SM_DEQUEUED/chat_service_sid	IS186702e405b74452a449d67b9265669f
+Message Lifecycle Events: SM_CREATED/No metadata available
+---
+Deleted the conversation: CHd683f9afefff4affaf89ed28b371a325
+---
+Send a message from: +16...93, to: +12...90
+Message SID, send: SMa0cc0c45064b0f024bb8c0d7af1fba78 Body: create new 3
+Message SID, received: SM134994659c155cfa6842cff2a9d74e30 Body: create new 3
+Message Lifecycle Events: SM_DEQUEUED/chat_service_sid	IS186702e405b74452a449d67b9265669f
+Message Lifecycle Events: SM_CONVERSATION_CREATED/No metadata available
+Checking in Twilio Console:
+Created Channel SID: CH48954cfde7604620b96b1327c511dfa4
+Message: from: +16...93, Body: create new 3
+Participants (2): a chat participant Identity 1. "t...@...m" and 2. "-".
+````
 
 --------------------------------------------------------------------------------
 ## Add notifications such as new message added to the conversation.
@@ -263,6 +295,10 @@ $ node webserver.js
 ````
 
 #### When Testing, enable notification logs
+
+Confirm that the participant is in the conversation where messages are being created.
+This will allow them to receive the notifications.
+
 ````
 From the Twilio Console: Develop/Conversations/Manage/Services.
 Click the service where testing.
