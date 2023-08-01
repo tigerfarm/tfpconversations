@@ -599,9 +599,9 @@ function getParticipantlastReadMessageIndex() {
     participants.then(function (currentParticipants) {
         currentParticipants.forEach(function (participant) {
             if (participant.identity === userIdentity) {
-                logger("++ participantUpdated, identity = " + participant.identity
+                logger("++ participant, identity = " + participant.identity
                         + ", lastReadMessageIndex = " + participant.lastReadMessageIndex
-                        // + "\n++ participantUpdated, lastReadTimestamp = " + participant.lastReadTimestamp
+                        // + ", lastReadTimestamp = " + participant.lastReadTimestamp
                         );
             }
         });
@@ -628,27 +628,35 @@ function getAllParticipantlastReadMessageIndex() {
 }
 
 function getParticipantCounts() {
-    // Alternative method to echo the unreadCount.
-    // Note, updateLastReadMessageIndex does not set the unread Count value.
+    // Note, getMessagesCount() =               (Total messages = unread + read + 1)
+    //      getUnreadMessagesCount()            (unread message count)
+    //      + participant.lastReadMessageIndex  (read message index)
+    //      + 1                                 (add 1 because index starts at 0)
     logger("+ getParticipantCounts, Participant = " + userIdentity + ":");
     (async function () {
         const newGetMessagesCount = await theConversation.getMessagesCount();
-        logger("++ Number of messages in the conversation, getMessagesCount() = " + newGetMessagesCount);
+        logger("++ Total number of messages in the conversation, getMessagesCount() = " + newGetMessagesCount);
         const newGetUnreadMessagesCount = await theConversation.getUnreadMessagesCount();
         logger("++ Participant unread message count, getUnreadMessagesCount() = " + newGetUnreadMessagesCount);
         // --------------------------------------------------------
         var participants = theConversation.getParticipants();
+        let newLastReadMessageIndex = 0;
         participants.then(function (currentParticipants) {
             currentParticipants.forEach(function (participant) {
                 if (participant.identity === userIdentity) {
-                    logger("++ Participant lastReadMessageIndex = " + participant.lastReadMessageIndex + " (index starts at 0)");
+                    newLastReadMessageIndex = participant.lastReadMessageIndex;
+                    logger("++ Participant lastReadMessageIndex = " + newLastReadMessageIndex);
+                    logger("getMessagesCount() = getUnreadMessagesCount() + participant.lastReadMessageIndex + 1");
+                    logger("Total number of conversation messages = unread + read + 1");
+                    logger("     " + newGetMessagesCount + " = "
+                            + newGetUnreadMessagesCount + " + " + newLastReadMessageIndex + " + 1 (index starts at 0)");
                 }
             });
         });
         // --------------------------------------------------------
     })();
-
 }
+
 function setLastReadMessageIndex() {
     setUnreadCountTo = 2;
     logger("+ setUnreadCount = " + setUnreadCountTo);
@@ -664,11 +672,16 @@ function setLastReadMessageIndex() {
         logger("+ setUnreadCount, await theConversation.updateLastReadMessageIndex...");
         const newLastReadMessageIndex = await theConversation.updateLastReadMessageIndex(setUnreadCountTo);
         logger("+ setUnreadCount, newLastReadMessageIndex = " + newLastReadMessageIndex);
+        const newGetMessagesCount = await theConversation.getMessagesCount();
+        const newGetUnreadMessagesCount = await theConversation.getUnreadMessagesCount();
+        logger("+ Total messages = unread + read + 1 = " + newGetMessagesCount + " = "
+                + newGetUnreadMessagesCount + " + " + setUnreadCountTo + " + 1");
     })();
 }
 
 function setAllMessagesRead() {
-    // Doesn't change the unread count.
+    // Sets the unread count to 0 because all the messages are read.
+    // Sets lastReadMessageIndex to the number of messages in the conversation, minus 1 because the index starts a 0.
     theConversation.setAllMessagesRead().then(data1 => {
         theConversation.getUnreadMessagesCount().then(data => {
             logger("+ setAllMessagesRead, unreadCount = " + data);
@@ -676,7 +689,7 @@ function setAllMessagesRead() {
     });
 }
 function setAllMessagesUnread() {
-    // Doesn't change the unread count.
+    // Sets the unread count and lastReadMessageIndex to null.
     theConversation.setAllMessagesUnread().then(data1 => {
         theConversation.getUnreadMessagesCount().then(data => {
             logger("+ setAllMessagesUnread, unreadCount = " + data);
@@ -687,13 +700,29 @@ function setAllMessagesUnread() {
 // -----------------------------------------------------------------------------
 function setFCM() {
     logger('+ Called setFCM().');
-    // passing FCM token to the `conversationClientInstance` to register for push notifications
+    // Passing FCM token to the "conversationClientInstance" to register for push notifications
+    // Note, to make this proper, need to add the code from the project: notifyweb/address.
+    // To setup:
+    //      + Run notifyweb/address webserver.js
+    //      + In a browser tab, go to: http://localhost:8080/
+    //      + Get Firebase FCM message token.
+    //      + Copy and paste the token here, below.
+    //      + Stop notifyweb/address webserver.js, no longer needed.
+    // To test:
+    //      + In a browser tab, run this application.
+    //      + In another browser tab, run this application.
+    //      + In both tabs, join a room, each using a unique identity.
+    //      + In one of the tabs, run this function.
+    //      + In the other tab, send a message. An FCM notification is sent and received.
     // Firefox
-    fcmToken = "ewS_m63oS5A:APA91bGhWj6gAerckij2bGuSmsSYuy81ktkKPJ0KNci92u69ak6uwmpLCUPGRTyrjAPIcSa3VYLSNTpG9ztU5cF8t50dJMC_0zAcICe8kbVF-2WzFWIRVLR8c5oENtTSDPZ_cOkPZ6E7";
+    // fcmToken = "c2h7i9H7mcI:APA91bEifCmmIObAbgLUEUys1J_KwKx1bJW3XaxcggSqbheRAQIAwLLoZWccfmRhv3xw_XrNhqHu4OrDdAMF5fQmglY7dv2HetFkZm_3YG_WK1fd0-6yQGBvvHZKFyPM02rbDePLXswX";
     // Chrome
     // fcmToken = "fM0kI09YbYM:APA91bFwdXVVrvN6XOAFA2gByU9ndWE1R36DkDa57lOEKx3GLa-o3BhJbl8wyxDMuQ1rju-ZReprIKyNTjeAlbYLdbOr0v-E1RgrPk36okHnV0dPk-F5ewXDoN90vtitkREFjZ76So40";
+    //
+    fcmToken = thisFcmToken;
+    logger('+ FCM token: ' + fcmToken);
     thisConversationClient.setPushRegistrationId('fcm', fcmToken);
-    logger('+ Exit setFCM().');
+    logger('+ Conversation Client FCM push registration completed.');
 }
 
 // -----------------------------------------------------------------------------
