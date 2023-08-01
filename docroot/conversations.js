@@ -361,16 +361,16 @@ function getParticipantCounts() {
         logger("++ Number of messages in the conversation, getMessagesCount() = " + newGetMessagesCount);
         const newGetUnreadMessagesCount = await theConversation.getUnreadMessagesCount();
         logger("++ Participant unread message count, getUnreadMessagesCount() = " + newGetUnreadMessagesCount);
-    // --------------------------------------------------------
-    var participants = theConversation.getParticipants();
-    participants.then(function (currentParticipants) {
-        currentParticipants.forEach(function (participant) {
-            if (participant.identity === userIdentity) {
-                logger("++ Participant lastReadMessageIndex = " + participant.lastReadMessageIndex + " (index starts at 0)");
-            }
+        // --------------------------------------------------------
+        var participants = theConversation.getParticipants();
+        participants.then(function (currentParticipants) {
+            currentParticipants.forEach(function (participant) {
+                if (participant.identity === userIdentity) {
+                    logger("++ Participant lastReadMessageIndex = " + participant.lastReadMessageIndex + " (index starts at 0)");
+                }
+            });
         });
-    });
-    // --------------------------------------------------------
+        // --------------------------------------------------------
     })();
 
 }
