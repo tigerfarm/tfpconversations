@@ -109,9 +109,11 @@ function createChatClientObject() {
             thisConversationClient.on("conversationLeft", (aConversation) => {
                 addChatMessage("++ Exited the conversation: " + aConversation.uniqueName);
             });
+        }).fail(function () {
+            logger("- Error creating the Conversations client object.");
         });
     }).fail(function () {
-        logger("- Error refreshing the token and creating the chat client object.");
+        logger("- Error refreshing the token and creating the Conversations client object.");
     });
 }
 
@@ -216,8 +218,8 @@ function joinChatConversation() {
 
 // -----------------------------------------------------------------------------
 function joinChatConversationIfAdmin() {
+// Untested, unimplemented.
 // This will work for new conversations where the participant has authorization to create rooms.
-// Untested.
 // The following fails because it's a private channel and the current participant does not have authorization.
     thisConversationClient.getConversationByUniqueName(conversationName)
             .then(aConversation => {
@@ -266,16 +268,19 @@ function setupTheConversation() {
     setButtons("join");
     // -------------------------------------------------------------------------
     theConversation.getParticipantsCount().then(data => {
+        // Give 0 when first creating the conversation and adding the first participant.
+        // Works there after such as re-joining the conversation or a new participant joining.
         logger("+ participantCount = " + data);
     });
     // If the consumption horizon is not set,
     //      "updateLastReadMessageIndex" will set it.
     // Set to updateLastReadMessageIndex to 0 when joining a room, but not listing the messages.
-    theConversation.updateLastReadMessageIndex(0).then(data1 => {
-        theConversation.getUnreadMessagesCount().then(data => {
-            logger("+ setupTheConversation, unreadCount = " + data);
-        });
-    });
+    // Stacy test without.
+    // theConversation.updateLastReadMessageIndex(0).then(data1 => {
+    //     theConversation.getUnreadMessagesCount().then(data => {
+    //         logger("+ setupTheConversation, unreadCount = " + data);
+    //     });
+    // });
     // -------------------------------------------------------------------------
     // Set conversation messageAdded event listener.
     theConversation.on('messageAdded', function (message) {
@@ -284,6 +289,12 @@ function setupTheConversation() {
         incCount();
         theConversation.getUnreadMessagesCount().then(data => {
             logger("+ messageAdded, unreadCount = " + data);
+            if (message.author === userIdentity) {
+                theConversation.updateLastReadMessageIndex(data - 1);
+                theConversation.getUnreadMessagesCount().then(data => {
+                    logger("+ messageAdded, unreadCount = " + data);
+                });
+            }
         });
     });
     // -------------------------------------------------------------------------
@@ -297,6 +308,105 @@ function setupTheConversation() {
         // Once typingStarted, after 5 seconds, this is triggered.
         logger("+ typingEnded: " + participant.identity);
     });
+    theConversation.on('participantUpdated', function (event) {
+        logger("++ participantUpdated, identity = " + event.participant.identity
+                + ", lastReadMessageIndex = " + event.participant.lastReadMessageIndex
+                // + "\n++ participantUpdated, lastReadTimestamp = " + event.participant.lastReadTimestamp
+                );
+    });
+}
+
+// -----------------------------------------------------------------------------
+function getParticipantlastReadMessageIndex() {
+    logger("+ getParticipantUnreadCount");
+    // --------------------------------------------------------
+    var participants = theConversation.getParticipants();
+    participants.then(function (currentParticipants) {
+        currentParticipants.forEach(function (participant) {
+            if (participant.identity === userIdentity) {
+                logger("++ participantUpdated, identity = " + participant.identity
+                        + ", lastReadMessageIndex = " + participant.lastReadMessageIndex
+                        // + "\n++ participantUpdated, lastReadTimestamp = " + participant.lastReadTimestamp
+                        );
+            }
+        });
+    });
+    // --------------------------------------------------------
+}
+
+function getAllParticipantlastReadMessageIndex() {
+    theConversation.getParticipantsCount().then(data => {
+        logger("+ getParticipantCount(), participantCount = " + data);
+        // --------------------------------------------------------
+        var participants = theConversation.getParticipants();
+        // for each Participant, set up a listener for when the Participant is updated
+        participants.then(function (currentParticipants) {
+            currentParticipants.forEach(function (participant) {
+                logger("++ participantUpdated, identity = " + participant.identity
+                        + ", lastReadMessageIndex = " + participant.lastReadMessageIndex
+                        // + "\n++ participantUpdated, lastReadTimestamp = " + participant.lastReadTimestamp
+                        );
+            });
+        });
+        // --------------------------------------------------------
+    });
+}
+
+function getParticipantCounts() {
+    // Alternative method to echo the unreadCount.
+    // Note, updateLastReadMessageIndex does not set the unread Count value.
+    logger("+ getParticipantCounts, Participant = " + userIdentity + ":");
+    (async function () {
+        const newGetMessagesCount = await theConversation.getMessagesCount();
+        logger("++ Number of messages in the conversation, getMessagesCount() = " + newGetMessagesCount);
+        const newGetUnreadMessagesCount = await theConversation.getUnreadMessagesCount();
+        logger("++ Participant unread message count, getUnreadMessagesCount() = " + newGetUnreadMessagesCount);
+    // --------------------------------------------------------
+    var participants = theConversation.getParticipants();
+    participants.then(function (currentParticipants) {
+        currentParticipants.forEach(function (participant) {
+            if (participant.identity === userIdentity) {
+                logger("++ Participant lastReadMessageIndex = " + participant.lastReadMessageIndex + " (index starts at 0)");
+            }
+        });
+    });
+    // --------------------------------------------------------
+    })();
+
+}
+function setLastReadMessageIndex() {
+    setUnreadCountTo = 2;
+    logger("+ setUnreadCount = " + setUnreadCountTo);
+    // Methods of calling: updateLastReadMessageIndex(...).
+    // theConversation.updateLastReadMessageIndex(setUnreadCountTo);
+    // theConversation.updateLastReadMessageIndex(setUnreadCountTo).then(data1 => {
+    //     theConversation.getUnreadMessagesCount().then(data => {
+    //         logger("+ setUnreadCount, unreadCount = " + data);
+    //     });
+    // });
+    // Using "await" when calling: updateLastReadMessageIndex(...).
+    (async function () {
+        logger("+ setUnreadCount, await theConversation.updateLastReadMessageIndex...");
+        const newLastReadMessageIndex = await theConversation.updateLastReadMessageIndex(setUnreadCountTo);
+        logger("+ setUnreadCount, newLastReadMessageIndex = " + newLastReadMessageIndex);
+    })();
+}
+
+function setAllMessagesRead() {
+    // Doesn't change the unread count.
+    theConversation.setAllMessagesRead().then(data1 => {
+        theConversation.getUnreadMessagesCount().then(data => {
+            logger("+ setAllMessagesRead, unreadCount = " + data);
+        });
+    });
+}
+function setAllMessagesUnread() {
+    // Doesn't change the unread count.
+    theConversation.setAllMessagesUnread().then(data1 => {
+        theConversation.getUnreadMessagesCount().then(data => {
+            logger("+ setAllMessagesUnread, unreadCount = " + data);
+        });
+    });
 }
 
 // -----------------------------------------------------------------------------
@@ -309,10 +419,10 @@ function createConversation() {
     })
             .then(aConversation => {
                 theConversation = aConversation;
-                logger("+ Conversation created and theConversation object is set: "
-                        + " SID: " + theConversation.sid
-                        + " friendlyName: " + theConversation.friendlyName
-                        + " uniqueName: " + theConversation.uniqueName
+                logger("+ Conversation created and theConversation object is set, "
+                        + "\n++ SID: " + theConversation.sid
+                        + "\n++ friendlyName: " + theConversation.friendlyName
+                        + "\n++ uniqueName: " + theConversation.uniqueName
                         // + channel.getAttributes()
                         );
                 theConversation.add(userIdentity);
@@ -390,6 +500,7 @@ function listMembers() {
     logger("+ Function: listMembers(), makes a server side call.");
     chatChannelName = $("#channelName").val();
     addChatMessage("+ List of conversations.");
+    // localhost:8000/listConversationParticipants?conversationSid=CHa17a4902d9fd4358ae5457870533ee91
     var jqxhr = $.get("listConversationParticipants?conversationSid=" + theConversation.sid, function (returnString) {
         if (returnString === "-1") {
             logger("-- Error retrieving conversation list.");

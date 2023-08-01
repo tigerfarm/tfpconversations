@@ -150,6 +150,7 @@ app.get('/listConversations', function (req, res) {
 });
 // -----------------------------------------------------------------------------
 app.get('/listConversationParticipants', function (req, res) {
+    // localhost:8000/listConversationParticipants?conversationSid=CHa17a4902d9fd4358ae5457870533ee91
     sayMessage("+ Get list of participants in a conversation.");
     if (req.query.conversationSid) {
         conversationSid = req.query.conversationSid;
