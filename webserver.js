@@ -130,7 +130,7 @@ app.get('/generateToken', function (req, res) {
 // -----------------------------------------------------------------------------
 app.get('/listConversations', function (req, res) {
     sayMessage("+ Get list of conversations.");
-    var theResult = "";
+    var theResult = "+ Conversations for Twilio Conversations service: " + CONVERSATIONS_SERVICE_SID + "\n";
     var acounter = 0;
     client.conversations.services(CONVERSATIONS_SERVICE_SID).conversations.list({limit: 200})
             .then(conversations => {
@@ -141,7 +141,7 @@ app.get('/listConversations', function (req, res) {
                             + "/" + c.friendlyName
                             );
                     theResult = theResult
-                            + c.sid + " "
+                            + "++ " + c.sid + " "
                             + c.friendlyName + "\n";
                 });
                 res.send(theResult + "\n+ Total count = " + acounter);

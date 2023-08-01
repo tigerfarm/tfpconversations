@@ -1,4 +1,8 @@
 // -----------------------------------------------------------------------------
+// Through out this application, the unread count needs to be properly managed.
+//  I have sample functions for setting and echo unread count.
+//  See/find section: Test functions.
+// 
 // Documentation:       https://media.twiliocdn.com/sdk/js/conversations/releases/1.2.1/docs/
 //                      https://media.twiliocdn.com/sdk/js/conversations/releases/1.2.1/docs/Client.html
 //                      https://media.twiliocdn.com/sdk/js/conversations/releases/1.2.1/docs/Conversation.html
@@ -14,15 +18,17 @@
 // Sample React app:    https://www.twilio.com/docs/conversations/javascript/exploring-conversations-javascript-quickstart
 // 
 // -----------------------------------------------------------------------------
-let thisConversationClient = "";
-const conversationList = [];
-let theConversation = ""; // Conversation object
 let thisToken;
-let totalMessages = 0; // This count of read channel messages needs work to initialize and maintain the count.
-
+let thisConversationClient = "";
+let conversationList = [];
+let theConversation = ""; // Conversation object
 userIdentity = "";
-chatChannelName = "";
-chatChannelDescription = "";
+chatConversationName = "";
+
+// This count of read channel messages needs work to initialize and maintain the count.
+// Not fully implemented.
+let totalMessages = 0;
+
 // const Twilio = require('twilio');
 // const Chat = require('twilio-chat');
 
@@ -32,6 +38,9 @@ function startUserFunctionMessage() {
 }
 
 // -----------------------------------------------------------------------------
+// Chat Client Object functions
+// -----------------------------------------------------------------------------
+
 function createChatClientObject() {
     startUserFunctionMessage();
     userIdentity = $("#username").val();
@@ -41,8 +50,7 @@ function createChatClientObject() {
         return;
     }
     addChatMessage("++ Creating Conversations Client...");
-    // Since, programs cannot make an Ajax call to a remote resource,
-    // Need to do an Ajax call to a local program that goes and gets the token.
+    // Ajax call to the web server that generates the token, for the userIdentity.
     logger("+ Use a server side routine to refresh the token using client id: " + userIdentity);
     var jqxhr = $.get("generateToken?identity=" + userIdentity, function (token) {
         if (token === "0") {
@@ -86,14 +94,13 @@ function createChatClientObject() {
                 logger("+ Completed conversation page loops, pages: " + counterPages + ", conversations: " + counterConversations);
                 addChatMessage("+ ----------------------------------------------------------");
             })();
-
             //
             // -------------------------------
             //
             setButtons("createChatClient");
             //
             // -------------------------------
-            // Set event listeners.
+            // Set conversation client level event listeners.
             // 
             // thisConversationClient.on('channelRemoved', $.throttle(tc.loadChannelList));
             // thisConversationClient.on('tokenExpired', onTokenExpiring);
@@ -117,11 +124,11 @@ function createChatClientObject() {
     });
 }
 
-function onConversationAdded(aChannel) {
-// https://media.twiliocdn.com/sdk/android/chat/releases/2.0.6/docs/com/twilio/chat/ChatClientListener.html
-// Called when the current user is added to a channel.
-// Note, joined but not subscribed.
-//  logger("onConversationAdded, user added to the  channel: " + aChannel.friendlyName);
+function onConversationAdded(aConversation) {
+    // https://media.twiliocdn.com/sdk/android/chat/releases/2.0.6/docs/com/twilio/chat/ChatClientListener.html
+    // Called when the current user is added to a channel.
+    // Note, joined but not subscribed.
+    //  logger("onConversationAdded, user added to the  channel: " + aConversation.friendlyName);
 }
 
 function onTokenAboutToExpire() {
@@ -145,6 +152,8 @@ function onTokenAboutToExpire() {
 }
 
 // -----------------------------------------------------------------------------
+// Joining a Chat Conversation functions
+// -----------------------------------------------------------------------------
 function joinChatConversation() {
     startUserFunctionMessage();
     logger("+ Function: joinChatConversation()");
@@ -153,16 +162,16 @@ function joinChatConversation() {
         logger("Required: Chat Client.");
         return;
     }
-    conversationName = $("#channelName").val();
+    conversationName = $("#conversationName").val();
     if (conversationName === "") {
         addChatMessage("Enter a conversation name.");
         logger("Required: conversation name.");
         return;
     }
     // -----------------------------------------
-    // Using defaults, if the conversation was created by a different user,
-    // they will not have access to use "getConversationByUniqueName" and "getConversationBySid" 
-    // for conversations they did not create.
+    // Using defaults,
+    // if the conversation was created by a different user,
+    // they will not have access to use "getConversationByUniqueName" and "getConversationBySid".
     thisConversationClient.getConversationByUniqueName(conversationName)
             .then(aConversation => {
                 logger("+ Use getConversationByUniqueName() " + conversationName);
@@ -176,12 +185,9 @@ function joinChatConversation() {
             .catch(function () {
                 logger("- Error conversation is not available: " + conversationName + ".");
             });
-
-
     // -----------------------------------------
-
     addChatMessage("+ Join the conversation: " + conversationName + ", as identity: " + userIdentity);
-    // -----------------------------------------
+    // ---
     // This works for conversations already subscribed and joined.
     for (i = 0; i < conversationList.length; i++) {
         if (conversationList[i].uniqueName === conversationName) {
@@ -191,11 +197,11 @@ function joinChatConversation() {
             return;
         }
     }
-// -----------------------------------------
-// Serverside check if the conversation exists.
-// Use serverside check because this user is not authorized to see other private channels.
-//  If not exists, create it and join it.
-//  If exists, join it.
+    // -----------------------------------------
+    // Serverside check if the conversation exists.
+    // Use serverside check because this user is not authorized to see other private channels.
+    //      If not exists, create it and join it.
+    //      If exists, join it.
     logger("+ Use a server side routine to check if a conversation exits.");
     var jqxhr = $.get("conversationExists?conversationid=" + conversationName, function (returnString) {
         // logger("+ returnString :" + returnString + ":");
@@ -216,11 +222,11 @@ function joinChatConversation() {
     });
 }
 
-// -----------------------------------------------------------------------------
+// -------------------------------------
 function joinChatConversationIfAdmin() {
 // Untested, unimplemented.
 // This will work for new conversations where the participant has authorization to create rooms.
-// The following fails because it's a private channel and the current participant does not have authorization.
+// The following fails because it's a private conversation and the current participant does not have authorization.
     thisConversationClient.getConversationByUniqueName(conversationName)
             .then(aConversation => {
                 theConversation = aConversation;
@@ -234,14 +240,13 @@ function joinChatConversationIfAdmin() {
             });
 }
 
-// -----------------------------------------------------------------------------
+// ----------------------------------------
 function joinChatConversationServerSide() {
-// The following works for:
-// + new rooms and 
-// + rooms created by others
-// + Will also work for already subscribed rooms.
+    // The following works for:
+    // + new rooms and rooms created by others
+    // + Will also work for already subscribed rooms.
     var jqxhr = $.get("joinConversation?conversationid=" + conversationName + "&identity=" + userIdentity, function (returnString) {
-// logger("+ returnString :" + returnString + ":");
+        // logger("+ returnString :" + returnString + ":");
         if (returnString === "0") {
             addChatMessage("+ Participant is already in the conversation: " + conversationName + ".");
         } else if (returnString === "1") {
@@ -268,25 +273,26 @@ function setupTheConversation() {
     setButtons("join");
     // -------------------------------------------------------------------------
     theConversation.getParticipantsCount().then(data => {
-        // Give 0 when first creating the conversation and adding the first participant.
+        // Gives 0 when first creating the conversation and adding the first participant.
         // Works there after such as re-joining the conversation or a new participant joining.
         logger("+ participantCount = " + data);
     });
     // If the consumption horizon is not set,
     //      "updateLastReadMessageIndex" will set it.
     // Set to updateLastReadMessageIndex to 0 when joining a room, but not listing the messages.
-    // Stacy test without.
+    // Stacy, testing without.
     // theConversation.updateLastReadMessageIndex(0).then(data1 => {
     //     theConversation.getUnreadMessagesCount().then(data => {
     //         logger("+ setupTheConversation, unreadCount = " + data);
     //     });
     // });
-    // -------------------------------------------------------------------------
+    // ---------------------------------------------
     // Set conversation messageAdded event listener.
     theConversation.on('messageAdded', function (message) {
         // https://media.twiliocdn.com/sdk/js/conversations/releases/1.2.1/docs/Message.html
         addChatMessage("> " + message.author + " : " + message.conversation.uniqueName + " : " + message.body);
         incCount();
+        // Stacy, unread count needs work.
         theConversation.getUnreadMessagesCount().then(data => {
             logger("+ messageAdded, unreadCount = " + data);
             if (message.author === userIdentity) {
@@ -317,6 +323,275 @@ function setupTheConversation() {
 }
 
 // -----------------------------------------------------------------------------
+// Conversation level functions
+// -----------------------------------------------------------------------------
+
+function createConversation() {
+// http://media.twiliocdn.com/sdk/js/conversations/releases/1.2.1/docs/Client.html#createConversation__anchor
+    logger("+ Create the conversation if it doesn't exist: " + chatConversationName);
+    thisConversationClient.createConversation({
+        uniqueName: conversationName,
+        friendlyName: conversationName
+    }).then(aConversation => {
+        theConversation = aConversation;
+        logger("+ Conversation created and theConversation object is set, "
+                + "\n++ SID: " + theConversation.sid
+                + "\n++ friendlyName: " + theConversation.friendlyName
+                + "\n++ uniqueName: " + theConversation.uniqueName
+                // + channel.getAttributes()
+                );
+        theConversation.add(userIdentity);
+        addChatMessage("+ Conversation created and participant is added to the conversation:" + userIdentity);
+        setupTheConversation();
+    }).catch(function () {
+        logger("- Error, failed to create the conversation: " + conversationName);
+    });
+}
+
+// -----------------------------------------------------------------------------
+function listConversations() {
+    startUserFunctionMessage();
+    logger("+ Function: listConversations(), makes a server side call.");
+    chatConversationName = $("#conversationName").val();
+    addChatMessage("+ List of conversations.");
+    var jqxhr = $.get("listConversations", function (returnString) {
+        if (returnString === "-1") {
+            logger("-- Error retrieving conversation list.");
+            return;
+        }
+        if (returnString === "0") {
+            logger("+ No conversations to list.");
+            return;
+        }
+        logger("++ List retrieved.");
+        // -------------------------------
+        addChatMessage(returnString);
+        addChatMessage("+ End list.");
+    }).fail(function () {
+        logger("- Error retrieving conversation list.");
+    });
+}
+
+// -----------------------------------------------------------------------------
+function deleteConversation() {
+    startUserFunctionMessage();
+    logger("+ Function: deleteConversation(), makes a server side call.");
+    if (thisConversationClient === "") {
+        addChatMessage("First, create a Conversations Client.");
+        logger("Required: Conversations Client.");
+        return;
+    }
+    conversationName = $("#conversationName").val();
+    if (conversationName === "") {
+        addChatMessage("Enter a conversation name.");
+        logger("Required: conversation name.");
+        return;
+    }
+    addChatMessage("+ Remove conversation: " + conversationName);
+    var jqxhr = $.get("removeConversation?conversationid=" + conversationName, function (returnString) {
+        logger("+ returnString :" + returnString + ":");
+        if (returnString !== "0") {
+            addChatMessage("-- Warning, conversation not removed.");
+            logger("-- Conversation not removed.");
+            return;
+        }
+        addChatMessage("+ Conversation removed.");
+        setButtons("createChatClient"); // back to ready to join a conversation.
+    }).fail(function () {
+        logger("- Error removing conversation.");
+    });
+}
+
+// -----------------------------------------------------------------------------
+function listParticipants() {
+    startUserFunctionMessage();
+    addChatMessage("+ Participants of this conversation: " + theConversation.uniqueName);
+    logger("+ Function: listParticipants(), makes a server side call.");
+    chatConversationName = $("#conversationName").val();
+    addChatMessage("+ List of conversation's members.");
+    // localhost:8000/listConversationParticipants?conversationSid=CHe02e49468eb64f8aaa92a845f10ece78
+    var jqxhr = $.get("listConversationParticipants?conversationSid=" + theConversation.sid, function (returnString) {
+        if (returnString === "-1") {
+            logger("-- Error retrieving conversation list.");
+            return;
+        }
+        if (returnString === "0") {
+            logger("+ No conversations to list.");
+            return;
+        }
+        logger("++ List retrieved.");
+        // -------------------------------
+        addChatMessage(returnString);
+        addChatMessage("+ End list.");
+    }).fail(function () {
+        logger("- Error retrieving conversation list.");
+    });
+}
+
+// -----------------------------------------------------------------------------
+function sendTheMessage() {
+    if (thisConversationClient === "") {
+        addChatMessage("First, create a Chat Client.");
+        return;
+    }
+    const theMessage = $("#message").val();
+    if (theMessage === "") {
+        return;
+    }
+    $("#message").val("");
+    theIndex = theConversation.sendMessage(theMessage);
+    if (theIndex.index !== undefined) {
+        logger("sendTheMessage() " + theMessage + " index=" + theIndex.index);
+    } else {
+        logger("sendTheMessage() " + theMessage);
+    }
+}
+
+function listAllMessages() {
+    startUserFunctionMessage();
+    logger("+ Function: listAllMessages().");
+    // -------------------------------------
+    (async function () {
+        hasMore = true;
+        counterPages = 0;
+        counterItems = 0;
+        logger("+ Loop through message pages.");
+        let paginator = await theConversation.getMessages(5, 0, "forward");
+        hasMore = true;
+        while (hasMore) {
+            counterPages++;
+            for (i = 0; i < paginator.items.length; i++) {
+                const message = paginator.items[i];
+                addChatMessage("> " + counterItems++ + " " + message.author + " : " + message.index + " : " + message.body);
+            }
+            if (paginator.hasNextPage) {
+                paginator = await paginator.nextPage();
+            } else {
+                hasMore = false;
+            }
+        }
+        logger("+ Completed page loops, pages: " + counterPages + ", conversations: " + counterItems);
+        addChatMessage("+ ----------------------------------------------------------");
+        return;
+        // -----------------
+        // Following is for testing the other parameters of getMessages(...).
+        const thePaginator = (paginator) => {
+            logger("++ paginator.hasPrevPage = " + paginator.hasPrevPage);
+            logger("++ paginator.hasNextPage = " + paginator.hasNextPage);
+        };
+        // theConversation.getMessages(10, 0, 'forward').then(thePaginator);
+        // theConversation.getMessages(15, undefined, 'forward').then(thePaginator);
+        // theConversation.getMessages(15, undefined, 'forward').then(thePaginator);
+        // theConversation.getMessages(5).then(thePaginator);
+    })();
+    return;
+    // -------------------------------------
+    // The following only lists the number of messages retrieved using getMessages(x).
+    // theConversation.getMessages(3).then(function (messages) {
+    // Default number of messages is 30. List the 30 most recent messages.
+    // https://media.twiliocdn.com/sdk/js/conversations/releases/1.2.1/docs/Conversation.html#getMessages__anchor
+    // https://media.twiliocdn.com/sdk/js/conversations/releases/2.1.0/docs/classes/Conversation.html#getMessages
+    theConversation.getMessages().then(function (messages) {
+        totalMessages = messages.items.length;
+        logger('Total Messages: ' + totalMessages);
+        addChatMessage("+ Current messages for conversation: " + conversationName);
+        for (i = 0; i < totalMessages; i++) {
+            const message = messages.items[i];
+            // properties: https://media.twiliocdn.com/sdk/js/chat/releases/3.2.1/docs/Message.html
+            addChatMessage("> " + message.author + " : " + message.index + " : " + message.body);
+        }
+        // theConversation.updateLastConsumedMessageIndex(totalMessages);
+        addChatMessage('+ Total Messages: ' + totalMessages);
+        theConversation.setAllMessagesRead().then(data1 => {
+            theConversation.getUnreadMessagesCount().then(data => {
+                logger("+ listAllMessages, unreadCount = " + data);
+            });
+        });
+    });
+}
+
+function deleteAllMessages() {
+    startUserFunctionMessage();
+    logger("+ Function: deleteAllMessages().");
+    // theConversation.getMessages(3).then(function (messages) {
+    //      ...
+    // });
+    // Default number of messages is 30. List the 30 most recent messages.
+    // https://media.twiliocdn.com/sdk/js/conversations/releases/1.2.1/docs/Message.html
+    // https://media.twiliocdn.com/sdk/js/conversations/releases/2.1.0/docs/classes/Conversation.html#getMessages
+    theConversation.getMessages().then(function (messages) {
+        totalMessages = messages.items.length;
+        addChatMessage("+ Remove all Messages for conversation: " + conversationName);
+        for (i = 0; i < totalMessages; i++) {
+            const message = messages.items[i].remove();
+        }
+        addChatMessage('+ Total Messages removed: ' + totalMessages);
+        doCountZero();
+    });
+}
+
+// ---------
+// Stacy, these need to work with index last read and unread count.
+function doCountZero() {
+    logger("+ Called: doCountZero();");
+    totalMessages = 0;
+}
+function incCount() {
+    totalMessages++;
+    logger('+ Increment Total Messages: ' + totalMessages);
+    theConversation.getMessages().then(function (messages) {
+        // theConversation.updateLastConsumedMessageIndex(totalMessages);
+    });
+}
+function setTotalMessages() {
+    // theConversation.getMessages().then(function (messages) {
+    //    totalMessages = messages.items.length;
+    // });
+    totalMessages = theConversation.getMessagesCount();
+    logger('setTotalMessages, Total Messages:' + totalMessages);
+}
+// ---------
+
+// Using curl:
+//  https://www.twilio.com/docs/conversations/media-support-conversations#using-media-messaging-via-the-conversations-rest-api
+function sendMedia() {
+    // Media files are in the same directory as the index.html file, that loads this file
+    // logger('+ Called sendMedia().');
+    (async function () {
+        // await theConversation.sendMessage('+ sendMedia() step 1');
+        logger('+ Called sendMedia() async.');
+        const file1 = await fetch("/0graphic1w.jpg");
+        const fileM1 = await file1.blob();
+        const sendMediaOptions1 = {
+            contentType: file1.headers.get("Content-Type"),
+            filename: "graphic1.jpg",
+            media: fileM1
+        };
+        const file2 = await fetch("/custom/companyLogo.jpg");
+        const fileM2 = await file2.blob();
+        const sendMediaOptions2 = {
+            contentType: file1.headers.get("Content-Type"),
+            filename: "graphic2.jpg",
+            media: fileM2
+        };
+        await theConversation.prepareMessage()
+                // .setBody("+ sendMedia() file: M1")
+                // .setBody("+ sendMedia() file: M2")
+                .setBody("+ sendMedia() files: M1 and M2")
+                .addMedia(sendMediaOptions1)
+                .addMedia(sendMediaOptions2)
+                .build()
+                .send()
+                ;
+        logger('+ Exit sendMedia() async.');
+    })();
+}
+
+// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
+// Section: Test functions for lastReadMessageIndex and unread message count.
+// -----------------------------------------------------------------------------
+
 function getParticipantlastReadMessageIndex() {
     logger("+ getParticipantUnreadCount");
     // --------------------------------------------------------
@@ -410,274 +685,6 @@ function setAllMessagesUnread() {
 }
 
 // -----------------------------------------------------------------------------
-function createConversation() {
-// http://media.twiliocdn.com/sdk/js/conversations/releases/1.2.1/docs/Client.html#createConversation__anchor
-    logger("+ Create the conversation if it doesn't exist: " + chatChannelName);
-    thisConversationClient.createConversation({
-        uniqueName: conversationName,
-        friendlyName: conversationName
-    })
-            .then(aConversation => {
-                theConversation = aConversation;
-                logger("+ Conversation created and theConversation object is set, "
-                        + "\n++ SID: " + theConversation.sid
-                        + "\n++ friendlyName: " + theConversation.friendlyName
-                        + "\n++ uniqueName: " + theConversation.uniqueName
-                        // + channel.getAttributes()
-                        );
-                theConversation.add(userIdentity);
-                addChatMessage("+ Conversation created and participant is added to the conversation:" + userIdentity);
-                setupTheConversation();
-            })
-            .catch(function () {
-                logger("- Error, failed to create the conversation: " + conversationName);
-            });
-}
-
-// -----------------------------------------------------------------------------
-function listConversations() {
-    startUserFunctionMessage();
-    logger("+ Function: listConversations(), makes a server side call.");
-    // if (thisConversationClient === "") {
-    //    addChatMessage("First, create a Chat Client.");
-    //    logger("Required: Chat Client.");
-    //    return;
-    // }
-    chatChannelName = $("#channelName").val();
-    addChatMessage("+ List of conversations.");
-    var jqxhr = $.get("listConversations", function (returnString) {
-        if (returnString === "-1") {
-            logger("-- Error retrieving conversation list.");
-            return;
-        }
-        if (returnString === "0") {
-            logger("+ No conversations to list.");
-            return;
-        }
-        logger("++ List retrieved.");
-        // -------------------------------
-        addChatMessage(returnString);
-        addChatMessage("+ End list.");
-    }).fail(function () {
-        logger("- Error retrieving conversation list.");
-    });
-}
-
-// -----------------------------------------------------------------------------
-function deleteConversation() {
-    startUserFunctionMessage();
-    logger("+ Function: deleteConversation(), makes a server side call.");
-    if (thisConversationClient === "") {
-        addChatMessage("First, create a Conversations Client.");
-        logger("Required: Conversations Client.");
-        return;
-    }
-    conversationName = $("#channelName").val();
-    if (conversationName === "") {
-        addChatMessage("Enter a conversation name.");
-        logger("Required: conversation name.");
-        return;
-    }
-    addChatMessage("+ Remove conversation: " + conversationName);
-    var jqxhr = $.get("removeConversation?conversationid=" + conversationName, function (returnString) {
-        logger("+ returnString :" + returnString + ":");
-        if (returnString !== "0") {
-            addChatMessage("-- Warning, conversation not removed.");
-            logger("-- Conversation not removed.");
-            return;
-        }
-        addChatMessage("+ Conversation removed.");
-        setButtons("createChatClient"); // back to ready to join a conversation.
-    }).fail(function () {
-        logger("- Error removing conversation.");
-    });
-}
-
-// -----------------------------------------------------------------------------
-function listMembers() {
-    startUserFunctionMessage();
-    addChatMessage("+ Participants of this conversation: " + theConversation.uniqueName);
-    logger("+ Function: listMembers(), makes a server side call.");
-    chatChannelName = $("#channelName").val();
-    addChatMessage("+ List of conversations.");
-    // localhost:8000/listConversationParticipants?conversationSid=CHa17a4902d9fd4358ae5457870533ee91
-    var jqxhr = $.get("listConversationParticipants?conversationSid=" + theConversation.sid, function (returnString) {
-        if (returnString === "-1") {
-            logger("-- Error retrieving conversation list.");
-            return;
-        }
-        if (returnString === "0") {
-            logger("+ No conversations to list.");
-            return;
-        }
-        logger("++ List retrieved.");
-        // -------------------------------
-        addChatMessage(returnString);
-        addChatMessage("+ End list.");
-    }).fail(function () {
-        logger("- Error retrieving conversation list.");
-    });
-}
-
-// -----------------------------------------------------------------------------
-function sendTheMessage() {
-    if (thisConversationClient === "") {
-        addChatMessage("First, create a Chat Client.");
-        return;
-    }
-    const theMessage = $("#message").val();
-    if (theMessage === "") {
-        return;
-    }
-    $("#message").val("");
-    // stacy
-    theIndex = theConversation.sendMessage(theMessage);
-    if (theIndex.index !== undefined) {
-        logger("sendTheMessage() " + theMessage + " index=" + theIndex.index);
-    } else {
-        logger("sendTheMessage() " + theMessage);
-    }
-    // Stacy, mark message as read.
-}
-
-function listAllMessages() {
-    startUserFunctionMessage();
-    logger("+ Function: listAllMessages().");
-    // -------------------------------------
-    (async function () {
-        hasMore = true;
-        counterPages = 0;
-        counterItems = 0;
-        logger("+ Loop through message pages.");
-        let paginator = await theConversation.getMessages(5, 0, "forward");
-        hasMore = true;
-        while (hasMore) {
-            counterPages++;
-            for (i = 0; i < paginator.items.length; i++) {
-                const message = paginator.items[i];
-                addChatMessage("> " + counterItems++ + " " + message.author + " : " + message.index + " : " + message.body);
-            }
-            if (paginator.hasNextPage) {
-                paginator = await paginator.nextPage();
-            } else {
-                hasMore = false;
-            }
-        }
-        logger("+ Completed page loops, pages: " + counterPages + ", conversations: " + counterItems);
-        addChatMessage("+ ----------------------------------------------------------");
-        return;
-        // -----------------
-        // Following is for testing the other parameters of getMessages(...).
-        const thePaginator = (paginator) => {
-            logger("++ paginator.hasPrevPage = " + paginator.hasPrevPage);
-            logger("++ paginator.hasNextPage = " + paginator.hasNextPage);
-        };
-        // theConversation.getMessages(10, 0, 'forward').then(thePaginator);
-        // theConversation.getMessages(15, undefined, 'forward').then(thePaginator);
-        // theConversation.getMessages(15, undefined, 'forward').then(thePaginator);
-        // theConversation.getMessages(5).then(thePaginator);
-    })();
-    return;
-    // -------------------------------------
-    // The following only lists the number of messages retrieved using getMessages(x).
-    // theConversation.getMessages(3).then(function (messages) {
-    // Default number of messages is 30. List the 30 most recent messages.
-    // https://media.twiliocdn.com/sdk/js/conversations/releases/1.2.1/docs/Conversation.html#getMessages__anchor
-    // https://media.twiliocdn.com/sdk/js/conversations/releases/2.1.0/docs/classes/Conversation.html#getMessages
-    theConversation.getMessages().then(function (messages) {
-        totalMessages = messages.items.length;
-        logger('Total Messages: ' + totalMessages);
-        addChatMessage("+ Current messages for conversation: " + conversationName);
-        for (i = 0; i < totalMessages; i++) {
-            const message = messages.items[i];
-            // properties: https://media.twiliocdn.com/sdk/js/chat/releases/3.2.1/docs/Message.html
-            addChatMessage("> " + message.author + " : " + message.index + " : " + message.body);
-        }
-        // theConversation.updateLastConsumedMessageIndex(totalMessages);
-        addChatMessage('+ Total Messages: ' + totalMessages);
-        theConversation.setAllMessagesRead().then(data1 => {
-            theConversation.getUnreadMessagesCount().then(data => {
-                logger("+ listAllMessages, unreadCount = " + data);
-            });
-        });
-    });
-}
-
-function deleteAllMessages() {
-    startUserFunctionMessage();
-    logger("+ Function: deleteAllMessages().");
-    // theConversation.getMessages(3).then(function (messages) {
-    // Default number of messages is 30. List the 30 most recent messages.
-    // https://media.twiliocdn.com/sdk/js/conversations/releases/1.2.1/docs/Message.html
-    // https://media.twiliocdn.com/sdk/js/conversations/releases/2.1.0/docs/classes/Conversation.html#getMessages
-    theConversation.getMessages().then(function (messages) {
-        totalMessages = messages.items.length;
-        addChatMessage("+ Remove all Messages for conversation: " + conversationName);
-        for (i = 0; i < totalMessages; i++) {
-            const message = messages.items[i].remove();
-        }
-        addChatMessage('+ Total Messages removed: ' + totalMessages);
-        doCountZero();
-    });
-}
-
-function doCountZero() {
-    logger("+ Called: doCountZero();");
-    totalMessages = 0;
-}
-
-function incCount() {
-    totalMessages++;
-    logger('+ Increment Total Messages: ' + totalMessages);
-    theConversation.getMessages().then(function (messages) {
-        // theConversation.updateLastConsumedMessageIndex(totalMessages);
-    });
-}
-
-function setTotalMessages() {
-    // theConversation.getMessages().then(function (messages) {
-    //    totalMessages = messages.items.length;
-    // });
-    totalMessages = theConversation.getMessagesCount();
-    logger('setTotalMessages, Total Messages:' + totalMessages);
-}
-
-// Using curl:
-//  https://www.twilio.com/docs/conversations/media-support-conversations#using-media-messaging-via-the-conversations-rest-api
-function sendMedia() {
-    // Media files are in the same directory as the index.html file, that loads this file
-    // logger('+ Called sendMedia().');
-    (async function () {
-        // await theConversation.sendMessage('+ sendMedia() step 1');
-        logger('+ Called sendMedia() async.');
-        const file1 = await fetch("/0graphic1w.jpg");
-        const fileM1 = await file1.blob();
-        const sendMediaOptions1 = {
-            contentType: file1.headers.get("Content-Type"),
-            filename: "graphic1.jpg",
-            media: fileM1
-        };
-        const file2 = await fetch("/custom/companyLogo.jpg");
-        const fileM2 = await file2.blob();
-        const sendMediaOptions2 = {
-            contentType: file1.headers.get("Content-Type"),
-            filename: "graphic2.jpg",
-            media: fileM2
-        };
-        await theConversation.prepareMessage()
-                // .setBody("+ sendMedia() file: M1")
-                // .setBody("+ sendMedia() file: M2")
-                .setBody("+ sendMedia() files: M1 and M2")
-                .addMedia(sendMediaOptions1)
-                .addMedia(sendMediaOptions2)
-                .build()
-                .send()
-                ;
-        logger('+ Exit sendMedia() async.');
-    })();
-    // logger('+ Exit sendMedia().');
-}
-
 function setFCM() {
     logger('+ Called setFCM().');
     // passing FCM token to the `conversationClientInstance` to register for push notifications
@@ -691,6 +698,7 @@ function setFCM() {
 
 // -----------------------------------------------------------------------------
 // UI Functions
+// -----------------------------------------------------------------------------
 
 var theBar = 0;
 function menuicon() {
@@ -830,3 +838,4 @@ window.onload = function () {
     setButtons("init");
 };
 // -----------------------------------------------------------------------------
+// eof
