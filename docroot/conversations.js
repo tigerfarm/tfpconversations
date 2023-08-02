@@ -702,6 +702,7 @@ function setFCM() {
     logger('+ Called setFCM().');
     // Passing FCM token to the "conversationClientInstance" to register for push notifications
     // Note, to make this proper, need to add the code from the project: notifyweb/address.
+    //      I am in the stage of adding FCM to this application.
     // To setup:
     //      + Run notifyweb/address webserver.js
     //      + In a browser tab, go to: http://localhost:8080/
@@ -722,7 +723,7 @@ function setFCM() {
     fcmToken = thisFcmToken;
     logger('+ FCM token: ' + fcmToken);
     thisConversationClient.setPushRegistrationId('fcm', fcmToken);
-    logger('+ Conversation Client FCM push registration completed.');
+    logger('+ Twilio Conversations Client FCM push registration completed.');
 }
 
 // -----------------------------------------------------------------------------
@@ -769,7 +770,7 @@ function activateChatBox() {
         deleteConversation();
     });
     $("#btn-members").click(function () {
-        listMembers();
+        listParticipants();
     });
     $("#btn-listallmessages").click(function () {
         listAllMessages();

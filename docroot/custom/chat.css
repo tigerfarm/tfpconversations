@@ -60,7 +60,7 @@ h1 {
 {
     margin-top: 6px;
     height: 433px;
-    width: 624px;
+    width: 680px;
     border: solid #954C08;
     margin-left: 15px;
     padding: 6px;
@@ -71,7 +71,7 @@ h1 {
 #chatMessages
 {
     height: 206px; 
-    width: 600px;
+    width: 642px;
     margin: 3px;
     padding: 3px;
 }
@@ -99,7 +99,7 @@ select option {
 #logBox
 {
     height: 290px;
-    width: 624px; 
+    width: 680px; 
     border: solid #954C08;
     margin-top: 6px;
     margin-left: 15px;
@@ -110,7 +110,7 @@ select option {
 #log
 {
     height: 176px; 
-    width: 600px;
+    width: 642px;
     margin: 3px;
     padding: 3px;
 }
