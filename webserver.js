@@ -12,12 +12,26 @@
 // -----------------------------------------------------------------------------
 console.log("+++ Conversations application web server is starting up.");
 // -----------------------------------------------------------------------------
+// 
+// -----------------------------------------------------------------------------
+// $ npm install express --save
+const express = require('express');
+const path = require('path');
+const url = require("url");
+
+// When deploying to Heroku, must use the keyword, "PORT".
+// This allows Heroku to override the value and use port 80. And when running locally can use other ports.
+const PORT = process.env.PORT || 8000;
+
+var app = express();
+
 // Setup to generate chat tokens.
 // 
-// Create environment variables which are used in the generateToken() function.
+// Create environment variables which are used in the generateConversationToken() function.
 //
 var ACCOUNT_SID = process.env.CONVERSATIONS_ACCOUNT_SID;
 //
+// -----------------------------------------------------------------------------
 // Create a Chat Service:
 //  https://www.twilio.com/console/chat/dashboard
 var CONVERSATIONS_SERVICE_SID = process.env.CONVERSATIONS_SERVICE_SID;
@@ -30,7 +44,7 @@ console.log("+ FCM_CREDENTIAL_SID :" + FCM_CREDENTIAL_SID + ":");
 var API_KEY = process.env.CONVERSATIONS_API_KEY;
 var API_KEY_SECRET = process.env.CONVERSATIONS_API_KEY_SECRET;
 // -----------------------------------------------------------------------------
-var client = require('twilio')(process.env.CONVERSATIONS_ACCOUNT_SID, process.env.CONVERSATIONS_ACCOUNT_AUTH_TOKEN);
+var clientConversations = require('twilio')(process.env.CONVERSATIONS_ACCOUNT_SID, process.env.CONVERSATIONS_ACCOUNT_AUTH_TOKEN);
 // -----------------------------------------------------------------------------
 var returnMessage = '';
 function sayMessage(message) {
@@ -39,7 +53,11 @@ function sayMessage(message) {
 }
 
 // -----------------------------------------------------------------------------
-function generateToken(theIdentity) {
+// tfpconversations: Twilio Conversations functions
+// -----------------------------------------------------------------------------
+// 
+// -----------------------------------------------------------------------------
+function generateConversationToken(theIdentity) {
 // Documentation: https://www.twilio.com/docs/iam/access-tokens
 //
     if (theIdentity === "") {
@@ -80,7 +98,7 @@ function generateToken(theIdentity) {
 // -----------------------------------------------------------------------------
 function addParticipantToConversation(res, conversationId, participantIdentity) {
     sayMessage("+ Add the participant: " + participantIdentity + ", into conversationId: " + conversationId);
-    client.conversations.services(CONVERSATIONS_SERVICE_SID).conversations(conversationId)
+    clientConversations.conversations.services(CONVERSATIONS_SERVICE_SID).conversations(conversationId)
             .participants
             .create({
                 identity: participantIdentity,
@@ -103,25 +121,13 @@ function addParticipantToConversation(res, conversationId, participantIdentity) 
 }
 
 // -----------------------------------------------------------------------------
-// -----------------------------------------------------------------------------
 // Web server interface to call functions.
-// -----------------------------------------------------------------------------
 // 
-// $ npm install express --save
-const express = require('express');
-const path = require('path');
-const url = require("url");
-
-// When deploying to Heroku, must use the keyword, "PORT".
-// This allows Heroku to override the value and use port 80. And when running locally can use other ports.
-const PORT = process.env.PORT || 8000;
-
-var app = express();
 // -----------------------------------------------------------------------------
-app.get('/generateToken', function (req, res) {
+app.get('/generateConversationToken', function (req, res) {
     sayMessage("+ Generate Conversations Token.");
     if (req.query.identity) {
-        res.send(generateToken(req.query.identity));
+        res.send(generateConversationToken(req.query.identity));
     } else {
         sayMessage("- Parameter required: identity.");
         res.sendStatus(502);
@@ -132,7 +138,7 @@ app.get('/listConversations', function (req, res) {
     sayMessage("+ Get list of conversations.");
     var theResult = "+ Conversations for Twilio Conversations service: " + CONVERSATIONS_SERVICE_SID + "\n";
     var acounter = 0;
-    client.conversations.services(CONVERSATIONS_SERVICE_SID).conversations.list({limit: 200})
+    clientConversations.conversations.services(CONVERSATIONS_SERVICE_SID).conversations.list({limit: 200})
             .then(conversations => {
                 conversations.forEach(c => {
                     acounter++;
@@ -148,6 +154,43 @@ app.get('/listConversations', function (req, res) {
                 console.log("+ Total count = " + acounter);
             });
 });
+
+// -----------------------------------------------------------------------------
+app.get('/joinConversation', function (req, res) {
+    // Can join a conversation using either the SID or unique name.
+    // localhost:8000/joinConversation?identity=dave3&conversationid=CH52652cb27e81490bbb5cc67c223b857a
+    // localhost:8000/joinConversation?identity=dave3&conversationid=abc
+    sayMessage("+ Join a participant into a conversation.");
+    if (req.query.identity) {
+        if (req.query.conversationid) {
+            participantIdentity = req.query.identity;
+            conversationId = req.query.conversationid;
+            sayMessage("+ Parameter identity: " + participantIdentity + ", conversationId: " + conversationId);
+            //
+            // Determine if the conversation exists.
+            clientConversations.conversations.services(CONVERSATIONS_SERVICE_SID).conversations(conversationId)
+                    .fetch()
+                    .then(conversation => {
+                        console.log(
+                                "+ Conversation exits, SID: " + conversation.sid
+                                + " " + conversation.uniqueName
+                                + " " + conversation.friendlyName
+                                );
+                        addParticipantToConversation(res, conversationId, participantIdentity);
+                    })
+                    .catch(function (err) {
+                        console.log("+ Conversation does NOT exist, cannot join it.");
+                    });
+        } else {
+            sayMessage("- Parameter required: conversationid.");
+            res.status(400).send('HTTP Error 400. Parameter required: conversationid.');
+        }
+    } else {
+        sayMessage("- Parameter required: identity.");
+        res.status(400).send('HTTP Error 400. Parameter required: identity.');
+    }
+});
+
 // -----------------------------------------------------------------------------
 app.get('/listConversationParticipants', function (req, res) {
     // localhost:8000/listConversationParticipants?conversationSid=CHa17a4902d9fd4358ae5457870533ee91
@@ -161,7 +204,7 @@ app.get('/listConversationParticipants', function (req, res) {
         return;
     }
     var theResult = "";
-    client.conversations.services(CONVERSATIONS_SERVICE_SID).conversations(conversationSid).participants.list({limit: 20})
+    clientConversations.conversations.services(CONVERSATIONS_SERVICE_SID).conversations(conversationSid).participants.list({limit: 20})
             .then(participants => {
                 participants.forEach(p => {
                     if (p.identity !== null) {
@@ -189,7 +232,7 @@ app.get('/conversationExists', function (req, res) {
         sayMessage("+ Parameter conversationId: " + conversationId);
         //
         // Determine if the conversation exists.
-        client.conversations.services(CONVERSATIONS_SERVICE_SID).conversations(conversationId)
+        clientConversations.conversations.services(CONVERSATIONS_SERVICE_SID).conversations(conversationId)
                 .fetch()
                 .then(conversation => {
                     console.log(
@@ -214,7 +257,7 @@ app.get('/removeConversation', function (req, res) {
     if (req.query.conversationid) {
         conversationId = req.query.conversationid;
         sayMessage("+ Remove the conversation: " + conversationId);
-        client.conversations.services(CONVERSATIONS_SERVICE_SID).conversations(conversationId).remove()
+        clientConversations.conversations.services(CONVERSATIONS_SERVICE_SID).conversations(conversationId).remove()
                 .then(conversations => {
                     console.log("++ Removed.");
                     res.send("0");
@@ -229,43 +272,11 @@ app.get('/removeConversation', function (req, res) {
     }
 });
 
-// -----------------------------------------------------------------------------
-app.get('/joinConversation', function (req, res) {
-    // Can join a conversation using either the SID or unique name.
-    // localhost:8000/joinConversation?identity=dave3&conversationid=CH52652cb27e81490bbb5cc67c223b857a
-    // localhost:8000/joinConversation?identity=dave3&conversationid=abc
-    sayMessage("+ Join a participant into a conversation.");
-    if (req.query.identity) {
-        if (req.query.conversationid) {
-            participantIdentity = req.query.identity;
-            conversationId = req.query.conversationid;
-            sayMessage("+ Parameter identity: " + participantIdentity + ", conversationId: " + conversationId);
-            //
-            // Determine if the conversation exists.
-            client.conversations.services(CONVERSATIONS_SERVICE_SID).conversations(conversationId)
-                    .fetch()
-                    .then(conversation => {
-                        console.log(
-                                "+ Conversation exits, SID: " + conversation.sid
-                                + " " + conversation.uniqueName
-                                + " " + conversation.friendlyName
-                                );
-                        addParticipantToConversation(res, conversationId, participantIdentity);
-                    })
-                    .catch(function (err) {
-                        console.log("+ Conversation does NOT exist, cannot join it.");
-                    });
-        } else {
-            sayMessage("- Parameter required: conversationid.");
-            res.status(400).send('HTTP Error 400. Parameter required: conversationid.');
-        }
-    } else {
-        sayMessage("- Parameter required: identity.");
-        res.status(400).send('HTTP Error 400. Parameter required: identity.');
-    }
-});
 
 // -----------------------------------------------------------------------------
+// Web server basics
+// -----------------------------------------------------------------------------
+
 app.get('/hello', function (req, res) {
     res.send('+ hello there.');
 });

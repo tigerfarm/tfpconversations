@@ -52,7 +52,7 @@ function createChatClientObject() {
     addChatMessage("++ Creating Conversations Client...");
     // Ajax call to the web server that generates the token, for the userIdentity.
     logger("+ Use a server side routine to refresh the token using client id: " + userIdentity);
-    var jqxhr = $.get("generateToken?identity=" + userIdentity, function (token) {
+    var jqxhr = $.get("generateConversationToken?identity=" + userIdentity, function (token) {
         if (token === "0") {
             logger("- Error refreshing the token.");
             return;
@@ -134,7 +134,7 @@ function onConversationAdded(aConversation) {
 function onTokenAboutToExpire() {
     startUserFunctionMessage();
     logger("onTokenExpiring: Use a server side routine to refresh the token using client id: " + userIdentity);
-    var jqxhr = $.get("generateToken?identity=" + userIdentity, function (token, status) {
+    var jqxhr = $.get("generateConversationToken?identity=" + userIdentity, function (token, status) {
         if (token === "0") {
             logger("- Error refreshing the token.");
             return;
@@ -259,7 +259,17 @@ function joinChatConversationServerSide() {
                 .then(aConversation => {
                     theConversation = aConversation;
                     logger("+ theConversation object is set.");
-                    setupTheConversation();
+                    if (returnString === "1") {
+                        // Participant was added to the conversation, initialize LastReadMessageIndex = 0.
+                        theConversation.updateLastReadMessageIndex(0).then(data1 => {
+                            theConversation.getUnreadMessagesCount().then(data => {
+                                logger("+ setupTheConversation, unreadCount = " + data);
+                                setupTheConversation();
+                            });
+                        });
+                    } else {
+                        setupTheConversation();
+                    }
                 })
                 .catch(function () {
                     logger("- Error conversation is not available: " + conversationName + ".");
@@ -594,25 +604,17 @@ function sendMedia() {
 
 function getParticipantlastReadMessageIndex() {
     logger("+ getParticipantUnreadCount");
-    // --------------------------------------------------------
-    var participants = theConversation.getParticipants();
-    participants.then(function (currentParticipants) {
-        currentParticipants.forEach(function (participant) {
-            if (participant.identity === userIdentity) {
-                logger("++ participant, identity = " + participant.identity
-                        + ", lastReadMessageIndex = " + participant.lastReadMessageIndex
-                        // + ", lastReadTimestamp = " + participant.lastReadTimestamp
-                        );
-            }
-        });
-    });
-    // --------------------------------------------------------
+    logger("++ participant, identity = " + userIdentity
+            + ", lastReadMessageIndex = " + theConversation.lastReadMessageIndex
+            );
 }
 
 function getAllParticipantlastReadMessageIndex() {
+    // --------------------------------------------------------
+    logger("+ Maybe this? participantCount = " + theConversation.lastReadMessageIndex);
+    // --------------------------------------------------------
     theConversation.getParticipantsCount().then(data => {
         logger("+ getParticipantCount(), participantCount = " + data);
-        // --------------------------------------------------------
         var participants = theConversation.getParticipants();
         // for each Participant, set up a listener for when the Participant is updated
         participants.then(function (currentParticipants) {
@@ -632,34 +634,38 @@ function getParticipantCounts() {
     //      getUnreadMessagesCount()            (unread message count)
     //      + participant.lastReadMessageIndex  (read message index)
     //      + 1                                 (add 1 because index starts at 0)
-    logger("+ getParticipantCounts, Participant = " + userIdentity + ":");
+    logger("+ -----------------------------------------");
+    logger("+ getParticipantCounts(), Participant = " + userIdentity + ":");
     (async function () {
         const newGetMessagesCount = await theConversation.getMessagesCount();
         logger("++ Total number of messages in the conversation, getMessagesCount() = " + newGetMessagesCount);
         const newGetUnreadMessagesCount = await theConversation.getUnreadMessagesCount();
-        logger("++ Participant unread message count, getUnreadMessagesCount() = " + newGetUnreadMessagesCount);
-        // --------------------------------------------------------
-        var participants = theConversation.getParticipants();
-        let newLastReadMessageIndex = 0;
-        participants.then(function (currentParticipants) {
-            currentParticipants.forEach(function (participant) {
-                if (participant.identity === userIdentity) {
-                    newLastReadMessageIndex = participant.lastReadMessageIndex;
-                    logger("++ Participant lastReadMessageIndex = " + newLastReadMessageIndex);
-                    logger("getMessagesCount() = getUnreadMessagesCount() + participant.lastReadMessageIndex + 1");
-                    logger("Total number of conversation messages = unread + read + 1");
-                    logger("     " + newGetMessagesCount + " = "
-                            + newGetUnreadMessagesCount + " + " + newLastReadMessageIndex + " + 1 (index starts at 0)");
-                }
-            });
-        });
+        logger("++ theConversation, participant's getUnreadMessagesCount() = " + newGetUnreadMessagesCount);
+        const newLastReadMessageIndex = theConversation.lastReadMessageIndex;
+        logger("++ theConversation, participant'slastReadMessageIndex = " + newLastReadMessageIndex);
+        logger("+ getMessagesCount() = getUnreadMessagesCount() + lastReadMessageIndex + 1");
+        logger("+ Total number of conversation messages = unread + read + 1");
+        logger("     " + newGetMessagesCount + " = "
+                + newGetUnreadMessagesCount + " + " + newLastReadMessageIndex + " + 1 (index starts at 0)");
+        //
         // --------------------------------------------------------
     })();
 }
 
 function setLastReadMessageIndex() {
-    setUnreadCountTo = 2;
-    logger("+ setUnreadCount = " + setUnreadCountTo);
+    logger("+ setLastReadMessageIndex()");
+    setReadMessageIndex = 2;
+    (async function () {
+        let iGetMessagesCount = await theConversation.getMessagesCount();
+        logger("++ iGetMessagesCount = " + iGetMessagesCount);
+        let setUpdateLastReadMessageIndex = await theConversation.updateLastReadMessageIndex(setReadMessageIndex);
+        logger("++ setUpdateLastReadMessageIndex = " + setUpdateLastReadMessageIndex);
+        let iGetUnreadMessagesCount = await theConversation.getUnreadMessagesCount();
+        logger("++ iGetUnreadMessagesCount = " + iGetUnreadMessagesCount);
+        //
+        logger("++ Total messages = unread + read + 1 = " + iGetMessagesCount + " = "
+                + iGetUnreadMessagesCount + " + " + setUpdateLastReadMessageIndex + " + 1");
+    })();
     // Methods of calling: updateLastReadMessageIndex(...).
     // theConversation.updateLastReadMessageIndex(setUnreadCountTo);
     // theConversation.updateLastReadMessageIndex(setUnreadCountTo).then(data1 => {
@@ -668,15 +674,6 @@ function setLastReadMessageIndex() {
     //     });
     // });
     // Using "await" when calling: updateLastReadMessageIndex(...).
-    (async function () {
-        logger("+ setUnreadCount, await theConversation.updateLastReadMessageIndex...");
-        const newLastReadMessageIndex = await theConversation.updateLastReadMessageIndex(setUnreadCountTo);
-        logger("+ setUnreadCount, newLastReadMessageIndex = " + newLastReadMessageIndex);
-        const newGetMessagesCount = await theConversation.getMessagesCount();
-        const newGetUnreadMessagesCount = await theConversation.getUnreadMessagesCount();
-        logger("+ Total messages = unread + read + 1 = " + newGetMessagesCount + " = "
-                + newGetUnreadMessagesCount + " + " + setUnreadCountTo + " + 1");
-    })();
 }
 
 function setAllMessagesRead() {
