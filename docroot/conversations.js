@@ -490,10 +490,14 @@ function listAllMessages() {
         counterPages = 0;
         counterItems = 0;
         logger("+ Loop through message pages.");
+        // getMessages(5, 0, "forward");
+        //  5: number of messages in a page.
+        //  "forward": order retrieved.
         let paginator = await theConversation.getMessages(5, 0, "forward");
         hasMore = true;
         while (hasMore) {
             counterPages++;
+            logger("++ paginator.items.length: " + paginator.items.length );
             for (i = 0; i < paginator.items.length; i++) {
                 const message = paginator.items[i];
                 addChatMessage("> " + counterItems++ + " " + message.author + " : " + message.index + " : " + message.body);
@@ -504,7 +508,7 @@ function listAllMessages() {
                 hasMore = false;
             }
         }
-        logger("+ Completed page loops, pages: " + counterPages + ", conversations: " + counterItems);
+        logger("+ Completed page loops, pages: " + counterPages + ", Number of messages: " + counterItems);
         addChatMessage("+ ----------------------------------------------------------");
         return;
         // -----------------
@@ -545,21 +549,17 @@ function listAllMessages() {
 }
 
 function deleteAllMessages() {
+    // Stacy: only removes messages create by this participant.
     startUserFunctionMessage();
     logger("+ Function: deleteAllMessages().");
-    // theConversation.getMessages(3).then(function (messages) {
-    //      ...
-    // });
-    // Default number of messages is 30. List the 30 most recent messages.
-    // https://media.twiliocdn.com/sdk/js/conversations/releases/1.2.1/docs/Message.html
-    // https://media.twiliocdn.com/sdk/js/conversations/releases/2.1.0/docs/classes/Conversation.html#getMessages
     theConversation.getMessages().then(function (messages) {
         totalMessages = messages.items.length;
-        addChatMessage("+ Remove all Messages for conversation: " + conversationName);
+        addChatMessage("+ Remove my Messages from the conversation: " + conversationName);
         for (i = 0; i < totalMessages; i++) {
             const message = messages.items[i].remove();
         }
-        addChatMessage('+ Total Messages removed: ' + totalMessages);
+        addChatMessage('+ My messages were removed.');
+        // addChatMessage('+ Total Messages removed: ' + totalMessages);
         doCountZero();
     });
 }
