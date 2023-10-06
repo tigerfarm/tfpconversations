@@ -44,6 +44,7 @@ Express for running the Node web servers.
 $ npm install twilio
 $ npm install express
 ````
+##### Note, re-run the above npm install commands to update the version.
 
 To run the application,
 + Set configurations using the Twilio Console,

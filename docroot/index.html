@@ -31,10 +31,12 @@
                     <tr><td>
                             <button class="abutton" id="btn-createChatClient">Create Client</button>
                             Conversations:
-                            <button class="abutton" id="btn-join">Join</button>
                             <button class="abutton" id="btn-list">List</button>
+                            <button class="abutton" id="btn-join">Join</button>
                             <button class="abutton" id="btn-delete">Delete</button>
                             <button class="abutton" id="btn-members">List participants</button>
+                            <button class="abutton" id="btn-listIdCnv">Identity conversations</button>
+                            </br>
                             Messages:
                             <button class="abutton" id="btn-chat" onclick="sendTheMessage();">Send</button>
                             <button class="abutton" id="btn-listallmessages">List</button>
@@ -43,7 +45,7 @@
                 </table>
             </div>
             <div class="panelArea">
-                <table>
+                <table style="margin-bottom: 12px;">
                     <tr><td>Identity </td><td><input id="username" type="text"/></td><td id="cUsername"></td></tr>
                     <tr><td>Conversation unique name &nbsp;&nbsp;</td><td><input id="conversationName" type="text"/></td></tr>
                     <!-- tr><td>Conversation description &nbsp;</td><td><input id="channelDescription" type="text"/></td></tr -->
@@ -52,6 +54,7 @@
                 <button class="abutton" id="btn-sm" onclick="sendMedia();">Send Media</button>
                 <button class="abutton" id="btn-sm" onclick="setFCM();">Register for FCM push notifications</button>
                 </br>
+                For conversations:
                 <button class="abutton" id="btn-sm" onclick="setAllMessagesRead();">Set All read</button>
                 <button class="abutton" id="btn-sm" onclick="setAllMessagesUnread();">Set All unread</button>
                 <button class="abutton" id="btn-sm" onclick="setLastReadMessageIndex();">Set Last read index</button>

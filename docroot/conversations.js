@@ -439,6 +439,30 @@ function listParticipants() {
 }
 
 // -----------------------------------------------------------------------------
+function listIdentityConversations() {
+    addChatMessage("+ List conversations for the identity: " + userIdentity);
+    logger("+ Function: listParticipants(), makes a server side call.");
+    chatConversationName = $("#conversationName").val();
+    // http://localhost:8080/listIdentityConversations?theIdentity=dave
+    var jqxhr = $.get("listIdentityConversations?theIdentity=" + userIdentity, function (returnString) {
+        if (returnString === "-1") {
+            logger("-- Error retrieving conversation list.");
+            return;
+        }
+        if (returnString === "0") {
+            logger("+ No conversations to list.");
+            return;
+        }
+        logger("++ List retrieved.");
+        // -------------------------------
+        addChatMessage(returnString);
+        addChatMessage("+ End list.");
+    }).fail(function () {
+        logger("- Error retrieving conversation list.");
+    });
+}
+
+// -----------------------------------------------------------------------------
 function sendTheMessage() {
     if (thisConversationClient === "") {
         addChatMessage("First, create a Chat Client.");
@@ -772,6 +796,9 @@ function activateChatBox() {
     $("#btn-listallmessages").click(function () {
         listAllMessages();
     });
+    $("#btn-listIdCnv").click(function () {
+        listIdentityConversations();
+    });
     $("#btn-deleteallmessages").click(function () {
         deleteAllMessages();
     });
@@ -805,6 +832,7 @@ function setButtons(activity) {
             $('#btn-list').prop('disabled', false);
             $('#btn-delete').prop('disabled', true);
             $('#btn-members').prop('disabled', true);
+            $('#btn-listIdCnv').prop('disabled', true);
             //
             $('#btn-chat').prop('disabled', true);
             $('#btn-listallmessages').prop('disabled', true);
@@ -818,6 +846,7 @@ function setButtons(activity) {
             $('#btn-join').prop('disabled', false);
             $('#btn-delete').prop('disabled', false);
             $('#btn-members').prop('disabled', true);
+            $('#btn-listIdCnv').prop('disabled', false);
             //
             $('#btn-chat').prop('disabled', true);
             $('#btn-listallmessages').prop('disabled', true);
