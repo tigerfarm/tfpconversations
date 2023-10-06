@@ -109,7 +109,7 @@ function createChatClientObject() {
             //
             thisConversationClient.on('conversationAdded', onConversationAdded);
             thisConversationClient.on("conversationJoined", (aConversation) => {
-                addChatMessage("++ Conversation joined: " + aConversation.uniqueName
+                addChatMessage("++ conversationJoined: " + aConversation.uniqueName
                         + ": " + aConversation.friendlyName + ": " + aConversation.createdBy
                         );
             });

@@ -121,7 +121,7 @@ function addParticipantToConversation(res, conversationId, participantIdentity) 
 // Web server interface to call functions.
 // 
 // -----------------------------------------------------------------------------
-app.get('/generateConversationToken', function (req, res) {
+app.get('/tfpconversations/generateConversationToken', function (req, res) {
     sayMessage("+ Generate Conversations Token.");
     if (req.query.identity) {
         res.send(generateConversationToken(req.query.identity));
@@ -131,7 +131,7 @@ app.get('/generateConversationToken', function (req, res) {
     }
 });
 // -----------------------------------------------------------------------------
-app.get('/listConversations', function (req, res) {
+app.get('/tfpconversations/listConversations', function (req, res) {
     sayMessage("+ Get list of conversations.");
     var theResult = "+ Conversations for Twilio Conversations service: " + CONVERSATIONS_SERVICE_SID + "\n";
     var acounter = 0;
@@ -152,7 +152,7 @@ app.get('/listConversations', function (req, res) {
             });
 });
 // -----------------------------------------------------------------------------
-app.get('/joinConversation', function (req, res) {
+app.get('/tfpconversations/joinConversation', function (req, res) {
     // Can join a conversation using either the SID or unique name.
     // localhost:8000/joinConversation?identity=dave3&conversationid=CH52652cb27e81490bbb5cc67c223b857a
     // localhost:8000/joinConversation?identity=dave3&conversationid=abc
@@ -187,7 +187,7 @@ app.get('/joinConversation', function (req, res) {
     }
 });
 // -----------------------------------------------------------------------------
-app.get('/listIdentityConversations', function (req, res) {
+app.get('/tfpconversations/listIdentityConversations', function (req, res) {
     sayMessage("+ Get list of conversations where a indentiy(user) is a participant.");
     var acounter = 0;
     if (req.query.theIdentity) {
@@ -224,7 +224,7 @@ app.get('/listIdentityConversations', function (req, res) {
 });
 
 // -----------------------------------------------------------------------------
-app.get('/listConversationParticipants', function (req, res) {
+app.get('/tfpconversations/listConversationParticipants', function (req, res) {
     // localhost:8000/listConversationParticipants?conversationSid=CHa17a4902d9fd4358ae5457870533ee91
     sayMessage("+ Get list of participants in a conversation.");
     if (req.query.conversationSid) {
@@ -255,7 +255,7 @@ app.get('/listConversationParticipants', function (req, res) {
             });
 });
 // -----------------------------------------------------------------------------
-app.get('/conversationExists', function (req, res) {
+app.get('/tfpconversations/conversationExists', function (req, res) {
     // localhost:8000/conversationExists?conversationid=abc
     sayMessage("+ Check if conversation exists.");
     if (req.query.conversationid) {
@@ -283,7 +283,7 @@ app.get('/conversationExists', function (req, res) {
     }
 });
 // -----------------------------------------------------------------------------
-app.get('/removeConversation', function (req, res) {
+app.get('/tfpconversations/removeConversation', function (req, res) {
     if (req.query.conversationid) {
         conversationId = req.query.conversationid;
         sayMessage("+ Remove the conversation: " + conversationId);
