@@ -17,12 +17,17 @@ function initFirebase() {
     // If not running in the browser, the following is used to handle incomming notifications:
     //      messaging.setBackgroundMessageHandler( ... )
     //      in firebase-messaging-sw.js.
-    firebase.messaging().onMessage(function(payload) {
-        console.log('+ Message received payload.', payload);
+    firebase.messaging().onMessage(function (payload) {
+        console.log('+ Message received payload.', payload);    // Shows up in the browser webtool console.
+        if (payload.data.twi_message_type === "twilio.conversations.new_message") {
+            logger("++ Conversations message.");
+        } else {
+            logger("++ Not a Conversations message.");
+        }
         logger('++ Payload notification message received:       ' + payload.data.twi_body);
         logger('++ Payload notification message from sender id: ' + payload.from);
     });
-    
+
     GetFirebaseToken();
 }
 

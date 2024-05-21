@@ -20,7 +20,7 @@ const path = require('path');
 const url = require("url");
 // When deploying to Heroku, must use the keyword, "PORT".
 // This allows Heroku to override the value and use port 80. And when running locally can use other ports.
-const PORT = process.env.PORT || 8080;
+const PORT = process.env.PORT || 8000;
 var app = express();
 // Setup to generate chat tokens.
 // 
@@ -31,8 +31,8 @@ var ACCOUNT_SID = process.env.CONVERSATIONS_ACCOUNT_SID;
 // -----------------------------------------------------------------------------
 // Use a Conversation Chat Service:
 //  https://www.twilio.com/console/chat/dashboard
-var CONVERSATIONS_SERVICE_SID = process.env.CONVERSATIONS_SERVICE_SID;
-// var CONVERSATIONS_SERVICE_SID = "IS973ddbf230364f8dab02c6418779a602";
+var CONVERSATIONS_SERVICE_SID = process.env.CONVERSATIONS_SERVICE_SID;   // Set to service: Testing.
+// var CONVERSATIONS_SERVICE_SID = "IS186702e405b74452a449d67b9265669f";       // Frontline
 var FCM_CREDENTIAL_SID = process.env.FCM_CREDENTIAL_SID;
 console.log("+ CONVERSATIONS_SERVICE_SID: " + CONVERSATIONS_SERVICE_SID);
 console.log("+ FCM_CREDENTIAL_SID :" + FCM_CREDENTIAL_SID + ":");
@@ -68,7 +68,7 @@ function generateConversationToken(theIdentity) {
             API_KEY,
             API_KEY_SECRET,
             {identity: theIdentity}
-            );
+    );
     // To create a service: https://www.twilio.com/console/conversations/services
     let chatGrant;
     if (FCM_CREDENTIAL_SID) {
@@ -215,7 +215,7 @@ app.get('/tfpconversations/listIdentityConversations', function (req, res) {
                             acounter++;
                             theResult = theResult + "++"
                                     + " State: " + aConversation.conversationState
-                                    + " Name: " + aConversation.conversationFriendlyName 
+                                    + " Name: " + aConversation.conversationFriendlyName
                                     + "\n";
                         });
                 console.log("+ Total count = " + acounter);
@@ -301,6 +301,35 @@ app.get('/tfpconversations/removeConversation', function (req, res) {
         res.status(400).send('HTTP Error 400. Parameter required: conversationid.');
     }
 });
+
+// -----------------------------------------------------------------------------
+//  conversation SID: default for Frontline
+//  conversation: notify
+app.get('/tfpconversations/conversationNotify', function (req, res) {
+    sayMessage("+ Send a message and notification to Frontline.");
+    if (req.query.messageText) {
+        messageText = req.query.messageText;
+        sayMessage("+ Parameter conversationSid: " + messageText);
+    } else {
+        sayMessage("- Parameter required: messageText.");
+        res.sendStatus(400);
+        return;
+    }
+    CONVERSATIONS_SERVICE_SID_NOTIFY = "IS186702e405b74452a449d67b9265669f";
+    conversationSidNotify = "CH5ae2655888904021a43f0d69d6cf9917";     // Frontline "notify" conversation
+    participantIdentity = "davenotify";
+    clientConversations.conversations.v1.services(CONVERSATIONS_SERVICE_SID_NOTIFY).conversations(conversationSidNotify)
+        .messages
+        .create({author: participantIdentity, body: messageText})
+        .then(message => console.log(
+                    "+ Created message, SID: " + message.sid
+                    ))
+        .catch(function (err) {
+            console.error("- " + err);
+            exit();
+        });
+});
+
 // -----------------------------------------------------------------------------
 // Web server basics
 // -----------------------------------------------------------------------------

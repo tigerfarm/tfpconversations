@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Test Token</title>
+        <link href="favicon.ico" rel="shortcut icon" type="image/x-icon">
+        <script src="https://media.twiliocdn.com/sdk/js/conversations/releases/2.5.0/twilio-conversations.min.js"></script>
+        <!-- To generate a token, remove the following space in the end comment: -- >
+        <script src="https://code.jquery.com/jquery-2.2.4.min.js"></script>
+        <script src="testToken.js"></script> <!-- -->
+        <script>
+            function logger(message) {
+                var aTextarea = document.getElementById('log');
+                aTextarea.value += "\n> " + message;
+                aTextarea.scrollTop = aTextarea.scrollHeight;
+            }
+            function clearLogs() {
+                var aTextarea = document.getElementById('log');
+                aTextarea.value = "+ Ready";
+            }
+        </script>
+    </head>
+    <body>
+        <div>
+            Conversations Application using Twilio Conversations
+        </div>
+        <div style="margin-top: 20px">
+            <textarea id="log" style="width: 800px; height: 400px"></textarea>
+        </div>
+        <script>
+            clearLogs();
+            userIdentity = "";
+            logger("++ Creating Conversations Client..." + userIdentity);
+            //
+            // Hardcoded token goes here:
+            thisToken = "eyJj...mxY";
+            // -------------------------------
+            Twilio.Conversations.Client.create(thisToken).then(conversationClient => {
+                logger("+ Conversation client created. " + userIdentity);
+                conversationClient.on("initFailed", (aConversation) => {
+                    // {"error":{"terminal":true,"message":"Connection error: Invalid Token claims set","httpStatusCode":401,"errorCode":20154}}
+                    logger("++ initFailed: " + aConversation.error.errorCode + " " + aConversation.error.message);
+                });
+                conversationClient.on("stateChanged", (aConversation) => {
+                    logger("++ stateChanged: " + JSON.stringify(aConversation));
+                });
+                conversationClient.on("conversationAdded", (aConversation) => {
+                    logger("++ conversationAdded: " + aConversation.uniqueName
+                            + ": " + aConversation.friendlyName
+                            + ": createdBy:" + aConversation.createdBy
+                            );
+                });
+                conversationClient.on("conversationJoined", (aConversation) => {
+                    logger("++ conversationJoined: " + aConversation.uniqueName
+                            + ": " + aConversation.friendlyName
+                            + ": createdBy:" + aConversation.createdBy
+                            );
+                });
+                conversationClient.on("conversationLeft", (aConversation) => {
+                    addChatMessage("++ Exited the conversation: " + aConversation.uniqueName);
+                });
+            });
+        </script>
+    </body>
+</html>

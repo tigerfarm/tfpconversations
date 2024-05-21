@@ -12,8 +12,8 @@
 // Conversation:        https://www.twilio.com/docs/conversations/api/conversation-resource
 // Conversation Partic: https://www.twilio.com/docs/conversations/api/conversation-participant-resource
 // Conversation Msg:    https://www.twilio.com/docs/conversations/api/conversation-message-resource
-// User:                https://www.twilio.com/docs/conversations/api/user-resource
 // Message:             https://www.twilio.com/docs/conversations/api/service-conversation-message-resource
+// User:                https://www.twilio.com/docs/conversations/api/user-resource
 // 
 // Sample React app:    https://www.twilio.com/docs/conversations/javascript/exploring-conversations-javascript-quickstart
 // 
@@ -24,11 +24,9 @@ let conversationList = [];
 let theConversation = ""; // Conversation object
 userIdentity = "";
 chatConversationName = "";
-
 // This count of read channel messages needs work to initialize and maintain the count.
 // Not fully implemented.
 let totalMessages = 0;
-
 // const Twilio = require('twilio');
 // const Chat = require('twilio-chat');
 
@@ -67,6 +65,10 @@ function createChatClientObject() {
             addChatMessage("+ Conversation client created for the user: " + userIdentity);
             addChatMessage("+ Participant is subscribed and joined to the conversations: ");
             // http://media.twiliocdn.com/sdk/js/conversations/releases/2.0.0/docs/interfaces/Paginator.html
+            //
+            // Note, the following load the conversation list: conversationList.
+            // However, the following "async function ()" code could be removed
+            // and the conversationList loaded in "conversationAdded" or "conversationJoined".
             (async function () {
                 hasConversations = true;
                 counterPages = 0;
@@ -81,8 +83,11 @@ function createChatClientObject() {
                     logger("+ Conversation loop: " + counterPages + " paginator.items which number: " + paginator.items.length);
                     for (i = 0; i < paginator.items.length; i++) {
                         const aConversation = paginator.items[i];
-                        conversationList[counterConversations++] = aConversation;   // Store the conversation names into an array.
-                        addChatMessage("++ " + counterConversations + " : " + aConversation.uniqueName);
+                        conversationList[counterConversations++] = aConversation; // Store the conversation names into an array.
+                        addChatMessage("++ getSubscribedConversations: " + counterConversations
+                                + " : " + aConversation.uniqueName
+                                + ", " + aConversation.friendlyName
+                                );
                     }
                     hasNextPage = paginator.hasNextPage;
                     if (hasNextPage) {
@@ -107,17 +112,23 @@ function createChatClientObject() {
             //
             thisConversationClient.on('tokenAboutToExpire', onTokenAboutToExpire);
             //
-            thisConversationClient.on('conversationAdded', onConversationAdded);
+            // thisConversationClient.on('conversationAdded', onConversationAdded);
+            // --- or ---
+            thisConversationClient.on("conversationAdded", (aConversation) => {
+                addChatMessage("++ conversationAdded: " + aConversation.uniqueName
+                        + ": " + aConversation.friendlyName
+                        + ": createdBy:" + aConversation.createdBy
+                        );
+            });
             thisConversationClient.on("conversationJoined", (aConversation) => {
                 addChatMessage("++ conversationJoined: " + aConversation.uniqueName
-                        + ": " + aConversation.friendlyName + ": " + aConversation.createdBy
+                        + ": " + aConversation.friendlyName
+                        + ": createdBy:" + aConversation.createdBy
                         );
             });
             thisConversationClient.on("conversationLeft", (aConversation) => {
                 addChatMessage("++ Exited the conversation: " + aConversation.uniqueName);
             });
-        }).fail(function () {
-            logger("- Error creating the Conversations client object.");
         });
     }).fail(function () {
         logger("- Error refreshing the token and creating the Conversations client object.");
@@ -128,7 +139,7 @@ function onConversationAdded(aConversation) {
     // https://media.twiliocdn.com/sdk/android/chat/releases/2.0.6/docs/com/twilio/chat/ChatClientListener.html
     // Called when the current user is added to a channel.
     // Note, joined but not subscribed.
-    //  logger("onConversationAdded, user added to the  channel: " + aConversation.friendlyName);
+    logger("onConversationAdded, user added to the  channel: " + aConversation.friendlyName);
 }
 
 function onTokenAboutToExpire() {
@@ -144,6 +155,7 @@ function onTokenAboutToExpire() {
         // -------------------------------
         // https://www.twilio.com/docs/chat/access-token-lifecycle
         thisConversationClient.updateToken(thisToken);
+        //
         thisConversationClient.getSubscribedConversations();
         // -------------------------------
     }).fail(function () {
@@ -289,7 +301,7 @@ function setupTheConversation() {
     });
     // If the consumption horizon is not set,
     //      "updateLastReadMessageIndex" will set it.
-    // Set to updateLastReadMessageIndex to 0 when joining a room, but not listing the messages.
+    // Set updateLastReadMessageIndex to 0 when joining a room, but not listing the messages.
     // Stacy, testing without.
     // theConversation.updateLastReadMessageIndex(0).then(data1 => {
     //     theConversation.getUnreadMessagesCount().then(data => {
@@ -465,7 +477,7 @@ function listIdentityConversations() {
 // -----------------------------------------------------------------------------
 function sendTheMessage() {
     if (thisConversationClient === "") {
-        addChatMessage("First, create a Chat Client.");
+        addChatMessage("First, create a Conversation Client.");
         return;
     }
     const theMessage = $("#message").val();
@@ -497,10 +509,20 @@ function listAllMessages() {
         hasMore = true;
         while (hasMore) {
             counterPages++;
-            logger("++ paginator.items.length: " + paginator.items.length );
+            logger("++ paginator.items.length: " + paginator.items.length);
             for (i = 0; i < paginator.items.length; i++) {
                 const message = paginator.items[i];
-                addChatMessage("> " + counterItems++ + " " + message.author + " : " + message.index + " : " + message.body);
+                addChatMessage("> " + counterItems++ + " " + message.author + " : " + message.index + " : " + message.type + " : " + message.body);
+                if (message.type === "media") {
+                    // https://media.twiliocdn.com/sdk/js/conversations/releases/2.4.0/docs/classes/Media.html
+                    addChatMessage("> media: SID filename " + message.media.sid
+                            + " " + message.media.contentType
+                            + " " + message.media.filename
+                            + " " + await message.media.getContentTemporaryUrl()
+                            + " ");
+                    // theURL = await message.media.getContentTemporaryUrl();
+                    // addChatMessage("> media: theURL " + theURL);
+                }
             }
             if (paginator.hasNextPage) {
                 paginator = await paginator.nextPage();
@@ -589,28 +611,59 @@ function setTotalMessages() {
 // Using curl:
 //  https://www.twilio.com/docs/conversations/media-support-conversations#using-media-messaging-via-the-conversations-rest-api
 function sendMedia() {
+    (async function () {
+        logger('+ Called sendMedia() async.');
+        // Fails due to CORS issue:
+        //  CORS header ‘Access-Control-Allow-Origin’ missing
+        const file1 = await fetch("https://tfpbooks.herokuapp.com/tfpconversations/custom/companyLogo.jpg");
+        // Only works from localhost testing:
+        //  const file1 = await fetch("http://localhost:8000/tfpconversations/custom/companyLogo.jpg");
+        // Works for both localhost and when deployed to another server:
+        //  const file1 = await fetch("/tfpconversations/0graphic1w.jpg");
+        const fileM1 = await file1.blob();
+        const sendMediaOptions1 = {
+            // Header doesn't work:
+            // Access-Control-Allow-Origin: *
+            // accessControlAllowOrigin: "*",
+            contentType: file1.headers.get("Content-Type"),
+            filename: "graphic1.jpg",
+            media: fileM1
+        };
+        await theConversation.prepareMessage()
+                .setBody("+ sendMedia() files: M1")
+                .addMedia(sendMediaOptions1)
+                .build()
+                .send();
+        logger('+ Exit sendMedia() async.');
+    })();
+}
+function sendMedia2() {
     // Media files are in the same directory as the index.html file, that loads this file
     // logger('+ Called sendMedia().');
     (async function () {
         // await theConversation.sendMessage('+ sendMedia() step 1');
         logger('+ Called sendMedia() async.');
-        const file1 = await fetch("/0graphic1w.jpg");
+        // Fails due to CORS issue:
+        //  const file1 = await fetch("https://example.com/tfpconversations/custom/companyLogo.jpg");
+        // Only works from localhost testing:
+        //  const file1 = await fetch("http://localhost:8000/tfpconversations/custom/companyLogo.jpg");
+        // Works for both localhost and when deployed to another server:
+        const file1 = await fetch("/tfpconversations/0graphic1w.jpg");
         const fileM1 = await file1.blob();
         const sendMediaOptions1 = {
             contentType: file1.headers.get("Content-Type"),
             filename: "graphic1.jpg",
             media: fileM1
         };
-        const file2 = await fetch("/custom/companyLogo.jpg");
+        const file2 = await fetch("/tfpconversations/custom/companyLogo.jpg");
         const fileM2 = await file2.blob();
         const sendMediaOptions2 = {
             contentType: file1.headers.get("Content-Type"),
             filename: "graphic2.jpg",
             media: fileM2
         };
+        // Send 2 media files:
         await theConversation.prepareMessage()
-                // .setBody("+ sendMedia() file: M1")
-                // .setBody("+ sendMedia() file: M2")
                 .setBody("+ sendMedia() files: M1 and M2")
                 .addMedia(sendMediaOptions1)
                 .addMedia(sendMediaOptions2)
@@ -620,7 +673,6 @@ function sendMedia() {
         logger('+ Exit sendMedia() async.');
     })();
 }
-
 // -----------------------------------------------------------------------------
 // -----------------------------------------------------------------------------
 // Section: Test functions for lastReadMessageIndex and unread message count.
@@ -635,7 +687,7 @@ function getParticipantlastReadMessageIndex() {
 
 function getAllParticipantlastReadMessageIndex() {
     // --------------------------------------------------------
-    logger("+ Maybe this? participantCount = " + theConversation.lastReadMessageIndex);
+    logger("+ getAllParticipantlastReadMessageIndex()");
     // --------------------------------------------------------
     theConversation.getParticipantsCount().then(data => {
         logger("+ getParticipantCount(), participantCount = " + data);
@@ -643,9 +695,10 @@ function getAllParticipantlastReadMessageIndex() {
         // for each Participant, set up a listener for when the Participant is updated
         participants.then(function (currentParticipants) {
             currentParticipants.forEach(function (participant) {
-                logger("++ participantUpdated, identity = " + participant.identity
+                // > ++ identity = dave1, lastReadMessageIndex = 0, lastReadTimestamp: Mon Aug 01 2022 13:40:08 GMT-0700 (Pacific Daylight Time)
+                logger("++ identity = " + participant.identity
                         + ", lastReadMessageIndex = " + participant.lastReadMessageIndex
-                        // + "\n++ participantUpdated, lastReadTimestamp = " + participant.lastReadTimestamp
+                        + ", lastReadTimestamp: " + participant.lastReadTimestamp
                         );
             });
         });
@@ -658,6 +711,19 @@ function getParticipantCounts() {
     //      getUnreadMessagesCount()            (unread message count)
     //      + participant.lastReadMessageIndex  (read message index)
     //      + 1                                 (add 1 because index starts at 0)
+    //      
+    //      > 30 dave : 498 : and another
+    //      > 31 dave : 501 : davve m1
+    //      > 32 dave : 504 : dave m2
+    //      > 33 here1 : 507 : here1 m1
+    //      > 34 here1 : 510 : here1 m2
+    //      > 35 here1 : 513 : here1 m3     (note: index starts at 0, i.e. 36 total messages)
+    //      
+    // > + getParticipantCounts(), Participant = dave:
+    // > ++ Total number of messages in the conversation, getMessagesCount() = 36
+    // > ++ theConversation, participant's getUnreadMessagesCount() = 3
+    // > ++ theConversation, participant's lastReadMessageIndex = 504
+    //
     logger("+ -----------------------------------------");
     logger("+ getParticipantCounts(), Participant = " + userIdentity + ":");
     (async function () {
@@ -665,12 +731,8 @@ function getParticipantCounts() {
         logger("++ Total number of messages in the conversation, getMessagesCount() = " + newGetMessagesCount);
         const newGetUnreadMessagesCount = await theConversation.getUnreadMessagesCount();
         logger("++ theConversation, participant's getUnreadMessagesCount() = " + newGetUnreadMessagesCount);
-        const newLastReadMessageIndex = theConversation.lastReadMessageIndex;
-        logger("++ theConversation, participant'slastReadMessageIndex = " + newLastReadMessageIndex);
-        logger("+ getMessagesCount() = getUnreadMessagesCount() + lastReadMessageIndex + 1");
-        logger("+ Total number of conversation messages = unread + read + 1");
-        logger("     " + newGetMessagesCount + " = "
-                + newGetUnreadMessagesCount + " + " + newLastReadMessageIndex + " + 1 (index starts at 0)");
+        const newLastReadMessageIndex = theConversation.lastReadMessageIndex; // index is a message DB index value.
+        logger("++ theConversation, participant's lastReadMessageIndex = " + newLastReadMessageIndex);
         //
         // --------------------------------------------------------
     })();
@@ -818,7 +880,6 @@ function activateChatBox() {
             }
         }
     });
-
     // --------------------------------
 }
 
